@@ -7,382 +7,193 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  userId     String     @id @default(auto()) @map("_id") @db.ObjectId
-  email      String
-  password   String?
-  name       String
-  department String
-  position   String?
-  image      String?
-  manDay     Int?       @default(0)
-  phone      String?
-  userStatus UserStatus @default(InActice)
-  role       Role?      @relation(fields: [roleId], references: [roleId])
-  roleId     String?    @db.ObjectId
-  address    String?
-
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  Repairman Repairman[]
-
-  @@index([email])
+model Report {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  reportDate DateTime   @db.Date             // วันที่ของรายงาน
+  reportType String     // เช่น "Daily", "Monthly"
+  totalBookings Int
+  totalRevenue  Float
+  details      Json     // ข้อมูลละเอียด เช่น { "serviceA": 10, "serviceB": 5 }
+  generatedAt  DateTime   @default(now())
+  
+  storeId    String     @db.ObjectId
+  store      Store      @relation(fields: [storeId], references: [id])
+  
+  @@unique([storeId, reportDate, reportType])
 }
 
-model Role {
-  roleId      String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        RoleName
-  description String?
-  users       User[]
-  userIds     String[] @db.ObjectId
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// enum NotificationType {
+//   NEW_BOOKING_TO_STORE
+//   CANCELED_BY_STORE_TO_CUSTOMER
+//   RESCHEDULED_BY_STORE_TO_CUSTOMER
+//   CONFIRMED_TO_CUSTOMER
+//   // ฯลฯ
+// }
 
-  @@unique([name])
+// model Notification {
+//   id         String             @id @default(auto()) @map("_id") @db.ObjectId
+//   type       NotificationType
+//   message    String             // ข้อความที่ส่ง/จะส่ง
+//   sentViaLine Boolean            // 2.7, 2.8, 2.9 ส่ง LINE
+//   sentViaEmail Boolean           // 2.10 ส่ง Email
+//   target     String             // CustomerPhone, CustomerEmail หรือ StoreId
+//   isSent     Boolean            @default(false)
+//   sentAt     DateTime?
+  
+//   storeId    String             @db.ObjectId
+//   store      Store              @relation(fields: [storeId], references: [id])
+  
+//   bookingId  String?            @db.ObjectId
+//   booking    Booking?           @relation(fields: [bookingId], references: [id])
+// }
+
+enum BookingStatus {
+  PENDING    // รอลูกค้ายืนยัน (ถ้ามี), หรือรอยืนยันจากร้าน (ถ้าตั้งค่าไว้)
+  CONFIRMED  // ยืนยันแล้ว (จองสำเร็จ)
+  RESCHEDULED // เลื่อนนัด
+  CANCELLED  // ยกเลิก
+  COMPLETED  // เสร็จสิ้นบริการ
+  WALK_IN    // คิว Walk-in (2.4)
 }
 
-model Category {
-  categoryId   String      @id @default(auto()) @map("_id") @db.ObjectId
-  categoryName String
-  categoryDesc String?
-  equipments   Equipment[]
+model Booking {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  customerName    String          // 3.6
+  customerPhone   String          // 3.6
+  
+  startTime       DateTime        // 3.5 วัน-เวลาเริ่ม
+  endTime         DateTime        // คำนวณจาก startTime + Service.durationMinutes
+  
+  status          BookingStatus   @default(CONFIRMED) // 2.7, 2.8, 2.9
+  isWalkIn        Boolean         @default(false)     // 2.4 เพิ่มคิว walk-in
+  
+  // ความสัมพันธ์
+  storeId         String          @db.ObjectId
+  store           Store           @relation(fields: [storeId], references: [id])
+  
+  serviceId       String          @db.ObjectId
+  service         Service         @relation(fields: [serviceId], references: [id])
+  
+  employeeId      String          @db.ObjectId
+  employee        Employee        @relation(fields: [employeeId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  notifications    Notification[] // เชื่อมกับ Notification
+
+  // 2.12 ระบบกันคิวซ้ำ: ต้องใช้ Logic ใน Application หรือใช้ Unique Index แบบ Compound 
+  // (แต่ MongoDB/Prisma ไม่รองรับ unique index บน DateTime ในรูปแบบที่ซับซ้อนสำหรับการจองซ้อน) 
+  // จึงควรจัดการที่ Application Logic เมื่อสร้าง/แก้ไข Booking
+  // อย่างไรก็ตาม การรวม employeeId, startTime เป็น unique index อาจช่วยได้ในระดับหนึ่ง
+  @@index([employeeId, startTime]) // ช่วยในการตรวจสอบคิวซ้ำ/ค้นหาคิว
+
+  // 3.7 ข้อความ LINE ส่งไปหาลูกค้า (ต้องใช้ Logic ใน Application)
 }
 
-model EquipmentType {
-  equipmentTypeId   String      @id @default(auto()) @map("_id") @db.ObjectId
-  equipmentTypeName String
-  equipmentTypeDesc String?
-  equipments        Equipment[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Service {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String    // "ตัดผม 30 นาที", "นวดตัว 1 ชม."
+  durationMinutes Int      // ระยะเวลาเป็นนาที เช่น 30, 60
+  price          Float?    // ราคา (ถ้ามี)
+
+  // ความสัมพันธ์
+  storeId        String    @db.ObjectId
+  store          Store     @relation(fields: [storeId], references: [id])
+  employees      Employee[] @relation(references: [id], fields: [employeeIds]) // พนักงานที่ทำบริการนี้ได้
+  employeeIds    String[]  @db.ObjectId // Reference IDs
+  bookings       Booking[]
 }
 
-model Equipment {
-  equipmentId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  equipmentName String // ชื่อสินค้า
-  serialNo      String? // รหัสสินค้า
-  model         String? // รหัสสินค้า
-  brand         String? // ยี่ห้อ/แบรนด์ (อาจเป็น null ได้)
-  description   String? // คำอธิบายสินค้า
-
-  equipmentOwn   Boolean         @default(true)
-  aboutEquipment AboutEquipment?
-
-  category   Category? @relation(fields: [categoryId], references: [categoryId])
-  categoryId String?   @db.ObjectId
-
-  equipmentType   EquipmentType? @relation(fields: [equipmentTypeId], references: [equipmentTypeId])
-  equipmentTypeId String?        @db.ObjectId
-
-  brokenItems BrokenItems[]
-
-  rental Rental[]
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+model Employee {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String    // "พี่แอน"
+  role           String    // "ช่างทำผม"
+  isActive       Boolean   @default(true) // สถานะพร้อมให้บริการ
+  
+  // ความสัมพันธ์
+  storeId        String    @db.ObjectId
+  store          Store     @relation(fields: [storeId], references: [id])
+  bookings       Booking[] // คิวที่พนักงานคนนี้รับผิดชอบ
+  services       Service[] @relation(references: [id], fields: [serviceIds]) // บริการที่พนักงานคนนี้ทำได้
+  serviceIds     String[]  @db.ObjectId // Reference IDs
 }
 
-model AboutEquipment {
-  aboutEquipmentId String @id @default(auto()) @map("_id") @db.ObjectId
+model OperatingHour {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime   @db.Date
+  isOpen    Boolean    @default(true) // true = เปิด, false = ปิด (วันหยุดพิเศษ)
+  openTime  String?    // "09:00" ถ้า isOpen = true
+  closeTime String?    // "18:00" ถ้า isOpen = true
+  
+  storeId   String     @db.ObjectId
+  store     Store      @relation(fields: [storeId], references: [id])
 
-  equipment   Equipment @relation(fields: [equipmentId], references: [equipmentId], onDelete: Cascade)
-  equipmentId String    @unique @db.ObjectId
-
-  //Price
-  equipmentPrice Float? @default(0)
-  rentalPricePre Float?
-
-  rentalPriceCurrent Float
-  rentalUpdateAt     DateTime
-  purchaseDate       DateTime?
-  registerDate       DateTime?
-  PO                 String?
-  fixAssetsNumber    String?
-  QTY                Int?      @default(0)
-  MFD                String?
-  BTLNumber          String?
-  unitName           String    @default("Unit")
-
-  stockStatus EquipmentStatus
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+  @@unique([storeId, date]) // ไม่ให้ตั้งค่าเวลาทำการซ้ำวัน
 }
 
-model Site {
-  siteId   String  @id @default(auto()) @map("_id") @db.ObjectId
-  siteName String  @unique
-  siteDesc String?
+model Store {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  storeName        String
+  bookingLink      String            @unique // 3.2 ลิงก์ร้านค้า
+  // 2.1 กำหนดวันหยุด (วันหยุดประจำสัปดาห์ เช่น [1, 7] = จันทร์, อาทิตย์)
+  weeklyHolidays   Int[]
+  // 2.1 เวลาเปิด-ปิดต่อวัน (สำหรับวันทำงาน)
+  defaultOpenTime  String            // "09:00"
+  defaultCloseTime String            // "18:00"
 
-  contactorName  String?
-  contactorEmail String?
-  contactorTel   String?
+  lineNotifyToken  String?     // 2.6 สำหรับการแจ้งเตือนเจ้าของร้าน
+  lineChannelId    String?     // สำหรับ LINE Messaging API (ถ้าใช้)
+  lineChannelSecret String?    // สำหรับ LINE Messaging API (ถ้าใช้)
 
-  Document Document[]
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+  // ความสัมพันธ์
+  employees        Employee[]
+  services         Service[]
+  bookings         Booking[]
+  operatingHours   OperatingHour[]   // เวลาเปิด-ปิด/วันหยุดพิเศษ
+  notifications    Notification[] // เชื่อมกับ Notification
+  reports          Report[]
 }
 
-model Document {
-  documentId   String @id @default(auto()) @map("_id") @db.ObjectId
-  documentIdNo String
+enum NotificationType {
+  // สำหรับร้านค้า (Store)
+  STORE_NEW_BOOKING       // 2.7 มีการจองใหม่
+  STORE_CANCELED_BY_CUSTOMER
+  STORE_BOOKING_MODIFIED
 
-  docType  String
-  docMonth String
-  docYear  String
-
-  documentDetials String?
-  documentType    DocumentCategory @default(Rental)
-
-  site   Site?   @relation(fields: [siteId], references: [siteId])
-  siteId String? @db.ObjectId
-
-  documentStatus DocumentStatus @default(Open)
-  documentStep   DocumentStep   @default(Location)
-
-  rental      Rental[]
-  maintenance Maintenance?
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+  // สำหรับลูกค้า (Customer)
+  CUSTOMER_BOOKING_SUCCESS  // 3.7 จองสำเร็จ
+  CUSTOMER_CONFIRMED      // 2.9 ร้านยืนยันคิว
+  CUSTOMER_RESCHEDULED    // 2.8, 2.9 ร้านเลื่อน
+  CUSTOMER_CANCELED       // 2.8, 2.9 ร้านยกเลิก
 }
 
-model Rental {
-  rentalId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  erentionDatePlan    DateTime //วันติดตั้ง
-  dismantlingDatePlan DateTime? // วันรื้อถอน
-
-  document   Document @relation(fields: [documentId], references: [documentId], onDelete: Cascade)
-  documentId String   @db.ObjectId
-
-  equipment   Equipment @relation(fields: [equipmentId], references: [equipmentId])
-  equipmentId String    @db.ObjectId
-
-  rentalRemark String?
-  rentalStatus RentalStatus @default(Renting)
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+enum SendMethod {
+  LINE_NOTIFY             // สำหรับแจ้งเตือนร้านค้า (ใช้ Store.lineNotifyToken)
+  LINE_MESSAGING_API      // สำหรับแจ้งเตือนลูกค้า (ต้องมี User's LINE ID)
+  EMAIL                   // 2.10 แจ้งเตือนในอีเมล
 }
 
-model Maintenance {
-  maintenanceId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  natureOfBreakdown String? //Description
-  causes            String?
-
-  repairingStart DateTime?
-  repairingEnd   DateTime?
-
-  TOFstart DateTime? // Time Of Breakdown
-  TOFend   DateTime?
-
-  repairman Repairman[]
-  // TORstart  DateTime? // Time Of Repairing
-  // TORend    DateTime?
-
-  brokenItems BrokenItems[]
-
-  maintenanceType MaintenanceType @default(IRP)
-
-  repairLocation LocationType? @default(OnPlant) // For Ma Only
-  // equipmentOwner EquipmentOwner? @default(Plant) // For Ma Only
-
-  maintenanceRamark String?
-  technicianName    String?
-  plantEngineer     String?
-  plantApproval     String?
-
-  document   Document @relation(fields: [documentId], references: [documentId], onDelete: Cascade)
-  documentId String   @unique @db.ObjectId
-
-  additional Additional[]
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-}
-
-model BrokenItems {
-  brokenItemsId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  // equipmentOwn Boolean @default(true)
-  equipmentOwner EquipmentOwner? @default(Plant)
-
-  equipment   Equipment? @relation(fields: [equipmentId], references: [equipmentId], onDelete: Cascade)
-  equipmentId String     @db.ObjectId
-
-  repairStatus   RepairStatus     @default(Waiting)
-  oldstockStatus EquipmentStatus?
-
-  quantity Int    @default(1)
-  parts    Part[]
-
-  maintenance   Maintenance @relation(fields: [maintenanceId], references: [maintenanceId], onDelete: Cascade)
-  maintenanceId String      @db.ObjectId
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-}
-
-model Repairman {
-  repairmanId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  activities      String? //Action
-  manHours        Int
-  cost            Int?
-  repairmanRemark String?
-
-  user   User   @relation(fields: [userId], references: [userId])
-  userId String @db.ObjectId
-
-  maintenance   Maintenance? @relation(fields: [maintenanceId], references: [maintenanceId], onDelete: Cascade)
-  maintenanceId String?      @db.ObjectId
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-}
-
-model Part {
-  partId   String  @id @default(auto()) @map("_id") @db.ObjectId
-  partName String
-  partDesc String?
-
-  // for Report
-  partSerialNo String?
-  brand        String?
-
-  //for repair paper
-  partStatus PartStatus @default(Stock)
-
-  quantity  Int     @default(1)
-  unitName  String?
-  partPrice Float   @default(0)
-
-  // Maintenance
-  brokenItems   BrokenItems? @relation(fields: [brokenItemsId], references: [brokenItemsId], onDelete: Cascade)
-  brokenItemsId String?      @db.ObjectId
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-}
-
-model Additional {
-  additionalId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  additionalName  String //Action
-  additionalDesc  String?
-  additionalPrice Float?
-
-  maintenance   Maintenance? @relation(fields: [maintenanceId], references: [maintenanceId], onDelete: Cascade)
-  maintenanceId String?      @db.ObjectId
-
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-}
-
-enum DocumentStep {
-  Location
-  Equipment
-  Repairman
-  Part
-  AdditionalFee
-  WaitingApprove
-  Approve
-  WithdrawPart
-  RepairStared
-  RepairComplete
-}
-
-enum Mouth {
-  JAN
-  FEB
-  MAR
-  APR
-  MAY
-  JUN
-  JUL
-  AUG
-  SEP
-  OCT
-  NOV
-  DEC
-}
-
-enum RepairStatus {
-  Waiting
-  Completed
-  Unrepairable
-  Unknown
-  Cancel
-}
-
-enum EquipmentOwner {
-  Plant
-  Site
-}
-
-enum LocationType {
-  OnPlant
-  OnSite
-}
-
-enum DocumentStatus {
-  Draft
-  WaitingApprove
-  Approve
-  Open
-  Close
-  Cancel
-}
-
-enum DocumentCategory {
-  Rental
-  Maintenance
-}
-
-enum PartStatus {
-  Stock
-  Order
-}
-
-enum MaintenanceType {
-  IRP //IncludedInRentalPrice
-  MQ //Make Quotation
-}
-
-enum RentalStatus {
-  Renting
-  Returned
-  Cancel
-}
-
-enum RoleName {
-  Developer
-  Admin
-  User
-  Employee
-}
-
-enum EquipmentStatus {
-  InStock
-  Booked
-  // WillBeSold
-  CurrentlyRenting
-  Damaged
-  // RepairingAtSupplier
-  Broken
-  InActive
-}
-
-enum UserStatus {
-  Active
-  InActice
-  Busy
+model Notification {
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // ข้อมูลที่จำเป็นในการส่ง
+  type       NotificationType
+  method     SendMethod         // วิธีการส่ง: LINE/EMAIL
+  message    String             // ข้อความที่จะส่ง
+  targetAddress String          // เบอร์โทร/อีเมลลูกค้า, หรือ Store ID (สำหรับ LINE Notify)
+  
+  // สถานะการส่ง
+  isSent     Boolean            @default(false)
+  sentAt     DateTime?
+  errorMessage String?          // เก็บ error ถ้าส่งไม่สำเร็จ
+  
+  // การอ้างอิง
+  storeId    String             @db.ObjectId
+  store      Store              @relation(fields: [storeId], references: [id])
+  
+  bookingId  String?            @db.ObjectId
+  booking    Booking?           @relation(fields: [bookingId], references: [id])
+  
+  // เพิ่มเติม: สำหรับลูกค้าที่ใช้ LINE Messaging API 
+  // (ถ้ามีการเชื่อมต่อ LINE OA และเก็บ User ID)
+  lineUserId String?           
 }
