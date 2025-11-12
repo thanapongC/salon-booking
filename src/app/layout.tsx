@@ -2,7 +2,6 @@ import { baselightTheme } from "@/utils/theme/DefaultColors";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { UserProvider } from "@/contexts/UserContext";
-import { CategoryProvider } from "@/contexts/CategoryContext";
 import { Prompt } from "next/font/google";
 
 // import mutiMassages next-intl
@@ -11,6 +10,11 @@ import { getLocale, getMessages } from "next-intl/server";
 import { SessionProviders } from "../../lib/SessionProviders";
 import { NotifyProvider } from "@/contexts/NotifyContext";
 import { BreadcrumbProvider } from "@/contexts/BreadcrumbContext";
+import { ServiceProvider } from "@/contexts/ServiceContext";
+import { SettingProvider } from "@/contexts/SettingContext";
+import { ReportProvider } from "@/contexts/ReportContext";
+import { BookingProvider } from "@/contexts/BookingContext";
+import { EmployeeProvider } from "@/contexts/EmployeeContext";
 
 export const dynamic = "force-dynamic";
 
@@ -41,12 +45,22 @@ export default async function RootLayout({
             <NotifyProvider>
               <BreadcrumbProvider>
                 <UserProvider>
-                    <CategoryProvider>
-                      <NextIntlClientProvider messages={messages}>
-                        {children}
-                      </NextIntlClientProvider>
-                    </CategoryProvider>
-                    </UserProvider>
+                  <ServiceProvider>
+                    <SettingProvider>
+                      <ReportProvider>
+                        <BookingProvider>
+                          <EmployeeProvider>
+                            {/* <CategoryProvider> */}
+                            <NextIntlClientProvider messages={messages}>
+                              {children}
+                            </NextIntlClientProvider>
+                            {/* </CategoryProvider> */}
+                          </EmployeeProvider>
+                        </BookingProvider>
+                      </ReportProvider>
+                    </SettingProvider>
+                  </ServiceProvider>
+                </UserProvider>
               </BreadcrumbProvider>
             </NotifyProvider>
           </SessionProviders>

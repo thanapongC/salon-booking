@@ -3,16 +3,16 @@ import { Grid, Box, Grid2 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 // components
 
-const Dashboard = () => {
+const Report = () => {
   return (
-    <PageContainer title="Dashboard" description="">
+    <PageContainer title="Report" description="">
       <Box mt={3}>
         <Grid2 container spacing={3}>
-          Dashboard
+          Report Page
         </Grid2>
       </Box>
     </PageContainer>
   );
 };
 
-export default Dashboard;
+export default Report;

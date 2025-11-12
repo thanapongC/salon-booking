@@ -1,13 +1,13 @@
-import { Document } from "@/interfaces/Document";
+import { Employee } from "@/interfaces/Store";
 import APIServices from "../APIServices";
 
-export const DOCUMENT_API_BASE_URL = "/api/document";
+export const EMPLOYEE_API_BASE_URL = "/api/employee";
 
-export const documentService = {
-    async getDocument(documentId: string) {
+export const employeeService = {
+
+    async getEmployee(employeeId: string) {
         try {
-            let data: any = await APIServices.get(`${DOCUMENT_API_BASE_URL}?documentId=${documentId}`);
-            console.log(data)
+            let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?employeeId=${employeeId}`);
             return { success: true, data };
         } catch (error: any) {
             if (error.name === "AbortError") {
@@ -17,9 +17,9 @@ export const documentService = {
         }
     },
 
-    async getSelectDocument() {
+    async getSelectEmployee() {
         try {
-            let data: any = await APIServices.get(`${DOCUMENT_API_BASE_URL}?getbycharacter=true`);
+            let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?selectEmployee=true`);
             return { success: true, data };
         } catch (error: any) {
             if (error.name === "AbortError") {
@@ -29,10 +29,10 @@ export const documentService = {
         }
     },
 
-    async createDocument(document: Document) {
+    async updateEmployee(employee: Employee) {
         try {
-            const response = await APIServices.post(DOCUMENT_API_BASE_URL, document);
-            return { success: true, message: `สร้างเอกสาร ${document.documentIdNo} สำเร็จ`, data: response };
+            let data: any = await APIServices.patch(EMPLOYEE_API_BASE_URL, employee);
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
@@ -41,11 +41,12 @@ export const documentService = {
         }
     },
 
-    async updateDocument(document: Document) {
+    async createEmployee(employee: Employee) {
         try {
-            const response = await APIServices.patch(DOCUMENT_API_BASE_URL, document);
-            return { success: true, message: `แก้ไขเอกสาร ${document.documentIdNo} สำเร็จ`, data: response };
+            let data: any = await APIServices.post(EMPLOYEE_API_BASE_URL, employee);
+            return { success: true, message: data.message };
         } catch (error: any) {
+            console.log('error')
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
@@ -53,10 +54,10 @@ export const documentService = {
         }
     },
 
-    async deleteDocument(documentId: string) {
+    async deleteEmployee(employeeId: string) {
         try {
-            const response: any = await APIServices.delete(`${DOCUMENT_API_BASE_URL}?documentId=${documentId}`);
-            return { success: true, message: `ระบบได้ลบ ${response.documentIdNo} แล้ว` };
+            const response: any = await APIServices.delete(`${EMPLOYEE_API_BASE_URL}?employeeId=${employeeId}`);
+            return { success: true, message: `ระบบได้ลบ ${response.employeeName} แล้ว` };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");

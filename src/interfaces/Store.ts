@@ -85,3 +85,19 @@ export interface Service {
   createdAt: string;
   updatedAt: string;
 }
+
+
+export const initialEmployee: Employee = {
+  id: '',
+  name: '', // หรือ "พี่แอน"
+  role: '', // หรือ "ช่างทำผม"
+  isActive: true, // เริ่มต้นให้พร้อมให้บริการ
+  storeId: '',
+  store: undefined,
+  bookings: undefined,
+  services: undefined,
+  serviceIds: [],
+  userId: '',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
