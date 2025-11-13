@@ -101,3 +101,50 @@ export const initialEmployee: Employee = {
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };
+
+export const initialStore: Store = {
+  id: '',
+  storeName: '',
+  storeUsername: '',
+  weeklyHolidays: [], // ไม่มีวันหยุดประจำสัปดาห์เริ่มต้น
+  defaultOpenTime: '09:00',
+  defaultCloseTime: '18:00',
+  lineNotifyToken: undefined,
+  lineChannelId: undefined,
+  lineChannelSecret: undefined,
+  userId: '',
+  user: undefined,
+  employees: undefined,
+  services: undefined,
+  bookings: undefined,
+  operatingHours: undefined,
+  notifications: undefined,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+export const initialOperatingHour: OperatingHour = {
+  id: '',
+  date: new Date().toISOString(), // วันที่ปัจจุบัน
+  isOpen: true,
+  openTime: '09:00',
+  closeTime: '18:00',
+  storeId: '',
+  store: undefined,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+export const initialService: Service = {
+  id: '',
+  name: '', // เช่น "ตัดผม 30 นาที"
+  durationMinutes: 30, // กำหนดค่าเริ่มต้น
+  price: undefined, // หรือ 0.00
+  storeId: '',
+  store: undefined,
+  employees: undefined,
+  employeeIds: [],
+  bookings: undefined,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};

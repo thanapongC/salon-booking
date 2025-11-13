@@ -31,3 +31,26 @@ export interface Booking {
   createdAt: string;
   updatedAt: string;
 }
+
+export const initialBooking: Booking = {
+  id: '',
+  customerName: '',
+  customerPhone: '',
+  // กำหนดค่าเริ่มต้นเป็นเวลาปัจจุบัน (หรือเวลาที่คุณต้องการให้ฟอร์มเริ่มต้น)
+  startTime: new Date().toISOString(),
+  // endTime สามารถคำนวณจาก startTime + duration ของ service
+  endTime: new Date(new Date().getTime() + 30 * 60000).toISOString(), // ตัวอย่าง: +30 นาที
+  status: 'PENDING' as BookingStatus, // กำหนดสถานะเริ่มต้น
+  isWalkIn: false,
+  storeId: '',
+  store: undefined,
+  serviceId: '',
+  service: undefined,
+  employeeId: '',
+  employee: undefined,
+  customerId: '',
+  customer: undefined,
+  notifications: undefined,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};

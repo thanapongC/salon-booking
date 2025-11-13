@@ -1,18 +1,50 @@
 "use client";
-import { Grid, Box, Grid2 } from "@mui/material";
-import PageContainer from "@/components/container/PageContainer";
-// components
 
-const Settings = () => {
+import {
+  Grid,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+} from "@mui/material";
+import PageContainer from "@/components/container/PageContainer";
+import { useTranslations } from "next-intl";
+import BaseCard from "@/components/shared/BaseCard";
+import { useEffect, useState } from "react";
+import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
+import SettingTabs from "@/components/forms/settings/SettingTabs";
+
+const Services = () => {
+  const t = useTranslations("HomePage");
+
+  const [issueDate, setIssueDate] = useState("");
+  const [repairLocation, setRepairLocation] = useState<string>("");
+  const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRepairLocation(event.target.value);
+  };
+
+  const { setBreadcrumbs } = useBreadcrumbContext();
+
+  useEffect(() => {
+    setBreadcrumbs([
+      { name: "หน้าแรก", href: "/dashboard" },
+      { name: "ตั้งค่าร้านค้า", href: "" },
+    ]);
+    return () => {
+      setBreadcrumbs([]);
+    };
+  }, []);
+
   return (
-    <PageContainer title="Settings" description="">
-      <Box mt={3}>
-        <Grid2 container spacing={3}>
-          Settings
-        </Grid2>
-      </Box>
+    <PageContainer title="" description="">
+      <BaseCard title="">
+        <SettingTabs/>
+      </BaseCard>
     </PageContainer>
   );
 };
 
-export default Settings;
+export default Services;

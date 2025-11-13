@@ -15,6 +15,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useNotifyContext } from "@/contexts/NotifyContext";
+import { useLocale } from "next-intl";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required("กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
@@ -33,6 +34,9 @@ const AuthForm: React.FC<loginType> = ({
   subtitle,
   subtext,
 }) => {
+
+  const localActive = useLocale();
+  
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [credentail, setCredentail] = useState<Login>(initialLogin);
 
@@ -208,9 +212,9 @@ const AuthForm: React.FC<loginType> = ({
                   เข้าสู่ระบบ
                 </LoadingButton>
               </Grid2>
-              <Grid2 size={{ xs: 6 }}>
-                <Button variant="text">ลืมรหัสผ่าน</Button>
-                <Button variant="text">สมัครสมาชิก</Button>
+              <Grid2 container justifyContent={"flex-end"} size={{ xs: 12 }}>
+                <Button variant="text" onClick={() => router.push(`/${localActive}/auth/forget-password`)}>ลืมรหัสผ่าน</Button>
+                <Button variant="text" onClick={() => router.push(`/${localActive}/auth/sign-up`)}>สมัครสมาชิก</Button>
               </Grid2>
             </Grid2>
           </Form>

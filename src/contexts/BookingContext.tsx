@@ -3,13 +3,11 @@
 "use client";
 
 import {
-  Category,
-  initialCategory,
-  EquipmentType,
-  initialEquipmentType,
-  CategorySelect,
-  TypeSelect,
-} from "@/interfaces/Category";
+  Booking,
+  initialBooking,
+  // initialbooking,
+  // bookingSelect,
+} from "@/interfaces/Booking";
 import { faker } from "@faker-js/faker";
 import React, {
   createContext,
@@ -22,22 +20,15 @@ import React, {
 
 // กำหนดประเภทของ Context
 interface BookingContextProps {
-  categoryState: Category[];
-  setCategoryState: Dispatch<React.SetStateAction<Category[]>>;
-  categoryForm: Category;
-  setCategoryForm: Dispatch<React.SetStateAction<Category>>;
-  categoryEdit: boolean;
-  setCategoryEdit: Dispatch<React.SetStateAction<boolean>>;
-  typeState: EquipmentType[];
-  setTypeState: Dispatch<React.SetStateAction<EquipmentType[]>>;
-  typeForm: EquipmentType;
-  setTypeForm: Dispatch<React.SetStateAction<EquipmentType>>;
-  setCategorySelectState: Dispatch<React.SetStateAction<CategorySelect[]>>;
-  categorySelectState: CategorySelect[];
-  setTypeSelectState: Dispatch<React.SetStateAction<TypeSelect[]>>;
-  typeSelectState: TypeSelect[];
-  setTypeEdit: Dispatch<React.SetStateAction<boolean>>;
-  typeEdit: boolean;
+  bookings: Booking[];
+  setBookings: Dispatch<React.SetStateAction<Booking[]>>;
+  bookingForm: Booking;
+  setBookingForm: Dispatch<React.SetStateAction<Booking>>;
+  bookingEdit: boolean;
+  setBookingEdit: Dispatch<React.SetStateAction<boolean>>;
+  // setTypeForm: Dispatch<React.SetStateAction<Booking>>;
+  // setbookingSelectState: Dispatch<React.SetStateAction<bookingSelect[]>>;
+  // bookingSelectState: bookingSelect[];
 }
 
 // สร้าง Context
@@ -46,30 +37,26 @@ const BookingContext = createContext<BookingContextProps | undefined>(
 );
 
 export const BookingProvider = ({ children }: { children: ReactNode }) => {
-  const [categoryState, setCategoryState] = useState<Category[]>([]);
-  const [categorySelectState, setCategorySelectState] = useState<
-    CategorySelect[]
-  >([]);
-  const [typeSelectState, setTypeSelectState] = useState<TypeSelect[]>([]);
-  const [categoryForm, setCategoryForm] = useState<Category>(initialCategory);
-  const [categoryEdit, setCategoryEdit] = useState<boolean>(false);
-  const [typeState, setTypeState] = useState<EquipmentType[]>([]);
-  const [typeForm, setTypeForm] = useState<EquipmentType>(initialEquipmentType);
-  const [typeEdit, setTypeEdit] = useState<boolean>(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  // const [bookingSelectState, setbookingSelectState] = useState<
+  //   bookingSelect[]
+  // >([]);
+  const [bookingForm, setBookingForm] = useState<Booking>(initialBooking)
+  const [bookingEdit, setBookingEdit] = useState<boolean>(false);
 
   useEffect(() => {
-    // setCategoryForm({
-    //   ...categoryForm,
-    //   categoryId: "",
-    //   categoryName: faker.company.name(),
-    //   categoryDesc: faker.lorem.lines(),
+    // setbookingForm({
+    //   ...bookingForm,
+    //   bookingId: "",
+    //   bookingName: faker.company.name(),
+    //   bookingDesc: faker.lorem.lines(),
     //   equipments: [],
     // });
     // setTypeForm({
     //   ...typeForm,
-    //   equipmentTypeId: "",
-    //   equipmentTypeName: faker.finance.currencyCode(),
-    //   equipmentTypeDesc: faker.lorem.lines(),
+    //   BookingId: "",
+    //   BookingName: faker.finance.currencyCode(),
+    //   BookingDesc: faker.lorem.lines(),
     //   equipments: [],
     // });
   }, []);
@@ -77,22 +64,14 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
   return (
     <BookingContext.Provider
       value={{
-        categoryState,
-        setCategoryState,
-        categoryForm,
-        setCategoryForm,
-        categoryEdit,
-        setCategoryEdit,
-        typeState,
-        setTypeState,
-        typeForm,
-        setTypeForm,
-        typeEdit,
-        setTypeEdit,
-        categorySelectState,
-        setCategorySelectState,
-        typeSelectState,
-        setTypeSelectState,
+        bookings,
+        setBookings,
+        bookingForm,
+        setBookingForm,
+        bookingEdit,
+        setBookingEdit,
+        // bookingSelectState,
+        // setbookingSelectState,
       }}
     >
       {children}
