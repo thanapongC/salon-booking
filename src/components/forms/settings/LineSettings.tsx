@@ -19,22 +19,22 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useLocale } from "next-intl";
-import StatusService from "@/components/shared/used/Status";
+import StatusStore from "@/components/shared/used/Status";
 import dayjs from "dayjs";
 import { Bath, MessageSquareMore, MonitorCog, Save } from "lucide-react";
 import { AutoFixHigh, Category, Handyman, More } from "@mui/icons-material";
 import { IconCurrencyBaht } from "@tabler/icons-react";
-import { serviceService } from "@/utils/services/api-services/ServiceAPI";
-import { useServiceContext } from "@/contexts/ServiceContext";
-import { Service, initialService } from "@/interfaces/Store";
+import { storeService } from "@/utils/services/api-services/StoreAPI";
+import { useStoreContext } from "@/contexts/StoreContext";
+import { Store, initialStore } from "@/interfaces/Store";
 
-interface ServiceProps {
+interface StoreProps {
   viewOnly?: boolean;
 }
 
-const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
-  const { setServiceForm, serviceEdit, setServiceEdit, setServices, services } =
-    useServiceContext();
+const StoreForm: FC<StoreProps> = ({ viewOnly = false }) => {
+  const { setStoreForm, StoreEdit, setStoreEdit, setStores, Stores } =
+    useStoreContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
@@ -48,8 +48,8 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
   const validationSchema = Yup.object().shape({
     serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    ServiceName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
-    aboutService: Yup.object().shape({
+    StoreName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
+    aboutStore: Yup.object().shape({
       rentalPriceCurrent: Yup.number()
         .required("กรุณากรอกราคาค่าเช่า")
         .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
@@ -58,24 +58,21 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     }),
   });
 
-  const handleFormSubmit = (
-    value: Service,
-    { resetForm, validateForm }: any
-  ) => {
+  const handleFormSubmit = (value: Store, { resetForm, validateForm }: any) => {
     validateForm(); // บังคับ validate หลังจากรีเซ็ต
     setIsLoading(true);
     console.log(value);
-    if (serviceEdit) {
-      handleUpdateService(value);
+    if (StoreEdit) {
+      handleUpdateStore(value);
     } else {
-      handleCreateService(value);
+      handleCreateStore(value);
     }
     resetForm(); // รีเซ็ตค่าฟอร์ม
   };
 
-  const handleUpdateService = async (Service: Service) => {
+  const handleUpdateStore = async (Store: Store) => {
     setOpenBackdrop(true);
-    const result = await serviceService.updateService(Service);
+    const result = await storeService.updateStore(Store);
     setOpenBackdrop(false);
     setNotify({
       open: true,
@@ -87,9 +84,9 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     }
   };
 
-  const handleCreateService = async (Service: Service) => {
+  const handleCreateStore = async (Store: Store) => {
     setOpenBackdrop(true);
-    const result = await serviceService.createService(Service);
+    const result = await storeService.createStore(Store);
     setOpenBackdrop(false);
     setNotify({
       open: true,
@@ -102,7 +99,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   };
 
   const handleGetSelectCategory = async () => {
-    // const result = await categoryService.getSelectCategory();
+    // const result = await categoryStore.getSelectCategory();
     // if (result.success) {
     //   setCategorySelectState(result.data);
     // } else {
@@ -114,20 +111,19 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     // }
   };
 
-  const getDataService = () => {
-    const ServiceId = params.get("ServiceId");
+  const getDataStore = () => {
+    const StoreId = params.get("StoreId");
     axios
-      .get(`/api/Service?ServiceId=${ServiceId}`)
+      .get(`/api/Store?StoreId=${StoreId}`)
       .then(({ data }) => {
-        // const modifiedData: Service = {
+        // const modifiedData: Store = {
         //   ...data,
-        //   aboutService: {
-        //     ...data.aboutService,
-        //     purchaseDate: dayjs(data.aboutService.purchaseDate),
+        //   aboutStore: {
+        //     ...data.aboutStore,
+        //     purchaseDate: dayjs(data.aboutStore.purchaseDate),
         //   },
         // };
-
-        // setServices(modifiedData);
+        // setStores(modifiedData);
       })
       .catch((error) => {
         if (error.name === "AbortError") {
@@ -141,7 +137,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
   // const getTypeData = () => {
   //   axios
-  //     .get(`/api/Service/type?getbycharacter=true`)
+  //     .get(`/api/Store/type?getbycharacter=true`)
   //     .then(({ data }) => {
   //       setTypeSelectState(data.data);
   //     })
@@ -157,41 +153,41 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
   // useEffect(() => {
   //   if (
-  //     Service.aboutService?.stockStatus ===
-  //       ServiceStatus.CurrentlyRenting ||
-  //     Service.aboutService?.stockStatus === ServiceStatus.InActive ||
-  //     Service.aboutService?.stockStatus === ServiceStatus.Damaged
+  //     Store.aboutStore?.stockStatus ===
+  //       StoreStatus.CurrentlyRenting ||
+  //     Store.aboutStore?.stockStatus === StoreStatus.InActive ||
+  //     Store.aboutStore?.stockStatus === StoreStatus.Damaged
   //   ) {
   //     setDisabledForm(true);
   //   }
-  // }, [Service]);
+  // }, [Store]);
 
   useEffect(() => {
     setIsLoading(true);
 
     if (pathname.includes("new")) {
-      setServiceForm(initialService);
-      setServiceEdit(false);
+      setStoreForm(initialStore);
+      setStoreEdit(false);
       setDisabledForm(false);
     } else {
-      setServiceEdit(true);
-      getDataService();
+      setStoreEdit(true);
+      getDataStore();
     }
 
     // getTypeData();
     handleGetSelectCategory();
 
     return () => {
-      setServiceForm(initialService);
-      setServiceEdit(false);
+      setStoreForm(initialStore);
+      setStoreEdit(false);
       setDisabledForm(false);
     };
   }, []);
 
   return (
     <>
-      <Formik<Service>
-        initialValues={initialService} // ใช้ state เป็น initialValues
+      <Formik<Store>
+        initialValues={initialStore} // ใช้ state เป็น initialValues
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
         enableReinitialize // เพื่อให้ Formik อัปเดตค่าจาก useState
@@ -214,25 +210,25 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                         <MessageSquareMore size={20} />
                       </Avatar>
                       <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
-                        ตั้งค่า LINE Massageing
+                        ตั้งค่า LINE Messaging
                       </Typography>
                     </Grid2>
                   </Grid2>
                 </Grid2>
 
-                {/* Service ID */}
+                {/* Store ID */}
                 <Grid2 size={{ xs: 6 }}>
-                  <Field name="serialNo">
+                  <Field name="lineChannelId">
                     {({ field }: FieldProps) => (
                       <TextField
                         {...field}
-                        name="serialNo"
-                        label="รหัสอุปกรณ์ (จำเป็น)"
+                        name="lineChannelId"
+                        label="Channel ID  (จำเป็น)"
                         // sx={{ textTransform: "uppercase" }}
-                        // value={values.serialNo ? values.serialNo : ""}
+                        value={values.lineChannelId ? values.lineChannelId : ""}
                         onChange={(e) => {
                           setFieldValue(
-                            "serialNo",
+                            "lineChannelId",
                             e.target.value.toUpperCase()
                           );
                         }}
@@ -243,8 +239,12 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                           },
                         }}
                         // placeholder="EXAMPLE: SN-00001"
-                        // error={touched.serialNo && Boolean(errors.serialNo)}
-                        // helperText={touched.serialNo && errors.serialNo}
+                        error={
+                          touched.lineChannelId && Boolean(errors.lineChannelId)
+                        }
+                        helperText={
+                          touched.lineChannelId && errors.lineChannelId
+                        }
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />
@@ -252,69 +252,41 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                   </Field>
                 </Grid2>
 
-                {/* Service Name */}
+                {/* Store Name */}
                 <Grid2 size={{ xs: 6 }}>
-                  <Field name="ServiceName">
+                  <Field name="lineChannelSecret">
                     {({ field }: FieldProps) => (
                       <TextField
                         {...field}
-                        name="ServiceName"
-                        label="ชื่ออุปกรณ์ (จำเป็น)"
-                        // value={values.ServiceName}
+                        name="lineChannelSecret"
+                        label="Channel Secret (จำเป็น)"
+                        value={
+                          values.lineChannelSecret
+                            ? values.lineChannelSecret
+                            : ""
+                        }
                         onChange={(e) => {
-                          setFieldValue("ServiceName", e.target.value);
+                          setFieldValue("lineChannelSecret", e.target.value);
                         }}
-                        placeholder="EXAMPLE: Crane Tower"
                         slotProps={{
                           inputLabel: { shrink: true },
                           input: {
                             readOnly: viewOnly ? true : false,
                           },
                         }}
-                        // error={
-                        //   touched.ServiceName && Boolean(errors.ServiceName)
-                        // }
-                        // helperText={
-                        //   touched.ServiceName && errors.ServiceName
-                        // }
+                        error={
+                          touched.lineChannelSecret &&
+                          Boolean(errors.lineChannelSecret)
+                        }
+                        helperText={
+                          touched.lineChannelSecret && errors.lineChannelSecret
+                        }
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />
                     )}
                   </Field>
                 </Grid2>
-
-                                <Grid2 size={{ xs: 6 }}>
-                  <Field name="ServiceName">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="ServiceName"
-                        label="ชื่ออุปกรณ์ (จำเป็น)"
-                        // value={values.ServiceName}
-                        onChange={(e) => {
-                          setFieldValue("ServiceName", e.target.value);
-                        }}
-                        placeholder="EXAMPLE: Crane Tower"
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                          },
-                        }}
-                        // error={
-                        //   touched.ServiceName && Boolean(errors.ServiceName)
-                        // }
-                        // helperText={
-                        //   touched.ServiceName && errors.ServiceName
-                        // }
-                        fullWidth
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field>
-                </Grid2>
-                
               </Grid2>
 
               <Grid2 container spacing={3}>
@@ -337,7 +309,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                       <TextField
                         {...field}
                         name="description"
-                        label="รายละเอียดอุปกรณ์ (ถ้ามี)"
+                        label="เเจ้งเตือนเมื่อได้รับการจองใหม่ (ถ้ามี)"
                         // value={values.description ? values.description : ""}
                         multiline
                         rows={4}
@@ -357,13 +329,13 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                   </Field>
                 </Grid2>
 
-                                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 6 }}>
                   <Field name="description">
                     {({ field }: any) => (
                       <TextField
                         {...field}
                         name="description"
-                        label="รายละเอียดอุปกรณ์ (ถ้ามี)"
+                        label="เเจ้งเตือนลูกค้าเมื่อจองสำเร็จ (ถ้ามี)"
                         // value={values.description ? values.description : ""}
                         multiline
                         rows={4}
@@ -383,13 +355,13 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                   </Field>
                 </Grid2>
 
-                                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 6 }}>
                   <Field name="description">
                     {({ field }: any) => (
                       <TextField
                         {...field}
                         name="description"
-                        label="รายละเอียดอุปกรณ์ (ถ้ามี)"
+                        label="ข้อความเเจ้งเตือนลูกค้าเมื่อถูกยกเลิกการจอง (ถ้ามี)"
                         // value={values.description ? values.description : ""}
                         multiline
                         rows={4}
@@ -409,13 +381,13 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                   </Field>
                 </Grid2>
 
-                                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 6 }}>
                   <Field name="description">
                     {({ field }: any) => (
                       <TextField
                         {...field}
                         name="description"
-                        label="รายละเอียดอุปกรณ์ (ถ้ามี)"
+                        label="ข้อความเเจ้งเตือนลูกค้าเมื่อใกล้ถึงเวลานัด 24 ชั่วโมง (ถ้ามี)"
                         // value={values.description ? values.description : ""}
                         multiline
                         rows={4}
@@ -435,13 +407,13 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                   </Field>
                 </Grid2>
 
-                                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 6 }}>
                   <Field name="description">
                     {({ field }: any) => (
                       <TextField
                         {...field}
                         name="description"
-                        label="รายละเอียดอุปกรณ์ (ถ้ามี)"
+                        label="ข้อความเเจ้งเตือนลูกค้าเมื่อถูกเลื่อนการจอง (ถ้ามี)"
                         // value={values.description ? values.description : ""}
                         multiline
                         rows={4}
@@ -460,7 +432,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                     )}
                   </Field>
                 </Grid2>
-
               </Grid2>
               <Grid2
                 sx={{ mt: 5, display: "flex", justifyContent: "flex-start" }}
@@ -492,4 +463,4 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   );
 };
 
-export default ServiceForm;
+export default StoreForm;

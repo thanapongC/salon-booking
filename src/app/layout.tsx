@@ -11,7 +11,7 @@ import { SessionProviders } from "../../lib/SessionProviders";
 import { NotifyProvider } from "@/contexts/NotifyContext";
 import { BreadcrumbProvider } from "@/contexts/BreadcrumbContext";
 import { ServiceProvider } from "@/contexts/ServiceContext";
-import { SettingProvider } from "@/contexts/SettingContext";
+import { StoreProvider } from "@/contexts/StoreContext";
 import { ReportProvider } from "@/contexts/ReportContext";
 import { BookingProvider } from "@/contexts/BookingContext";
 import { EmployeeProvider } from "@/contexts/EmployeeContext";
@@ -46,7 +46,7 @@ export default async function RootLayout({
               <BreadcrumbProvider>
                 <UserProvider>
                   <ServiceProvider>
-                    <SettingProvider>
+                    <StoreProvider>
                       <ReportProvider>
                         <BookingProvider>
                           <EmployeeProvider>
@@ -58,7 +58,7 @@ export default async function RootLayout({
                           </EmployeeProvider>
                         </BookingProvider>
                       </ReportProvider>
-                    </SettingProvider>
+                    </StoreProvider>
                   </ServiceProvider>
                 </UserProvider>
               </BreadcrumbProvider>

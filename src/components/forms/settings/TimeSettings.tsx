@@ -1,5 +1,17 @@
+"use client";
+
 import React, { FC, useEffect, useState } from "react";
-import { Box, Typography, Grid2, TextField, Avatar } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid2,
+  TextField,
+  Avatar,
+  InputLabel,
+  FormControl,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik } from "formik";
@@ -21,20 +33,27 @@ import {
 import { useLocale } from "next-intl";
 import StatusService from "@/components/shared/used/Status";
 import dayjs from "dayjs";
-import { Bath, MonitorCog, Save, Timer } from "lucide-react";
-import { AutoFixHigh, Category, Handyman, More } from "@mui/icons-material";
-import { IconCurrencyBaht } from "@tabler/icons-react";
-import { serviceService } from "@/utils/services/api-services/ServiceAPI";
-import { useServiceContext } from "@/contexts/ServiceContext";
-import { Service, initialService } from "@/interfaces/Store";
+import { Save, Timer } from "lucide-react";
+import {
+  DefaultOperatingHour,
+  Service,
+  Store,
+  initialOperatingHour,
+  initialService,
+  initialStore,
+} from "@/interfaces/Store";
+import { storeService } from "@/utils/services/api-services/StoreAPI";
+import { useStoreContext } from "@/contexts/StoreContext";
+import { TimePicker } from "@mui/x-date-pickers";
+// import { Select } from "formik-mui";
 
 interface ServiceProps {
   viewOnly?: boolean;
 }
 
 const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
-  const { setServiceForm, serviceEdit, setServiceEdit, setServices, services } =
-    useServiceContext();
+  const { setStoreForm, StoreEdit, setStoreEdit, setStores, Stores } =
+    useStoreContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
@@ -46,36 +65,71 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const params = useSearchParams();
   const localActive = useLocale();
 
-  const validationSchema = Yup.object().shape({
-    serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    ServiceName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
-    aboutService: Yup.object().shape({
-      rentalPriceCurrent: Yup.number()
-        .required("กรุณากรอกราคาค่าเช่า")
-        .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
-      stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
-      QTY: Yup.number().required("กรุณาใส่จำนวน"),
-    }),
+  // const validationSchema = Yup.object().shape({
+  //   serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
+  //   StoreName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
+  //   aboutStore: Yup.object().shape({
+  //     rentalPriceCurrent: Yup.number()
+  //       .required("กรุณากรอกราคาค่าเช่า")
+  //       .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
+  //     stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
+  //     QTY: Yup.number().required("กรุณาใส่จำนวน"),
+  //   }),
+  // });
+
+  const validationSchema = Yup.object({
+    MON_isOpen: Yup.boolean().required(),
+    MON_openTime: Yup.string()
+      .nullable()
+      .when("MON_isOpen", {
+        is: true,
+        then: (schema) => schema.required("กรุณากรอกเวลาเปิด"),
+        otherwise: (schema) => schema.nullable(),
+      }),
+
+    MON_closeTime: Yup.string()
+      .nullable()
+      .when("MON_isOpen", {
+        is: true,
+        then: (schema) =>
+          schema
+            .required("กรุณากรอกเวลาปิด")
+            .test(
+              "is-after-open",
+              "เวลาปิดต้องมากกว่าเวลาเปิด",
+              function (closeTime) {
+                const { MON_openTime, MON_isOpen } = this.parent;
+
+                // ถ้าไม่เปิดร้าน ไม่ validate
+                if (!MON_isOpen) return true;
+
+                if (!closeTime || !MON_openTime) return false;
+
+                return new Date(closeTime) > new Date(MON_openTime);
+              }
+            ),
+        otherwise: (schema) => schema.nullable(),
+      }),
   });
 
   const handleFormSubmit = (
-    value: Service,
+    value: DefaultOperatingHour,
     { resetForm, validateForm }: any
   ) => {
-    validateForm(); // บังคับ validate หลังจากรีเซ็ต
-    setIsLoading(true);
-    console.log(value);
-    if (serviceEdit) {
-      handleUpdateService(value);
-    } else {
-      handleCreateService(value);
-    }
-    resetForm(); // รีเซ็ตค่าฟอร์ม
+    // validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    // setIsLoading(true);
+    // console.log(value);
+    // if (StoreEdit) {
+    //   handleUpdateStore(value);
+    // } else {
+    //   handleCreateStore(value);
+    // }
+    // resetForm(); // รีเซ็ตค่าฟอร์ม
   };
 
-  const handleUpdateService = async (Service: Service) => {
+  const handleUpdateStore = async (Store: Store) => {
     setOpenBackdrop(true);
-    const result = await serviceService.updateService(Service);
+    const result = await storeService.updateStore(Store);
     setOpenBackdrop(false);
     setNotify({
       open: true,
@@ -87,9 +141,9 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     }
   };
 
-  const handleCreateService = async (Service: Service) => {
+  const handleCreateStore = async (Store: Store) => {
     setOpenBackdrop(true);
-    const result = await serviceService.createService(Service);
+    const result = await storeService.createStore(Store);
     setOpenBackdrop(false);
     setNotify({
       open: true,
@@ -102,7 +156,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   };
 
   const handleGetSelectCategory = async () => {
-    // const result = await categoryService.getSelectCategory();
+    // const result = await categoryStore.getSelectCategory();
     // if (result.success) {
     //   setCategorySelectState(result.data);
     // } else {
@@ -114,20 +168,19 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     // }
   };
 
-  const getDataService = () => {
-    const ServiceId = params.get("ServiceId");
+  const getDataStore = () => {
+    const StoreId = params.get("StoreId");
     axios
-      .get(`/api/Service?ServiceId=${ServiceId}`)
+      .get(`/api/Store?StoreId=${StoreId}`)
       .then(({ data }) => {
-        // const modifiedData: Service = {
+        // const modifiedData: Store = {
         //   ...data,
-        //   aboutService: {
-        //     ...data.aboutService,
-        //     purchaseDate: dayjs(data.aboutService.purchaseDate),
+        //   aboutStore: {
+        //     ...data.aboutStore,
+        //     purchaseDate: dayjs(data.aboutStore.purchaseDate),
         //   },
         // };
-
-        // setServices(modifiedData);
+        // setStores(modifiedData);
       })
       .catch((error) => {
         if (error.name === "AbortError") {
@@ -141,7 +194,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
   // const getTypeData = () => {
   //   axios
-  //     .get(`/api/Service/type?getbycharacter=true`)
+  //     .get(`/api/Store/type?getbycharacter=true`)
   //     .then(({ data }) => {
   //       setTypeSelectState(data.data);
   //     })
@@ -157,41 +210,41 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
   // useEffect(() => {
   //   if (
-  //     Service.aboutService?.stockStatus ===
-  //       ServiceStatus.CurrentlyRenting ||
-  //     Service.aboutService?.stockStatus === ServiceStatus.InActive ||
-  //     Service.aboutService?.stockStatus === ServiceStatus.Damaged
+  //     Store.aboutStore?.stockStatus ===
+  //       StoreStatus.CurrentlyRenting ||
+  //     Store.aboutStore?.stockStatus === StoreStatus.InActive ||
+  //     Store.aboutStore?.stockStatus === StoreStatus.Damaged
   //   ) {
   //     setDisabledForm(true);
   //   }
-  // }, [Service]);
+  // }, [Store]);
 
   useEffect(() => {
     setIsLoading(true);
 
     if (pathname.includes("new")) {
-      setServiceForm(initialService);
-      setServiceEdit(false);
+      setStoreForm(initialStore);
+      setStoreEdit(false);
       setDisabledForm(false);
     } else {
-      setServiceEdit(true);
-      getDataService();
+      setStoreEdit(true);
+      getDataStore();
     }
 
     // getTypeData();
     handleGetSelectCategory();
 
     return () => {
-      setServiceForm(initialService);
-      setServiceEdit(false);
+      setStoreForm(initialStore);
+      setStoreEdit(false);
       setDisabledForm(false);
     };
   }, []);
 
   return (
     <>
-      <Formik<Service>
-        initialValues={initialService} // ใช้ state เป็น initialValues
+      <Formik<DefaultOperatingHour>
+        initialValues={initialOperatingHour} // ใช้ state เป็น initialValues
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
         enableReinitialize // เพื่อให้ Formik อัปเดตค่าจาก useState
@@ -220,274 +273,680 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                   </Grid2>
                 </Grid2>
 
-                {/* Service ID */}
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="serialNo">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="serialNo"
-                        label="รหัสอุปกรณ์ (จำเป็น)"
-                        // sx={{ textTransform: "uppercase" }}
-                        // value={values.serialNo ? values.serialNo : ""}
-                        onChange={(e) => {
-                          setFieldValue(
-                            "serialNo",
-                            e.target.value.toUpperCase()
-                          );
-                        }}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                          },
-                        }}
-                        // placeholder="EXAMPLE: SN-00001"
-                        // error={touched.serialNo && Boolean(errors.serialNo)}
-                        // helperText={touched.serialNo && errors.serialNo}
-                        fullWidth
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field>
+                <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>MON</Typography>
                 </Grid2>
 
-                {/* Service Name */}
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="ServiceName">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="ServiceName"
-                        label="ชื่ออุปกรณ์ (จำเป็น)"
-                        // value={values.ServiceName}
-                        onChange={(e) => {
-                          setFieldValue("ServiceName", e.target.value);
-                        }}
-                        placeholder="EXAMPLE: Crane Tower"
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                          },
-                        }}
-                        // error={
-                        //   touched.ServiceName && Boolean(errors.ServiceName)
-                        // }
-                        // helperText={
-                        //   touched.ServiceName && errors.ServiceName
-                        // }
-                        fullWidth
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field>
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.MON_isOpen && values.MON_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("MON_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Grid2>
 
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="model">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="model"
-                        label="Model"
-                        // sx={{ textTransform: "uppercase" }}
-                        // value={values.model ? values.model : ""}
-                        onChange={(e) => {
-                          setFieldValue(
-                            "model",
-                            e.target.value
-                          );
-                        }}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                          },
-                        }}
-                        placeholder=""
-                        // error={touched.model && Boolean(errors.model)}
-                        // helperText={touched.model && errors.model}
-                        fullWidth
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="MON_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
                         disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field>
-                </Grid2>
-
-                {/* Rental Price */}
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="aboutService.rentalPriceCurrent">
-                    {({ field }: any) => (
-                      <TextField
-                        {...field}
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                        name="aboutService.rentalPriceCurrent"
-                        // placeholder="EXAMPLE: 999999999"
-                        label="ราคาเช่าปัจจุบัน/เดือน (จำเป็น)"
-                        // value={values.aboutService?.rentalPriceCurrent ?? ""}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                            endAdornment: <IconCurrencyBaht />,
-                          },
-                        }}
-                        type="number"
-                        onChange={(e) => {
-                          const newValue = e.target.value.replace(/\D/g, ""); // กรองเฉพาะตัวเลข
-                          setFieldValue(
-                            "aboutService.rentalPriceCurrent",
-                            newValue || ""
-                          ); // ป้องกัน NaN
-                        }}
-                        // error={
-                        //   touched.aboutService?.rentalPriceCurrent &&
-                        //   Boolean(errors.aboutService?.rentalPriceCurrent)
-                        // }
-                        // helperText={
-                        //   touched.aboutService?.rentalPriceCurrent &&
-                        //   errors.aboutService?.rentalPriceCurrent
-                        // }
-                        fullWidth
-                      />
-                    )}
-                  </Field>
-                </Grid2>
-
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="aboutService.ServicePrice">
-                    {({ field }: any) => (
-                      <TextField
-                        {...field}
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                        name="aboutService.ServicePrice"
-                        label="ราคาอุปกรณ์ (ถ้ามี)"
-                        // placeholder="EXAMPLE: 9999999"
-                        // value={values.aboutService?.ServicePrice ?? ""}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                            endAdornment: <IconCurrencyBaht />,
-                          },
-                        }}
-                        type="number"
-                        onChange={(e) => {
-                          const newValue = e.target.value.replace(/\D/g, ""); // กรองเฉพาะตัวเลข
-                          setFieldValue(
-                            "aboutService.ServicePrice",
-                            newValue || ""
-                          ); // ป้องกัน NaN
-                        }}
-                        // error={
-                        //   touched.aboutService?.ServicePrice &&
-                        //   Boolean(errors.aboutService?.ServicePrice)
-                        // }
-                        // helperText={
-                        //   touched.aboutService?.ServicePrice &&
-                        //   errors.aboutService?.ServicePrice
-                        // }
-                        fullWidth
-                      />
-                    )}
-                  </Field>
-                </Grid2>
-
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="aboutService.QTY">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="aboutService.QTY"
-                        label="จำนวน (จำเป็น)"
-                        // value={values.aboutService?.QTY ? values.aboutService?.QTY : ""}
-                        onChange={(e) => {
-                          // setFieldValue("aboutService.QTY", e.target.value);
-                          const newValue = e.target.value.replace(/\D/g, ""); // กรองเฉพาะตัวเลข
-                          setFieldValue(
-                            "aboutService.QTY",
-                            newValue || ""
-                          ); // ป้องกัน NaN
-                        }}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                          },
-                        }}
-                        // error={
-                        //   touched.aboutService?.QTY &&
-                        //   Boolean(errors.aboutService?.QTY)
-                        // }
-                        // helperText={
-                        //   touched.aboutService?.QTY &&
-                        //   errors.aboutService?.QTY
-                        // }
-                        fullWidth
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field>
-                </Grid2>
-
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="purchaseDate">
-                    {({ field }: FieldProps) => (
-                      <DatePicker
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                        label="วันที่ซื้ออุปกรณ์ (ถ้ามี)"
-                        name="purchaseDate"
+                        label="เวลาเปิด"
                         sx={{ minWidth: "100%" }}
-                        // value={
-                        //   values.aboutService?.purchaseDate !== undefined
-                        //     ? dayjs(values.aboutService.purchaseDate)
-                        //     : null
-                        // }
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.MON_openTime
+                            ? dayjs(values.MON_openTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
                         onChange={(newValue) => {
-                          setFieldValue(
-                            "aboutService.purchaseDate",
-                            newValue
+                          form.setFieldValue(
+                            "MON_openTime",
+                            newValue ? newValue.toISOString() : null
                           );
                         }}
-                        slotProps={
-                          {
-                            // textField: {
-                            //   helperText: "DD/MM/YYYY",
-                            // },
-                          }
-                        }
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.MON_openTime && errors.MON_openTime
+                            ),
+                            helperText:
+                              touched.MON_openTime && errors.MON_openTime
+                                ? String(errors.MON_openTime)
+                                : "",
+                          },
+                        }}
                       />
                     )}
                   </Field>
                 </Grid2>
 
-                <Grid2 size={{ xs: 6 }}>
-                  <Field name="registerDate">
-                    {({ field }: FieldProps) => (
-                      <DatePicker
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="MON_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
                         disabled={openBackdrop || isSubmitting || disabledForm}
-                        label="วันที่ลงทะเบียน (ถ้ามี)"
-                        name="registerDate"
+                        label="เวลาปิด"
                         sx={{ minWidth: "100%" }}
-                        // value={
-                        //   values.aboutService?.registerDate !== undefined
-                        //     ? dayjs(values.aboutService.registerDate)
-                        //     : null
-                        // }
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.MON_closeTime
+                            ? dayjs(values.MON_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
                         onChange={(newValue) => {
-                          setFieldValue(
-                            "aboutService.registerDate",
-                            newValue
+                          form.setFieldValue(
+                            "MON_closeTime",
+                            newValue ? newValue.toISOString() : null
                           );
                         }}
-                        slotProps={
-                          {
-                            // textField: {
-                            //   helperText: "DD/MM/YYYY",
-                            // },
-                          }
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.MON_closeTime && errors.MON_closeTime
+                            ),
+                            helperText:
+                              touched.MON_closeTime && errors.MON_closeTime
+                                ? String(errors.MON_closeTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>TUE</Typography>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.TUE_isOpen && values.TUE_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("TUE_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="THU_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาเปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.THU_openTime
+                            ? dayjs(values.THU_openTime)
+                            : null
                         }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "THU_openTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.THU_openTime && errors.THU_openTime
+                            ),
+                            helperText:
+                              touched.THU_openTime && errors.THU_openTime
+                                ? String(errors.THU_openTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="TUE_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.TUE_closeTime
+                            ? dayjs(values.TUE_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "TUE_closeTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.TUE_closeTime && errors.TUE_closeTime
+                            ),
+                            helperText:
+                              touched.TUE_closeTime && errors.TUE_closeTime
+                                ? String(errors.TUE_closeTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>WED</Typography>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.WED_isOpen && values.WED_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("WED_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="WED_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาเปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.WED_openTime
+                            ? dayjs(values.WED_openTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "WED_openTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.WED_openTime && errors.WED_openTime
+                            ),
+                            helperText:
+                              touched.WED_openTime && errors.WED_openTime
+                                ? String(errors.WED_openTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="WED_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.WED_closeTime
+                            ? dayjs(values.WED_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "WED_closeTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.WED_closeTime && errors.WED_closeTime
+                            ),
+                            helperText:
+                              touched.WED_closeTime && errors.WED_closeTime
+                                ? String(errors.WED_closeTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>THU</Typography>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.THU_isOpen && values.THU_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("THU_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="THU_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาเปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.THU_openTime
+                            ? dayjs(values.THU_openTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "THU_openTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.THU_openTime && errors.THU_openTime
+                            ),
+                            helperText:
+                              touched.THU_openTime && errors.THU_openTime
+                                ? String(errors.THU_openTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="THU_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.THU_closeTime
+                            ? dayjs(values.THU_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "THU_closeTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.THU_closeTime && errors.THU_closeTime
+                            ),
+                            helperText:
+                              touched.THU_closeTime && errors.THU_closeTime
+                                ? String(errors.THU_closeTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>FRI</Typography>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.FRI_isOpen && values.FRI_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("FRI_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="FRI_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาเปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.FRI_openTime
+                            ? dayjs(values.FRI_openTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "FRI_openTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.FRI_openTime && errors.FRI_openTime
+                            ),
+                            helperText:
+                              touched.FRI_openTime && errors.FRI_openTime
+                                ? String(errors.FRI_openTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="FRI_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.FRI_closeTime
+                            ? dayjs(values.FRI_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "FRI_closeTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.FRI_closeTime && errors.FRI_closeTime
+                            ),
+                            helperText:
+                              touched.FRI_closeTime && errors.FRI_closeTime
+                                ? String(errors.FRI_closeTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                 <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>SAT</Typography>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.SAT_isOpen && values.SAT_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("SAT_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="SUN_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาเปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.SUN_openTime
+                            ? dayjs(values.SUN_openTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "SUN_openTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.SUN_openTime && errors.SUN_openTime
+                            ),
+                            helperText:
+                              touched.SUN_openTime && errors.SUN_openTime
+                                ? String(errors.SUN_openTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="SAT_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.SAT_closeTime
+                            ? dayjs(values.SAT_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "SAT_closeTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.SAT_closeTime && errors.SAT_closeTime
+                            ),
+                            helperText:
+                              touched.SAT_closeTime && errors.SAT_closeTime
+                                ? String(errors.SAT_closeTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 container flexDirection={"row"} size={{ xs: 3 }} justifyContent={"center"} alignItems={"center"}>
+                  <Typography>SUN</Typography>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="open-status-label">
+                      สถานะ (จำเป็น)
+                    </InputLabel>
+                    <Select
+                      labelId="open-status-label"
+                      label="สถานะ (จำเป็น)"
+                      value={values.SUN_isOpen && values.SUN_isOpen.toString()}
+                      onChange={(e) => {
+                        setFieldValue("SUN_isOpen", e.target.value);
+                      }}
+                    >
+                      <MenuItem value="true">เปิด</MenuItem>
+                      <MenuItem value="false">ปิด</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="SUN_openTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาเปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.SUN_openTime
+                            ? dayjs(values.SUN_openTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "SUN_openTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.SUN_openTime && errors.SUN_openTime
+                            ),
+                            helperText:
+                              touched.SUN_openTime && errors.SUN_openTime
+                                ? String(errors.SUN_openTime)
+                                : "",
+                          },
+                        }}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 3 }}>
+                  <Field name="SUN_closeTime">
+                    {({ field, form }: FieldProps) => (
+                      <TimePicker
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                        label="เวลาปิด"
+                        sx={{ minWidth: "100%" }}
+                        // ✔ เวลา (dayjs) หรือ null
+                        value={
+                          values.SUN_closeTime
+                            ? dayjs(values.SUN_closeTime)
+                            : null
+                        }
+                        // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                        onChange={(newValue) => {
+                          form.setFieldValue(
+                            "SUN_closeTime",
+                            newValue ? newValue.toISOString() : null
+                          );
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: Boolean(
+                              touched.SUN_closeTime && errors.SUN_closeTime
+                            ),
+                            helperText:
+                              touched.SUN_closeTime && errors.SUN_closeTime
+                                ? String(errors.SUN_closeTime)
+                                : "",
+                          },
+                        }}
                       />
                     )}
                   </Field>

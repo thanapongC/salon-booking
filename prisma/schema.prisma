@@ -8,25 +8,23 @@ generator client {
 }
 
 model User {
-
   userId     String     @id @default(auto()) @map("_id") @db.ObjectId
   email      String
   password   String?
   name       String
   userStatus UserStatus @default(ACTIVE)
 
-  role       Role?      @relation(fields: [roleId], references: [roleId])
-  roleId     String?    @db.ObjectId
+  role   Role?   @relation(fields: [roleId], references: [roleId])
+  roleId String? @db.ObjectId
 
-  store       Store?    
+  store Store?
 
   resetPasswordTokens ResetPasswordToken[]
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
-
 }
 
 enum UserStatus {
@@ -35,7 +33,6 @@ enum UserStatus {
 }
 
 model Role {
-
   roleId      String   @id @default(auto()) @map("_id") @db.ObjectId
   name        RoleName
   description String?
@@ -45,7 +42,6 @@ model Role {
   updatedAt   DateTime @updatedAt
 
   @@unique([name])
-
 }
 
 enum RoleName {
@@ -54,53 +50,52 @@ enum RoleName {
 }
 
 model ResetPasswordToken {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // ความสัมพันธ์กับ User
-  userId      String   @db.ObjectId
-  user        User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   // โทเค็นที่ใช้สำหรับรีเซ็ตรหัสผ่าน
-  token       String   @unique   // UUID หรือ random string ที่เข้ารหัสแล้วก็ได้
+  token String @unique // UUID หรือ random string ที่เข้ารหัสแล้วก็ได้
 
   // วันหมดอายุ (เช่น 15 นาที - 1 ชม.)
-  expiresAt   DateTime
+  expiresAt DateTime
 
   // สถานะการใช้งาน
-  used        Boolean  @default(false)
+  used Boolean @default(false)
 
   // วันที่สร้างและอัปเดต
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
 
 model Customer {
-  
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // 2. LINE Login Data
   // lineUserId คือ ID หลักที่ได้จาก LINE ใช้สำหรับส่ง Push Message และต้องไม่ซ้ำกัน
-  lineUserId     String     @unique 
-  displayName    String?    // ชื่อที่ LINE ตั้งไว้ (Nullable)
-  pictureUrl     String?    // URL รูปโปรไฟล์ (Nullable)
-  statusMessage  String?    // สถานะข้อความ (Nullable)
-  isLineLinked   Boolean    @default(true) // ยืนยันว่าผูก LINE แล้ว
+  lineUserId    String  @unique
+  displayName   String? // ชื่อที่ LINE ตั้งไว้ (Nullable)
+  pictureUrl    String? // URL รูปโปรไฟล์ (Nullable)
+  statusMessage String? // สถานะข้อความ (Nullable)
+  isLineLinked  Boolean @default(true) // ยืนยันว่าผูก LINE แล้ว
 
   // 3. Contact Data - ข้อมูลติดต่อที่ได้จากการจอง
-  phone          String?    // เบอร์โทรศัพท์ (Nullable)
-  email          String?    // อีเมล (Nullable)
+  phone String? // เบอร์โทรศัพท์ (Nullable)
+  email String? // อีเมล (Nullable)
 
-  booking       Booking[]
-  
+  booking Booking[]
+
   // 4. Metadata
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt // อัปเดตวันที่เองเมื่อมีการแก้ไข Record
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // อัปเดตวันที่เองเมื่อมีการแก้ไข Record
 
   // (Optional) หากมีตารางจอง (Booking) ให้เพิ่มความสัมพันธ์
   // bookings      Booking[] // ตัวอย่างความสัมพันธ์ 1:N 
-  
+
   // @@map("customers") // กำหนดชื่อตารางใน Database
 }
 
@@ -113,147 +108,196 @@ model Customer {
 //   totalRevenue  Float
 //   details      Json     // ข้อมูลละเอียด เช่น { "serviceA": 10, "serviceB": 5 }
 //   generatedAt  DateTime   @default(now())
-  
+
 //   storeId    String     @db.ObjectId
 //   store      Store      @relation(fields: [storeId], references: [id])
-  
+
 //   @@unique([storeId, reportDate, reportType])
 // }
 
-
 enum BookingStatus {
-  PENDING    // รอลูกค้ายืนยัน (ถ้ามี), หรือรอยืนยันจากร้าน (ถ้าตั้งค่าไว้)
-  CONFIRMED  // ยืนยันแล้ว (จองสำเร็จ)
+  PENDING // รอลูกค้ายืนยัน (ถ้ามี), หรือรอยืนยันจากร้าน (ถ้าตั้งค่าไว้)
+  CONFIRMED // ยืนยันแล้ว (จองสำเร็จ)
   RESCHEDULED // เลื่อนนัด
-  CANCELLED  // ยกเลิก
-  COMPLETED  // เสร็จสิ้นบริการ
-  WALK_IN    // คิว Walk-in (2.4)
+  CANCELLED // ยกเลิก
+  COMPLETED // เสร็จสิ้นบริการ
+  WALK_IN // คิว Walk-in (2.4)
 }
 
-
 model Booking {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  customerName  String // 3.6
+  customerPhone String // 3.6
 
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  customerName    String          // 3.6
-  customerPhone   String          // 3.6
-  
-  startTime       DateTime        // 3.5 วัน-เวลาเริ่ม
-  endTime         DateTime        // คำนวณจาก startTime + Service.durationMinutes
-  
-  status          BookingStatus   @default(CONFIRMED) // 2.7, 2.8, 2.9
-  isWalkIn        Boolean         @default(false)     // 2.4 เพิ่มคิว walk-in
-  
+  startTime DateTime // 3.5 วัน-เวลาเริ่ม
+  endTime   DateTime // คำนวณจาก startTime + Service.durationMinutes
+
+  status   BookingStatus @default(CONFIRMED) // 2.7, 2.8, 2.9
+  isWalkIn Boolean       @default(false) // 2.4 เพิ่มคิว walk-in
+
   // ความสัมพันธ์
-  storeId         String          @db.ObjectId
-  store           Store           @relation(fields: [storeId], references: [id])
-  
-  serviceId       String          @db.ObjectId
-  service         Service         @relation(fields: [serviceId], references: [id])
-  
-  employeeId      String          @db.ObjectId
-  employee        Employee        @relation(fields: [employeeId], references: [id])
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id])
 
-  customerId      String          @db.ObjectId
-  customer        Customer        @relation(fields: [customerId], references: [id])
+  serviceId String  @db.ObjectId
+  service   Service @relation(fields: [serviceId], references: [id])
 
-  notifications    Notification[] // เชื่อมกับ Notification
+  employeeId String   @db.ObjectId
+  employee   Employee @relation(fields: [employeeId], references: [id])
 
-  // 2.12 ระบบกันคิวซ้ำ: ต้องใช้ Logic ใน Application หรือใช้ Unique Index แบบ Compound 
-  // (แต่ MongoDB/Prisma ไม่รองรับ unique index บน DateTime ในรูปแบบที่ซับซ้อนสำหรับการจองซ้อน) 
-  // จึงควรจัดการที่ Application Logic เมื่อสร้าง/แก้ไข Booking
-  // อย่างไรก็ตาม การรวม employeeId, startTime เป็น unique index อาจช่วยได้ในระดับหนึ่ง
-  @@index([employeeId, startTime]) // ช่วยในการตรวจสอบคิวซ้ำ/ค้นหาคิว
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  notifications Notification[] // เชื่อมกับ Notification
 
   // 3.7 ข้อความ LINE ส่งไปหาลูกค้า (ต้องใช้ Logic ใน Application)
 
   createdAt DateTime @default(now()) // วันที่สร้าง
   updatedAt DateTime @updatedAt // อัปเดตล่าสุด
 
-  
+  // 2.12 ระบบกันคิวซ้ำ: ต้องใช้ Logic ใน Application หรือใช้ Unique Index แบบ Compound 
+  // (แต่ MongoDB/Prisma ไม่รองรับ unique index บน DateTime ในรูปแบบที่ซับซ้อนสำหรับการจองซ้อน) 
+  // จึงควรจัดการที่ Application Logic เมื่อสร้าง/แก้ไข Booking
+  // อย่างไรก็ตาม การรวม employeeId, startTime เป็น unique index อาจช่วยได้ในระดับหนึ่ง
+  @@index([employeeId, startTime]) // ช่วยในการตรวจสอบคิวซ้ำ/ค้นหาคิว
 }
 
-
 model Service {
-
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  name           String    // "ตัดผม 30 นาที", "นวดตัว 1 ชม."
-  durationMinutes Int      // ระยะเวลาเป็นนาที เช่น 30, 60
-  price          Float?    // ราคา (ถ้ามี)
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  name            String // "ตัดผม 30 นาที", "นวดตัว 1 ชม."
+  durationMinutes Int // ระยะเวลาเป็นนาที เช่น 30, 60
+  price           Float? // ราคา (ถ้ามี)
 
   // ความสัมพันธ์
-  storeId        String    @db.ObjectId
-  store          Store     @relation(fields: [storeId], references: [id])
-  employees      Employee[] @relation(references: [id], fields: [employeeIds]) // พนักงานที่ทำบริการนี้ได้
-  employeeIds    String[]  @db.ObjectId // Reference IDs
-  bookings       Booking[]
+  storeId     String     @db.ObjectId
+  store       Store      @relation(fields: [storeId], references: [id])
+  employees   Employee[] @relation(references: [id], fields: [employeeIds]) // พนักงานที่ทำบริการนี้ได้
+  employeeIds String[]   @db.ObjectId // Reference IDs
+  bookings    Booking[]
 
   createdAt DateTime @default(now()) // วันที่สร้าง
   updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-
 }
 
 model Employee {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  name           String    // "พี่แอน"
-  role           String    // "ช่างทำผม"
-  isActive       Boolean   @default(true) // สถานะพร้อมให้บริการ
-  
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  name     String // "พี่แอน"
+  role     String // "ช่างทำผม"
+  isActive Boolean @default(true) // สถานะพร้อมให้บริการ
+
   // ความสัมพันธ์
-  storeId        String    @db.ObjectId
-  store          Store     @relation(fields: [storeId], references: [id])
-  bookings       Booking[] // คิวที่พนักงานคนนี้รับผิดชอบ
-  services       Service[] @relation(references: [id], fields: [serviceIds]) // บริการที่พนักงานคนนี้ทำได้
-  serviceIds     String[]  @db.ObjectId // Reference IDs
+  storeId    String    @db.ObjectId
+  store      Store     @relation(fields: [storeId], references: [id])
+  bookings   Booking[] // คิวที่พนักงานคนนี้รับผิดชอบ
+  services   Service[] @relation(references: [id], fields: [serviceIds]) // บริการที่พนักงานคนนี้ทำได้
+  serviceIds String[]  @db.ObjectId // Reference IDs
 
-  userId    String     @db.ObjectId
-
+  userId String @db.ObjectId
 
   createdAt DateTime @default(now()) // วันที่สร้าง
   updatedAt DateTime @updatedAt // อัปเดตล่าสุด
 }
 
-model OperatingHour {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  
-  date      DateTime   @db.Date
-  isOpen    Boolean    @default(true) // true = เปิด, false = ปิด (วันหยุดพิเศษ)
-  openTime  String?    // "09:00" ถ้า isOpen = true
-  closeTime String?    // "18:00" ถ้า isOpen = true
-  
-  storeId   String     @db.ObjectId
-  store     Store      @relation(fields: [storeId], references: [id])
+model DefaultOperatingHour {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  @@unique([storeId, date]) // ไม่ให้ตั้งค่าเวลาทำการซ้ำวัน
+  // 2. สถานะและเวลาทำการปกติ
+  MON_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  MON_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  MON_closeTime DateTime? // "18:00" รูปแบบ HH:MM
 
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+  TUE_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  TUE_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  TUE_closeTime DateTime? // "18:00" รูปแบบ HH:MM
+
+  WED_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  WED_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  WED_closeTime DateTime? // "18:00" รูปแบบ HH:MM
+
+  THU_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  THU_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  THU_closeTime DateTime? // "18:00" รูปแบบ HH:MM
+
+  FRI_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  FRI_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  FRI_closeTime DateTime? // "18:00" รูปแบบ HH:MM
+
+  SAT_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  SAT_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  SAT_closeTime DateTime? // "18:00" รูปแบบ HH:MM
+
+  SUN_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
+  SUN_openTime  DateTime? // "09:00" รูปแบบ HH:MM
+  SUN_closeTime DateTime? // "18:00" รูปแบบ HH:MM
+
+  // 3. ความสัมพันธ์กับร้านค้า
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 4. Index และ Constraint
+  // บังคับว่า storeId หนึ่งต้องมีข้อมูลของ DayOfWeek หนึ่งได้เพียงครั้งเดียว (เช่น จันทร์เดียว)
+  @@unique([storeId])
+  @@map("defaultOperatingHours")
+}
+
+model ExceptionDate {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // 1. วันที่เฉพาะเจาะจง (Calendar Date)
+  date DateTime @db.Date // วันที่ของวันหยุดพิเศษ (เช่น 2025-12-31)
+
+  // 2. สถานะและเวลาทำการพิเศษ
+  isOpen    Boolean @default(true) // true = เปิด, false = ปิด (วันหยุดพิเศษ)
+  openTime  String? // "10:00" ถ้ามีการปรับเวลาทำการในวันนั้น
+  closeTime String? // "17:00" ถ้ามีการปรับเวลาทำการในวันนั้น
+
+  // 3. ความสัมพันธ์กับร้านค้า
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 4. Index และ Constraint
+  // บังคับว่า storeId หนึ่งต้องมีข้อมูล ExceptionDate ในวันที่นั้นได้เพียงครั้งเดียว
+  @@unique([storeId, date])
+  @@map("exceptionDates")
 }
 
 model Store {
-
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  storeName        String
-  storeUsername    String            @unique 
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  storeName     String
+  storeUsername String @unique
   // bookingLink      String            @unique // 3.2 ลิงก์ร้านค้า
   // 2.1 กำหนดวันหยุด (วันหยุดประจำสัปดาห์ เช่น [1, 7] = จันทร์, อาทิตย์)
-  weeklyHolidays   Int[]
-  // 2.1 เวลาเปิด-ปิดต่อวัน (สำหรับวันทำงาน)
-  defaultOpenTime  String            // "09:00"
-  defaultCloseTime String            // "18:00"
+  // weeklyHolidays   Int[]
+  // // 2.1 เวลาเปิด-ปิดต่อวัน (สำหรับวันทำงาน)
+  // defaultOpenTime  String            // "09:00"
+  // defaultCloseTime String            // "18:00"
 
-  lineNotifyToken  String?     // 2.6 สำหรับการแจ้งเตือนเจ้าของร้าน
-  lineChannelId    String?     // สำหรับ LINE Messaging API (ถ้าใช้)
-  lineChannelSecret String?    // สำหรับ LINE Messaging API (ถ้าใช้)
+  lineNotifyToken   String? // 2.6 สำหรับการแจ้งเตือนเจ้าของร้าน
+  lineChannelId     String? // สำหรับ LINE Messaging API (ถ้าใช้)
+  lineChannelSecret String? // สำหรับ LINE Messaging API (ถ้าใช้)
 
-  userId    String              @db.ObjectId @unique
-  user      User                @relation(fields: [userId], references: [userId])
+  newBooking     String? //เเจ้งเตือนเมื่อได้รับการจองใหม่
+  successBooking String? //เเจ้งเตือนลูกค้าเมื่อจองสำเร็จ
+  cancelBooking  String? //ข้อความเเจ้งเตือนลูกค้าเมื่อถูกยกเลิกการจอง
+  before24H      String? //ข้อความเเจ้งเตือนลูกค้าเมื่อใกล้ถึงเวลานัด 24 ชั่วโมง
+  reSchedule     String? //ข้อความเเจ้งเตือนลูกค้าเมื่อถูกเลื่อนการจอง
+
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [userId])
 
   // ความสัมพันธ์
-  employees        Employee[]
-  services         Service[]
-  bookings         Booking[]
-  operatingHours   OperatingHour[]   // เวลาเปิด-ปิด/วันหยุดพิเศษ
-  notifications    Notification[] // เชื่อมกับ Notification
+  employees      Employee[]
+  services       Service[]
+  bookings       Booking[]
+  operatingHours DefaultOperatingHour? // เวลาเปิด-ปิดวันปกติ
+  exceptionDates ExceptionDate[] //วันหยุดพิเศษ
+  notifications  Notification[] // เชื่อมกับ Notification
   // reports          Report[]
 
   createdAt DateTime @default(now()) // วันที่สร้าง
@@ -262,45 +306,45 @@ model Store {
 
 enum NotificationType {
   // สำหรับร้านค้า (Store)
-  STORE_NEW_BOOKING       // 2.7 มีการจองใหม่
+  STORE_NEW_BOOKING // 2.7 มีการจองใหม่
   STORE_CANCELED_BY_CUSTOMER
   STORE_BOOKING_MODIFIED
 
   // สำหรับลูกค้า (Customer)
-  CUSTOMER_BOOKING_SUCCESS  // 3.7 จองสำเร็จ
-  CUSTOMER_CONFIRMED      // 2.9 ร้านยืนยันคิว
-  CUSTOMER_RESCHEDULED    // 2.8, 2.9 ร้านเลื่อน
-  CUSTOMER_CANCELED       // 2.8, 2.9 ร้านยกเลิก
+  CUSTOMER_BOOKING_SUCCESS // 3.7 จองสำเร็จ
+  CUSTOMER_CONFIRMED // 2.9 ร้านยืนยันคิว
+  CUSTOMER_RESCHEDULED // 2.8, 2.9 ร้านเลื่อน
+  CUSTOMER_CANCELED // 2.8, 2.9 ร้านยกเลิก
 }
 
 enum SendMethod {
-  LINE_NOTIFY             // สำหรับแจ้งเตือนร้านค้า (ใช้ Store.lineNotifyToken)
-  LINE_MESSAGING_API      // สำหรับแจ้งเตือนลูกค้า (ต้องมี User's LINE ID)
-  EMAIL                   // 2.10 แจ้งเตือนในอีเมล
+  LINE_NOTIFY // สำหรับแจ้งเตือนร้านค้า (ใช้ Store.lineNotifyToken)
+  LINE_MESSAGING_API // สำหรับแจ้งเตือนลูกค้า (ต้องมี User's LINE ID)
+  EMAIL // 2.10 แจ้งเตือนในอีเมล
 }
 
 model Notification {
-  id         String             @id @default(auto()) @map("_id") @db.ObjectId
-  
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
   // ข้อมูลที่จำเป็นในการส่ง
-  type       NotificationType
-  method     SendMethod         // วิธีการส่ง: LINE/EMAIL
-  message    String             // ข้อความที่จะส่ง
-  targetAddress String          // เบอร์โทร/อีเมลลูกค้า, หรือ Store ID (สำหรับ LINE Notify)
-  
+  type          NotificationType
+  method        SendMethod // วิธีการส่ง: LINE/EMAIL
+  message       String // ข้อความที่จะส่ง
+  targetAddress String // เบอร์โทร/อีเมลลูกค้า, หรือ Store ID (สำหรับ LINE Notify)
+
   // สถานะการส่ง
-  isSent     Boolean            @default(false)
-  sentAt     DateTime?
-  errorMessage String?          // เก็บ error ถ้าส่งไม่สำเร็จ
-  
+  isSent       Boolean   @default(false)
+  sentAt       DateTime?
+  errorMessage String? // เก็บ error ถ้าส่งไม่สำเร็จ
+
   // การอ้างอิง
-  storeId    String             @db.ObjectId
-  store      Store              @relation(fields: [storeId], references: [id])
-  
-  bookingId  String?            @db.ObjectId
-  booking    Booking?           @relation(fields: [bookingId], references: [id])
-  
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  bookingId String?  @db.ObjectId
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
   // เพิ่มเติม: สำหรับลูกค้าที่ใช้ LINE Messaging API 
   // (ถ้ามีการเชื่อมต่อ LINE OA และเก็บ User ID)
-  lineUserId String?           
+  lineUserId String?
 }
