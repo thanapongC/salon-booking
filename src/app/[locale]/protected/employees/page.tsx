@@ -41,6 +41,9 @@ const Employees = () => {
 
   return (
     <PageContainer title="" description="">
+      <Typography variant="h1" mt={2} color="#fff">
+        การจัดการบริการ
+      </Typography>
       <BaseCard title="">
         <EmployeeTabs/>
       </BaseCard>

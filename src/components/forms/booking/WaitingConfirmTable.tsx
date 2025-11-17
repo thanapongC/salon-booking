@@ -36,7 +36,7 @@ import { useLocale } from "next-intl";
 import NotFound from "@/components/shared/used/NotFound";
 import FloatingButton from "@/components/shared/used/FloatingButton";
 import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
-import { Booking } from "@/interfaces/Store";
+import { Booking } from "@/interfaces/Booking";
 import { useBookingContext } from "@/contexts/BookingContext";
 
 interface BookingProps {
@@ -269,15 +269,7 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
   }, [paginationModel, recall]);
 
   return (
-    <>
-      <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/inventory/new`)}
-      />
-      <Typography variant="h4" mt={2}>
-        อปุกรณ์ทั้งหมด
-      </Typography>
       <BaseCard>
-        <>
           <DataGrid
             getRowId={(row) => row.id}
             initialState={{
@@ -310,9 +302,7 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
               toolbar: CustomToolbar,
             }}
           />
-        </>
       </BaseCard>
-    </>
   );
 };
 

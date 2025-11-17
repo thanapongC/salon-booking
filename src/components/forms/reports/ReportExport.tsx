@@ -17,20 +17,18 @@ import { DeliveryCard } from "@/components/shared/used/DeliveryCard";
 import {
   Category,
   DocumentScanner,
+  Download as DownloadIcon,
   ReceiptLong,
   Report,
 } from "@mui/icons-material";
 import { ButtonType } from "@/interfaces/ShredType";
 import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
 import { useCategoryContext } from "@/contexts/CategoryContext";
-import {
-  useReportContext,
-} from "@/contexts/ReportContext";
+import { useReportContext } from "@/contexts/ReportContext";
 import PageTitle from "@/components/shared/used/PageTitle";
-import { Factory, Info, SquareMousePointer } from "lucide-react";
 import { categoryService } from "@/utils/services/api-services/CategoryApi";
-import { showNameSelctReportSetting } from "@/utils/utils";
 import { uniqueId } from "lodash";
+import { FilePenLine } from "lucide-react";
 
 interface Props {
   // reportType: ReportType;
@@ -39,12 +37,14 @@ interface Props {
   // desc?: string | null;
 }
 
-const ReportExport: React.FC<Props> = ({
-  // reportType,
-  // title,
-  // icon,
-  // desc,
-}) => {
+const ReportExport: React.FC<Props> = (
+  {
+    // reportType,
+    // title,
+    // icon,
+    // desc,
+  }
+) => {
   // const { reportForm, setReportForm } = useReportContext();
   // const { equipmentSelectState, setEquipmentSelectState } =
   //   useEquipmentContext();
@@ -179,7 +179,6 @@ const ReportExport: React.FC<Props> = ({
   //   setOpenBackdrop(false);
   // };
 
-
   const handleDownload = (blob: Blob, filename: string) => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -203,24 +202,6 @@ const ReportExport: React.FC<Props> = ({
     };
   }, []);
 
-  const checkReportType = [
-    "InventoryStatus",
-    "MaintenanceStatus",
-    "MaintenanceLog",
-    "MaintenanceCost",
-    "Tracker",
-    "EquipmentPrice",
-    "RentalPrice",
-  ];
-
-  const hideEquipment = [
-    "InventoryStatus",
-    "MaintenanceCost",
-    "EquipmentPrice",
-    "RentalPrice",
-    "Tracker",
-  ];
-
   return (
     <>
       {/* <Formik<ReportExport> */}
@@ -240,331 +221,208 @@ const ReportExport: React.FC<Props> = ({
           isSubmitting,
         }) => (
           <Form>
-            {/* <Grid2 container justifyContent="center" mt={4}>
-              <Avatar sx={{ bgcolor: "primary.main" }}>
-                {icon ? icon : <Info />}
-              </Avatar>
+            <Grid2 container justifyContent="center" mt={4}>
               <Typography variant="h2" gutterBottom ml={2} mt={0.5}>
-                {title}
+                ออกรายงาน
               </Typography>
-            </Grid2> */}
+            </Grid2>
 
-            <Grid2 container justifyContent="center" mb={5} mt={2}>
-              {/* <Typography variant="body2">{desc}</Typography> */}
+            <Grid2 container justifyContent="center" mb={5} mt={1}>
+              <Typography variant="body2">
+                กำหนดรายละเอียดเพื่อดูรายงาน
+              </Typography>
             </Grid2>
 
             <Box p={3} border="1px solid #ccc" borderRadius="8px">
-              {/* ============ Start Select reportType ============ */}
-                  <PageTitle title="กำหนดประเภท" icon={<ReceiptLong />} />
-                  <Grid2 container spacing={2} mt={4} mb={4}>
-                    {/* <Field name="reportSettings.selectType">
-                      {({ field }: FieldProps) => (
-                        <>
-                          {Object.keys(SelectType).map((option, index) => (
-                            <Box key={uniqueId()}>
-                              {!(
-                                hideEquipment.includes(
-                                  values.reportType.toString()
-                                ) && option === SelectType.EquipmentName
-                              ) && (
-                                <>
-                                  <Grid2
-                                    container
-                                    mb={2}
-                                    flexDirection={"column"}
-                                    key={index}
-                                  >
-                                    <DeliveryCard
-                                      key={option}
-                                      isSelected={
-                                        values.reportSettings.selectType.toString() ===
-                                        option
-                                      }
-                                      onClick={() => {
-                                        setFieldValue(
-                                          "reportSettings.selectType",
-                                          option
-                                        );
-                                        if (
-                                          option === SelectType.EquipmentName
-                                        ) {
-                                          handleGetEquipmentReadyForRepair();
-                                        }
-                                      }}
-                                      elevation={0}
-                                    >
-                                      <Box sx={{ flex: 1 }}>
-                                        <Typography
-                                          variant="h6"
-                                          sx={{
-                                            color:
-                                              values.reportSettings.selectType.toString() ===
-                                              option
-                                                ? "#fff"
-                                                : "text.primary",
-                                            mb: 0.5,
-                                          }}
-                                        >
-                                          {showNameSelctReportSetting(
-                                            option.toString()
-                                          )}
-                                        </Typography>
-                                        <Typography
-                                          variant="body2"
-                                          sx={{
-                                            color:
-                                              values.reportSettings.selectType.toString() ===
-                                              option
-                                                ? "#ffffff"
-                                                : "text.secondary",
-                                          }}
-                                        >
-                                          {values.reportType.toString() ===
-                                            "MaintenanceStatus" &&
-                                            option ===
-                                              SelectType.EquipmentName &&
-                                            "สถานะประวัติการซ่อม"}
-                                        </Typography>
-                                      </Box>
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          gap: 2,
-                                        }}
-                                      >
-                                        <Radio
-                                          checked={
-                                            values.reportSettings.selectType.toString() ===
-                                            option
-                                          }
-                                          onChange={() => {
-                                            setFieldValue(
-                                              "reportSettings.selectType",
-                                              option
-                                            );
-                                            if (
-                                              option ===
-                                              SelectType.EquipmentName
-                                            ) {
-                                              handleGetEquipmentReadyForRepair();
-                                            }
-                                          }}
-                                          disabled={isLoading || isSubmitting}
-                                          value={option}
-                                          name="delivery-method"
-                                          sx={{
-                                            "&.Mui-checked": {
-                                              color: "#fff",
-                                            },
-                                          }}
-                                        />
-                                      </Box>
-                                    </DeliveryCard>
-                                  </Grid2>
-                                </>
-                              )}
-                            </Box>
-                          ))}
-                        </>
-                      )}
-                    </Field> */}
-                  </Grid2>
-              {/* ============ End Select reportType ============ */}
+              <Grid2 size={{ xs: 12 }} mb={3}>
+                <Grid2 container alignItems="center">
+                  <Avatar sx={{ bgcolor: "primary.main" }}>
+                    <Category />
+                  </Avatar>
+                  <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
+                    เลือกหมวดหมู่
+                  </Typography>
+                </Grid2>
+              </Grid2>
+              <Grid2 container spacing={2} mb={5}>
+                <Grid2 size={{ xs: 12 }}>
+                  <Field name="reportSettings.categoryId">
+                    {({ field }: FieldProps) => (
+                      <Autocomplete
+                        id="reportSettings.categoryId"
+                        options={[
+                          {
+                            categoryId: "test",
+                          },
+                        ]}
+                        // getOptionLabel={(option: CategorySelect) =>
+                        getOptionLabel={(option: any) => option.categoryName}
+                        loading
+                        // onInputChange={(event, value) => {
+                        //   // Handle typed value when no matching option
+                        //   // if (
+                        //   //   value &&
+                        //   //   !categorySelectState.some(
+                        //   //     (opt) => opt.categoryId === value
+                        //   //   )
+                        //   // ) {
+                        //   //   setFieldValue("reportSettings.categoryId", value);
+                        //   // }
+                        // }}
+                        onChange={(event, value) => {
+                          setFieldValue(
+                            "reportSettings.categoryId",
+                            value !== null ? value.categoryId : ""
+                          );
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="ชื่อหมวดหมู่ (จำเป็น)"
+                            name="reportSettings.categoryId"
+                            // error={
+                            //   touched.reportSettings?.categoryId &&
+                            //   Boolean(errors.reportSettings?.categoryId)
+                            // }
+                            // helperText={
+                            //   touched.reportSettings?.categoryId &&
+                            //   errors.reportSettings?.categoryId
+                            // }
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+              </Grid2>
 
-              {/* ============ Start Select Category ============ */}
-  
-                  <PageTitle title="กำหนดรูปแบบ" icon={<DocumentScanner />} />
-                  <Grid2 container spacing={2} mt={4} mb={4}>
-                    <Field name="reportSettings.categoryAll">
-                      {({ field }: FieldProps) => (
-                        <>
-                          <Grid2
-                            container
-                            spacing={2}
-                            mb={2}
-                            flexDirection={"row"}
+              <PageTitle title="กำหนดรูปแบบ" icon={<DocumentScanner />} />
+              <Grid2 container spacing={2} mt={4} mb={4}>
+                <Field name="reportSettings.categoryAll">
+                  {({ field }: FieldProps) => (
+                    <>
+                      <Grid2 container spacing={2} mb={2} flexDirection={"row"}>
+                        <DeliveryCard
+                          // isSelected={
+                          //   values.reportSettings.categoryAll === true
+                          // }
+                          onClick={() =>
+                            setFieldValue("reportSettings.categoryAll", true)
+                          }
+                          elevation={0}
+                        >
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="h6"
+                              // sx={{
+                              //   color:
+                              //     values.reportSettings.categoryAll === true
+                              //       ? "#fff"
+                              //       : "text.primary",
+                              //   mb: 0.5,
+                              // }}
+                            >
+                              ออกรายงานทุกทั้งหมด
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                            }}
                           >
-                            <DeliveryCard
-                              // isSelected={
+                            <Radio
+                              // checked={
                               //   values.reportSettings.categoryAll === true
                               // }
-                              onClick={() =>
+                              disabled={isSubmitting || isLoading}
+                              onChange={() =>
                                 setFieldValue(
                                   "reportSettings.categoryAll",
                                   true
                                 )
                               }
-                              elevation={0}
+                              value={true}
+                              name="delivery-method"
+                              sx={{
+                                "&.Mui-checked": {
+                                  color: "#fff",
+                                },
+                              }}
+                            />
+                          </Box>
+                        </DeliveryCard>
+                        <DeliveryCard
+                          // isSelected={
+                          //   values.reportSettings.categoryAll === false
+                          // }
+                          onClick={() => {
+                            setFieldValue("reportSettings.categoryAll", false);
+                            handleGetSelectCategory();
+                          }}
+                          elevation={0}
+                        >
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="h6"
+                              // sx={{
+                              //   color:
+                              //     values.reportSettings.categoryAll ===
+                              //     false
+                              //       ? "#fff"
+                              //       : "text.primary",
+                              //   mb: 0.5,
+                              // }}
                             >
-                              <Box sx={{ flex: 1 }}>
-                                <Typography
-                                  variant="h6"
-                                  // sx={{
-                                  //   color:
-                                  //     values.reportSettings.categoryAll === true
-                                  //       ? "#fff"
-                                  //       : "text.primary",
-                                  //   mb: 0.5,
-                                  // }}
-                                >
-                                  ออกรายงานทุกหมวดหมู่
-                                </Typography>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 2,
-                                }}
-                              >
-                                <Radio
-                                  // checked={
-                                  //   values.reportSettings.categoryAll === true
-                                  // }
-                                  disabled={isSubmitting || isLoading}
-                                  onChange={() =>
-                                    setFieldValue(
-                                      "reportSettings.categoryAll",
-                                      true
-                                    )
-                                  }
-                                  value={true}
-                                  name="delivery-method"
-                                  sx={{
-                                    "&.Mui-checked": {
-                                      color: "#fff",
-                                    },
-                                  }}
-                                />
-                              </Box>
-                            </DeliveryCard>
-                            <DeliveryCard
-                              // isSelected={
+                              กำหนดระยะเวลา
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                            }}
+                          >
+                            <Radio
+                              // checked={
                               //   values.reportSettings.categoryAll === false
                               // }
-                              onClick={() => {
+                              disabled={isSubmitting || isLoading}
+                              onChange={() => {
                                 setFieldValue(
                                   "reportSettings.categoryAll",
                                   false
                                 );
                                 handleGetSelectCategory();
                               }}
-                              elevation={0}
-                            >
-                              <Box sx={{ flex: 1 }}>
-                                <Typography
-                                  variant="h6"
-                                  // sx={{
-                                  //   color:
-                                  //     values.reportSettings.categoryAll ===
-                                  //     false
-                                  //       ? "#fff"
-                                  //       : "text.primary",
-                                  //   mb: 0.5,
-                                  // }}
-                                >
-                                  ออกรายงานหมวดหมู่ ที่กำหนด
-                                </Typography>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 2,
-                                }}
-                              >
-                                <Radio
-                                  // checked={
-                                  //   values.reportSettings.categoryAll === false
-                                  // }
-                                  disabled={isSubmitting || isLoading}
-                                  onChange={() => {
-                                    setFieldValue(
-                                      "reportSettings.categoryAll",
-                                      false
-                                    );
-                                    handleGetSelectCategory();
-                                  }}
-                                  value={false}
-                                  name="delivery-method"
-                                  sx={{
-                                    "&.Mui-checked": {
-                                      color: "#fff",
-                                    },
-                                  }}
-                                />
-                              </Box>
-                            </DeliveryCard>
-                          </Grid2>
-                        </>
-                      )}
-                    </Field>
-                  </Grid2>
-                  
-                      <Grid2 size={{ xs: 12 }} mb={5}>
-                        <Grid2 container alignItems="center">
-                          <Avatar sx={{ bgcolor: "primary.main" }}>
-                            <Category />
-                          </Avatar>
-                          <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
-                            เลือกหมวดหมู่
-                          </Typography>
-                        </Grid2>
+                              value={false}
+                              name="delivery-method"
+                              sx={{
+                                "&.Mui-checked": {
+                                  color: "#fff",
+                                },
+                              }}
+                            />
+                          </Box>
+                        </DeliveryCard>
                       </Grid2>
-                      <Grid2 container spacing={2}>
-                        <Grid2 size={{ xs: 12 }}>
-                          <Field name="reportSettings.categoryId">
-                            {({ field }: FieldProps) => (
-                              <Autocomplete
-                                id="reportSettings.categoryId"
-                                options={[{
-                                  "categoryId": "test"
-                                }]}
-                                // getOptionLabel={(option: CategorySelect) =>
-                                  getOptionLabel={(option: any) =>
-                                  option.categoryName
-                                }
-                                loading
-                                // onInputChange={(event, value) => {
-                                //   // Handle typed value when no matching option
-                                //   // if (
-                                //   //   value &&
-                                //   //   !categorySelectState.some(
-                                //   //     (opt) => opt.categoryId === value
-                                //   //   )
-                                //   // ) {
-                                //   //   setFieldValue("reportSettings.categoryId", value);
-                                //   // }
-                                // }}
-                                onChange={(event, value) => {
-                                  setFieldValue(
-                                    "reportSettings.categoryId",
-                                    value !== null ? value.categoryId : ""
-                                  );
-                                }}
-                                renderInput={(params) => (
-                                  <TextField
-                                    {...params}
-                                    label="ชื่อหมวดหมู่ (จำเป็น)"
-                                    name="reportSettings.categoryId"
-                                    // error={
-                                    //   touched.reportSettings?.categoryId &&
-                                    //   Boolean(errors.reportSettings?.categoryId)
-                                    // }
-                                    // helperText={
-                                    //   touched.reportSettings?.categoryId &&
-                                    //   errors.reportSettings?.categoryId
-                                    // }
-                                  />
-                                )}
-                              />
-                            )}
-                          </Field>
-                        </Grid2>
-                      </Grid2>
-                      
-              {/* ============ End Select Category ============ */}
+                    </>
+                  )}
+                </Field>
+              </Grid2>
+
+              <Grid2 size={{ xs: 12 }} mb={3}>
+                <Grid2 container alignItems="center">
+                  <Avatar sx={{ bgcolor: "primary.main" }}>
+                    <FilePenLine />
+                  </Avatar>
+                  <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
+                    กำหนดชื่อไฟล์
+                  </Typography>
+                </Grid2>
+              </Grid2>
 
               <Grid2 size={{ xs: 12 }} mt={4} mb={4}>
                 <Field name="filename">
@@ -589,10 +447,10 @@ const ReportExport: React.FC<Props> = ({
 
               <Grid2
                 spacing={1}
-                mt={2}
+                mt={5}
                 container
                 size={12}
-                justifyContent="flex-end"
+                justifyContent="flex-start"
                 alignItems="flex-end"
               >
                 <LoadingButton
@@ -601,10 +459,9 @@ const ReportExport: React.FC<Props> = ({
                   color="primary"
                   sx={{ mr: 1 }}
                   loading={isLoading}
-                  // startIcon={icon}
+                  startIcon={<DownloadIcon />}
                 >
-                  ดาวน์โหลด 
-                  {/* {title} */}
+                  ดาวน์โหลด
                 </LoadingButton>
                 <ConfirmDelete
                   itemId={""}

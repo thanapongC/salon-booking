@@ -2,14 +2,6 @@
 
 "use client";
 
-import {
-  Category,
-  initialCategory,
-  EquipmentType,
-  initialEquipmentType,
-  CategorySelect,
-  TypeSelect,
-} from "@/interfaces/Category";
 import { faker } from "@faker-js/faker";
 import React, {
   createContext,
@@ -20,79 +12,77 @@ import React, {
   useEffect,
 } from "react";
 
-// กำหนดประเภทของ Context
+export enum SelectType {
+  Category = "Category",
+  Location = "Location",
+  EquipmentName = "EquipmentName",
+}
+
+export enum ReportType {
+  InventoryStatus = "InventoryStatus",
+  EquipmentPlan = "EquipmentPlan",
+  MaintenanceStatus = "MaintenanceStatus",
+  RentalPrice = "RentalPrice",
+  EquipmentPrice = "EquipmentPrice",
+  Tracker = "Tracker",
+  MaintenanceLog = "MaintenanceLog",
+  MaintenanceCost = "MaintenanceCost",
+  WorkLoad = "WorkLoad",
+}
+
+export type ReportExport = {
+  reportType: ReportType;
+  filename: string
+  reportSettings: ReportSettings;
+};
+
+type ReportSettings = {
+  selectType: SelectType;
+  equipmentNameAll: boolean;
+  equipmentId: string | null;
+  categoryAll: boolean;
+  categoryId: string | null;
+  locationAll: boolean;
+  locationId: string | null;
+  engineerAll: boolean;
+  engineerId: string | null;
+};
+
+const initialReportSettings: ReportSettings = {
+  selectType: SelectType.Category,
+  equipmentNameAll: false,
+  equipmentId: "",
+  categoryAll: true,
+  categoryId: "",
+  locationAll: true,
+  locationId: "",
+  engineerAll: true,
+  engineerId: "",
+};
+
+export const initialReport: ReportExport = {
+  reportType: ReportType.InventoryStatus,
+  filename: '',
+  reportSettings: initialReportSettings,
+};
+
+export // กำหนดประเภทของ Context
 interface ReportContextProps {
-  categoryState: Category[];
-  setCategoryState: Dispatch<React.SetStateAction<Category[]>>;
-  categoryForm: Category;
-  setCategoryForm: Dispatch<React.SetStateAction<Category>>;
-  categoryEdit: boolean;
-  setCategoryEdit: Dispatch<React.SetStateAction<boolean>>;
-  typeState: EquipmentType[];
-  setTypeState: Dispatch<React.SetStateAction<EquipmentType[]>>;
-  typeForm: EquipmentType;
-  setTypeForm: Dispatch<React.SetStateAction<EquipmentType>>;
-  setCategorySelectState: Dispatch<React.SetStateAction<CategorySelect[]>>;
-  categorySelectState: CategorySelect[];
-  setTypeSelectState: Dispatch<React.SetStateAction<TypeSelect[]>>;
-  typeSelectState: TypeSelect[];
-  setTypeEdit: Dispatch<React.SetStateAction<boolean>>;
-  typeEdit: boolean;
+  reportForm: ReportExport;
+  setReportForm: Dispatch<React.SetStateAction<ReportExport>>;
 }
 
 // สร้าง Context
-const ReportContext = createContext<ReportContextProps | undefined>(
-  undefined
-);
+const ReportContext = createContext<ReportContextProps | undefined>(undefined);
 
 export const ReportProvider = ({ children }: { children: ReactNode }) => {
-  const [categoryState, setCategoryState] = useState<Category[]>([]);
-  const [categorySelectState, setCategorySelectState] = useState<
-    CategorySelect[]
-  >([]);
-  const [typeSelectState, setTypeSelectState] = useState<TypeSelect[]>([]);
-  const [categoryForm, setCategoryForm] = useState<Category>(initialCategory);
-  const [categoryEdit, setCategoryEdit] = useState<boolean>(false);
-  const [typeState, setTypeState] = useState<EquipmentType[]>([]);
-  const [typeForm, setTypeForm] = useState<EquipmentType>(initialEquipmentType);
-  const [typeEdit, setTypeEdit] = useState<boolean>(false);
-
-  useEffect(() => {
-    // setCategoryForm({
-    //   ...categoryForm,
-    //   categoryId: "",
-    //   categoryName: faker.company.name(),
-    //   categoryDesc: faker.lorem.lines(),
-    //   equipments: [],
-    // });
-    // setTypeForm({
-    //   ...typeForm,
-    //   equipmentTypeId: "",
-    //   equipmentTypeName: faker.finance.currencyCode(),
-    //   equipmentTypeDesc: faker.lorem.lines(),
-    //   equipments: [],
-    // });
-  }, []);
+  const [reportForm, setReportForm] = useState<ReportExport>(initialReport);
 
   return (
     <ReportContext.Provider
       value={{
-        categoryState,
-        setCategoryState,
-        categoryForm,
-        setCategoryForm,
-        categoryEdit,
-        setCategoryEdit,
-        typeState,
-        setTypeState,
-        typeForm,
-        setTypeForm,
-        typeEdit,
-        setTypeEdit,
-        categorySelectState,
-        setCategorySelectState,
-        typeSelectState,
-        setTypeSelectState,
+        reportForm,
+        setReportForm,
       }}
     >
       {children}

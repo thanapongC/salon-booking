@@ -1,13 +1,12 @@
 import {
   CollectionsBookmark,
-  ContentPaste,
   Group,
-  Handyman,
-  Inventory,
-  PinDrop,
-  Report,
+  Assessment,
+  Badge,
+  Shower,
+  Settings
 } from "@mui/icons-material";
-import { IconHome } from "@tabler/icons-react";
+import { IconHome,  } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
 import { useTranslations, useLocale } from "next-intl";
@@ -43,25 +42,25 @@ export const useMenuItems = () => {
     {
       id: uniqueId(),
       title: "ตั้งค่าร้านค้า",
-      icon: Group,
+      icon: Settings,
       href: `/${localActive}/protected/settings`,
     },
     {
       id: uniqueId(),
       title: "จัดการบริการ",
-      icon: Group,
+      icon: Shower,
       href: `/${localActive}/protected/services`,
     },
     {
       id: uniqueId(),
       title: "จัดการพนักงาน",
-      icon: Group,
+      icon: Badge,
       href: `/${localActive}/protected/employees`,
     },
     {
       id: uniqueId(),
       title: "รายงาน",
-      icon: Group,
+      icon: Assessment,
       href: `/${localActive}/protected/reports`,
     },
   ];

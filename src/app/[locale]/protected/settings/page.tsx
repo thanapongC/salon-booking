@@ -40,6 +40,9 @@ const Services = () => {
 
   return (
     <PageContainer title="" description="">
+            <Typography variant="h1" mt={2} color="#fff">
+        ตั้งค่าร้านค้า
+      </Typography>
       <BaseCard title="">
         <SettingTabs/>
       </BaseCard>

@@ -36,7 +36,7 @@ import { useLocale } from "next-intl";
 import NotFound from "@/components/shared/used/NotFound";
 import FloatingButton from "@/components/shared/used/FloatingButton";
 import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
-import { Booking } from "@/interfaces/Store";
+import { Booking } from "@/interfaces/Booking";
 import { useBookingContext } from "@/contexts/BookingContext";
 
 interface BookingProps {
@@ -274,7 +274,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
         onClick={() => router.push(`/${localActive}/protected/inventory/new`)}
       />
       <Typography variant="h4" mt={2}>
-        อปุกรณ์ทั้งหมด
+        ค้นหารายการจอง
       </Typography>
       <form onSubmit={handleSubmit}>
         <Box sx={{ display: "grid", gap: 3 }} mb={4} mt={4}>
@@ -358,7 +358,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
                 onClick={handleClear}
                 sx={{ minWidth: 100, width: "48%" }}
               >
-                ล้างฟอร์ม
+                ล้าง
               </Button>
             </Grid2>
           </Grid2>

@@ -40,6 +40,9 @@ const Report = () => {
 
   return (
     <PageContainer title="" description="">
+            <Typography variant="h1" mt={2} color="#fff">
+        รายงาน
+      </Typography>
       <BaseCard title="">
         <ReportExport/>
       </BaseCard>

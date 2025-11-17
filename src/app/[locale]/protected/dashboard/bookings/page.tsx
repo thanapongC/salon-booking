@@ -16,6 +16,7 @@ import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import BookingTable from "@/components/forms/booking/BookingTable";
+import BookingTabs from "@/components/forms/booking/BookingTabs";
 
 const Booking = () => {
   const t = useTranslations("HomePage");
@@ -40,8 +41,11 @@ const Booking = () => {
 
   return (
     <PageContainer title="" description="">
+      <Typography variant="h1" mt={2} color="#fff">
+        การจองทั้งหมด
+      </Typography>
       <BaseCard title="">
-        <BookingTable />
+        <BookingTabs />
       </BaseCard>
     </PageContainer>
   );

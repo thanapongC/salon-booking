@@ -42,6 +42,9 @@ const WaitingConfirm = () => {
 
   return (
     <PageContainer title="" description="">
+      <Typography variant="h1" mt={2} color="#fff">
+        รอยืนยันการจอง
+      </Typography>
       <BaseCard title="">
         <WaitingConfirmTable />
       </BaseCard>

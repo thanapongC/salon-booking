@@ -1,9 +1,9 @@
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import * as XLSX from 'xlsx';
-import { EquipmentRow } from '@/interfaces/Equipment';
-import { ReportType, SelectType } from "@/contexts/ReportContext";
-import { DocumentCategory, DocumentStep, MaintenanceType } from "@prisma/client";
+// import { EquipmentRow } from '@/interfaces/Equipment';
+// import { ReportType, SelectType } from "@/contexts/ReportContext";
+// import { DocumentCategory, DocumentStep, MaintenanceType } from "@prisma/client";
 
 export function parseDateToMongo(dateStr: string): Date | null {
   if (!dateStr || typeof dateStr !== 'string') return null;
@@ -85,17 +85,17 @@ export function validateExcelColumns(fileBuffer: ArrayBuffer): { valid: boolean;
   return { valid: true };
 }
 
-export const REQUIRED_COLUMN: (keyof EquipmentRow)[] = [
-  'equipmentName',
-  'serialNo',
-  'brand',
-  'description',
-  'equipmentPrice',
-  'categoryName',
-  'rentalPriceCurrent',
-  'purchaseDate',
-  'unitName'
-];
+// export const REQUIRED_COLUMN: (keyof EquipmentRow)[] = [
+//   'equipmentName',
+//   'serialNo',
+//   'brand',
+//   'description',
+//   'equipmentPrice',
+//   'categoryName',
+//   'rentalPriceCurrent',
+//   'purchaseDate',
+//   'unitName'
+// ];
 
 export const REQUIRED_COLUMNS: string[] = [
   "equipmentName",
@@ -274,83 +274,83 @@ export const compareDates = (date1: Date | string, date2: Date | string): number
   return 0;               // date1 เท่ากับ date2
 };
 
-export function checkDocumentType(type: MaintenanceType) {
-  switch (type) {
-    case MaintenanceType.IRP:
-      return "Included In RentalPrice";
-    case MaintenanceType.MQ:
-      return "Make Quotation";
-    case MaintenanceType.BCS:
-      return "Back Charge To Site";
-    default:
-      return "";
-  }
-}
+// export function checkDocumentType(type: MaintenanceType) {
+//   switch (type) {
+//     case MaintenanceType.IRP:
+//       return "Included In RentalPrice";
+//     case MaintenanceType.MQ:
+//       return "Make Quotation";
+//     case MaintenanceType.BCS:
+//       return "Back Charge To Site";
+//     default:
+//       return "";
+//   }
+// }
 
-export const checkStep = (value: DocumentStep, setActiveStep: (number: number) => void, documentCategory: DocumentCategory) => {
-  switch (value) {
-    case DocumentStep.Equipment:
-      setActiveStep && setActiveStep(2);
-      // code block
-      break;
-    case DocumentStep.Location:
-      setActiveStep && setActiveStep(1);
-      // code block
-      break;
-    case DocumentStep.Part:
-      setActiveStep && setActiveStep(3);
-      // code block
-      break;
-    case DocumentStep.Repairman:
-      setActiveStep && setActiveStep(4);
-      // code block
-      break;
-    case DocumentStep.AdditionalFee:
-      setActiveStep && setActiveStep(5);
-      // code block
-      break;
-    case DocumentStep.WaitingApprove:
-      if (documentCategory === DocumentCategory.Rental) {
-        setActiveStep && setActiveStep(3);
-      } else {
-        setActiveStep && setActiveStep(6);
-      }
-      // code block
-      break;
-    default:
-      setActiveStep && setActiveStep(0);
-    // code block
-  }
-};
+// export const checkStep = (value: DocumentStep, setActiveStep: (number: number) => void, documentCategory: DocumentCategory) => {
+//   switch (value) {
+//     case DocumentStep.Equipment:
+//       setActiveStep && setActiveStep(2);
+//       // code block
+//       break;
+//     case DocumentStep.Location:
+//       setActiveStep && setActiveStep(1);
+//       // code block
+//       break;
+//     case DocumentStep.Part:
+//       setActiveStep && setActiveStep(3);
+//       // code block
+//       break;
+//     case DocumentStep.Repairman:
+//       setActiveStep && setActiveStep(4);
+//       // code block
+//       break;
+//     case DocumentStep.AdditionalFee:
+//       setActiveStep && setActiveStep(5);
+//       // code block
+//       break;
+//     case DocumentStep.WaitingApprove:
+//       if (documentCategory === DocumentCategory.Rental) {
+//         setActiveStep && setActiveStep(3);
+//       } else {
+//         setActiveStep && setActiveStep(6);
+//       }
+//       // code block
+//       break;
+//     default:
+//       setActiveStep && setActiveStep(0);
+//     // code block
+//   }
+// };
 
-export const showNameSelctReportSetting = (name: string) => {
-  switch (name) {
-    case SelectType.Category.toString():
-      return "รายงานตามหมวดหมู่";
-    case SelectType.EquipmentName.toString():
-      return "รายงานตามชื่ออุปกรณ์";
-    case SelectType.Location.toString():
-      return "รายงานตามสถานที่";
-    case ReportType.EquipmentPlan.toString():
-      return "รายงานสถานะและแผนใช้งานเครื่องจักร";
-    case ReportType.EquipmentPrice.toString():
-      return "รายงานสรุปมูลค่าเครื่องจักร";
-    case ReportType.InventoryStatus.toString():
-      return "รายงานสถานะเครื่องจักร";
-    case ReportType.MaintenanceCost.toString():
-      return "รายงานสรุปค่าซ่อมรายเดือน";
-    case ReportType.MaintenanceLog.toString():
-      return "รายงานสถานะซ่อมเครื่องจักร";
-    case ReportType.MaintenanceStatus.toString():
-      return "สถานที่";
-    case ReportType.RentalPrice.toString():
-      return "รายงานสรุปค่าเช่ารวม";
-    case ReportType.Tracker.toString():
-      return "รายงานสรุปค่าเช่าประจำเดือน";
-    case ReportType.WorkLoad.toString():
-      return "รายงานภาระงานผู้ซ่อม";
-    default:
-      name;
-      break;
-  }
-};
+// export const showNameSelctReportSetting = (name: string) => {
+//   switch (name) {
+//     case SelectType.Category.toString():
+//       return "รายงานตามหมวดหมู่";
+//     case SelectType.EquipmentName.toString():
+//       return "รายงานตามชื่ออุปกรณ์";
+//     case SelectType.Location.toString():
+//       return "รายงานตามสถานที่";
+//     case ReportType.EquipmentPlan.toString():
+//       return "รายงานสถานะและแผนใช้งานเครื่องจักร";
+//     case ReportType.EquipmentPrice.toString():
+//       return "รายงานสรุปมูลค่าเครื่องจักร";
+//     case ReportType.InventoryStatus.toString():
+//       return "รายงานสถานะเครื่องจักร";
+//     case ReportType.MaintenanceCost.toString():
+//       return "รายงานสรุปค่าซ่อมรายเดือน";
+//     case ReportType.MaintenanceLog.toString():
+//       return "รายงานสถานะซ่อมเครื่องจักร";
+//     case ReportType.MaintenanceStatus.toString():
+//       return "สถานที่";
+//     case ReportType.RentalPrice.toString():
+//       return "รายงานสรุปค่าเช่ารวม";
+//     case ReportType.Tracker.toString():
+//       return "รายงานสรุปค่าเช่าประจำเดือน";
+//     case ReportType.WorkLoad.toString():
+//       return "รายงานภาระงานผู้ซ่อม";
+//     default:
+//       name;
+//       break;
+//   }
+// };
