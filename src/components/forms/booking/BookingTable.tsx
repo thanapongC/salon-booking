@@ -269,21 +269,19 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
   }, [paginationModel, recall]);
 
   return (
-    <>
-      <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/inventory/new`)}
-      />
-      <Typography variant="h4" mt={2}>
+    <Grid2 container>
+      {/* <Typography variant="h4" mt={2}>
         ค้นหารายการจอง
-      </Typography>
+      </Typography> */}
+
       <form onSubmit={handleSubmit}>
         <Box sx={{ display: "grid", gap: 3 }} mb={4} mt={4}>
           <Grid2 container spacing={2}>
             <Grid2 size={3}>
               <TextField
                 fullWidth
-                label="S/N"
-                name="serialNo"
+                label="ชื่อลูกค้า"
+                name="ชื่อลูกค้า"
                 value={formData.serialNo}
                 onChange={handleChange}
                 size="small"
@@ -303,7 +301,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
             <Grid2 size={3}>
               <TextField
                 fullWidth
-                label="ชื่ออุปกรณ์"
+                label="Booking ID"
                 name="equipmentName"
                 value={formData.equipmentName}
                 onChange={handleChange}
@@ -325,7 +323,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
               <TextField
                 select
                 fullWidth
-                label="สถานะอุปกรณ์"
+                label="สถานะ"
                 name="stockStatus"
                 size="small"
                 value={formData.stockStatus}
@@ -400,7 +398,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
           />
         </>
       </BaseCard>
-    </>
+    </Grid2>
   );
 };
 
