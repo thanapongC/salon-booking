@@ -1,5 +1,17 @@
 import React, { FC, useEffect, useState } from "react";
-import { Box, Typography, Grid2, TextField, Avatar, Button, InputAdornment } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid2,
+  TextField,
+  Avatar,
+  Button,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik } from "formik";
@@ -20,12 +32,17 @@ import {
 import { useLocale } from "next-intl";
 import StatusBooking from "@/components/shared/used/Status";
 import dayjs from "dayjs";
-import { Bath, MonitorCog, Plus, Save } from "lucide-react";
+import { Bath, MonitorCog, Phone, Plus, Save, Timer } from "lucide-react";
 import { AutoFixHigh, Category, Handyman, More } from "@mui/icons-material";
 import { IconCurrencyBaht } from "@tabler/icons-react";
 import { bookingService } from "@/utils/services/api-services/BookingAPI";
 import { useBookingContext } from "@/contexts/BookingContext";
 import { Booking, initialBooking } from "@/interfaces/Booking";
+import { useStoreContext } from "@/contexts/StoreContext";
+import { EmployeeSelect, ServiceSelect } from "@/interfaces/Store";
+import { TimePicker } from "@mui/x-date-pickers";
+import { CustomerType } from "@prisma/client";
+import { useEmployeeContext } from "@/contexts/EmployeeContext";
 
 interface BookingProps {
   viewOnly?: boolean;
@@ -34,6 +51,8 @@ interface BookingProps {
 const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
   const { setBookingForm, bookingEdit, setBookingEdit, setBookings, bookings } =
     useBookingContext();
+  const { servicesSelect } = useStoreContext();
+  const { employeeSelect } = useEmployeeContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
@@ -119,7 +138,6 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
         //     purchaseDate: dayjs(data.aboutBooking.purchaseDate),
         //   },
         // };
-
         // setBookings(modifiedData);
       })
       .catch((error) => {
@@ -207,120 +225,328 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
                         <Plus size={20} />
                       </Avatar>
                       <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
-                        เพิ่มบริการ
+                        เพิ่มการจอง
                       </Typography>
                     </Grid2>
                   </Grid2>
                 </Grid2>
 
-                {/* Booking Name */}
-                <Grid2 size={{ xs: 6 }}>
-                  {/* <Field name="name">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="name"
-                        label="ชื่อบริการ (จำเป็น)"
-                        value={values.name}
+                <Grid2 container size={{ xs: 12 }} mb={4} spacing={2}>
+                  <Grid2 size={{ xs: 6 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id="other-contact-label">
+                        ช่องทางการจอง (จำเป็น)
+                      </InputLabel>
+                      <Select
+                        labelId="other-contact-label"
+                        label="ช่องทางการจอง (จำเป็น)"
+                        value={values.customerType && values.customerType}
                         onChange={(e) => {
-                          setFieldValue("name", e.target.value);
+                          setFieldValue("customerType", e.target.value);
                         }}
-                        placeholder=""
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                          },
-                        }}
-                        error={
-                          touched.name && Boolean(errors.name)
-                        }
-                        helperText={
-                          touched.name && errors.name
-                        }
-                        fullWidth
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field> */}
-                </Grid2>
+                      >
+                        <MenuItem value={CustomerType.WALK_IN}>
+                          Walk In
+                        </MenuItem>
+                        <MenuItem value={CustomerType.OTHER_CONTACT}>
+                          ช่องทางอื่นๆ
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid2>
 
-                <Grid2 size={{ xs: 6 }}>
-                  {/* <Field name="durationMinutes">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        name="durationMinutes"
-                        label="เวลา (จำเป็น)"
-                        // sx={{ textTransform: "uppercase" }}
-                        value={values.durationMinutes ? values.durationMinutes : ""}
-                        onChange={(e) => {
-                          setFieldValue(
-                            "durationMinutes",
-                            e.target.value
-                          );
-                        }}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                            endAdornment: <InputAdornment position="start">นาที</InputAdornment>,
-          
-                          },
-                        }}
-                        placeholder=""
-                        error={touched.durationMinutes && Boolean(errors.durationMinutes)}
-                        helperText={touched.durationMinutes && errors.durationMinutes}
-                        fullWidth
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                      />
-                    )}
-                  </Field> */}
-                </Grid2>
+                  {/* Booking Name */}
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="serviceId">
+                      {({ field }: FieldProps) => (
+                        <Autocomplete
+                          id="serviceId"
+                          options={servicesSelect}
+                          getOptionLabel={(option: ServiceSelect) =>
+                            option.name
+                          }
+                          loading
+                          onInputChange={(event, value) => {
+                            // Handle typed value when no matching option
+                            if (
+                              value &&
+                              !servicesSelect.some((opt) => opt.id === value)
+                            ) {
+                              setFieldValue("serviceId", value);
+                            }
+                          }}
+                          onChange={(event, value) => {
+                            setFieldValue(
+                              "serviceId",
+                              value !== null ? value.id : ""
+                            );
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="เลือกบริการ (จำเป็น)"
+                              name="serviceId"
+                              error={
+                                touched.serviceId && Boolean(errors.serviceId)
+                              }
+                              helperText={touched.serviceId && errors.serviceId}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
 
-                {/* Rental Price */}
-                <Grid2 size={{ xs: 6 }}>
-                  {/* <Field name="price">
-                    {({ field }: any) => (
-                      <TextField
-                        {...field}
-                        disabled={openBackdrop || isSubmitting || disabledForm}
-                        name="price"
-                        label="ราคา/คอร์ส (จำเป็น)"
-                        value={values.price ?? ""}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                          input: {
-                            readOnly: viewOnly ? true : false,
-                            endAdornment: <InputAdornment position="start">บาท</InputAdornment>,
-                          },
-                        }}
-                        type="number"
-                        onChange={(e) => {
-                          const newValue = e.target.value.replace(/\D/g, ""); // กรองเฉพาะตัวเลข
-                          setFieldValue(
-                            "price",
-                            newValue || ""
-                          ); // ป้องกัน NaN
-                        }}
-                        error={
-                          touched.price &&
-                          Boolean(errors.price)
-                        }
-                        helperText={
-                          touched.price &&
-                          errors.price
-                        }
-                        fullWidth
-                      />
-                    )}
-                  </Field> */}
-                </Grid2>
+                  <Grid2 size={{ xs: 12 }} mb={2} mt={2}>
+                    <Grid2 container alignItems="center">
+                      <Avatar sx={{ bgcolor: "primary.main" }}>
+                        <Timer size={20} />
+                      </Avatar>
+                      <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
+                        กำหนดเวลานัด - เลือกพนักงาน
+                      </Typography>
+                    </Grid2>
+                  </Grid2>
 
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="bookingDate">
+                      {({ field, form }: FieldProps) => (
+                        <DatePicker
+                          // disabled={openBackdrop || isSubmitting || disabledForm}
+                          label="วันที่"
+                          sx={{ minWidth: "100%" }}
+                          // ✔ เวลา (dayjs) หรือ null
+                          value={
+                            values.bookingDate
+                              ? dayjs(values.bookingDate)
+                              : null
+                          }
+                          // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                          onChange={(newValue) => {
+                            form.setFieldValue(
+                              "bookingDate",
+                              newValue ? newValue.toISOString() : null
+                            );
+                          }}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              error: Boolean(
+                                touched.bookingDate && errors.bookingDate
+                              ),
+                              helperText:
+                                touched.bookingDate && errors.bookingDate
+                                  ? String(errors.bookingDate)
+                                  : "",
+                            },
+                          }}
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
+
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="bookingTime">
+                      {({ field, form }: FieldProps) => (
+                        <TimePicker
+                          // disabled={openBackdrop || isSubmitting || disabledForm}
+                          label="เวลา"
+                          sx={{ minWidth: "100%" }}
+                          // ✔ เวลา (dayjs) หรือ null
+                          value={
+                            values.bookingTime
+                              ? dayjs(values.bookingTime)
+                              : null
+                          }
+                          // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                          onChange={(newValue) => {
+                            form.setFieldValue(
+                              "bookingTime",
+                              newValue ? newValue.toISOString() : null
+                            );
+                          }}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              error: Boolean(
+                                touched.bookingTime && errors.bookingTime
+                              ),
+                              helperText:
+                                touched.bookingTime && errors.bookingTime
+                                  ? String(errors.bookingTime)
+                                  : "",
+                            },
+                          }}
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
+
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="employeeId">
+                      {({ field }: FieldProps) => (
+                        <Autocomplete
+                          id="employeeId"
+                          options={employeeSelect}
+                          getOptionLabel={(option: EmployeeSelect) =>
+                            option.name
+                          }
+                          loading
+                          onInputChange={(event, value) => {
+                            // Handle typed value when no matching option
+                            if (
+                              value &&
+                              !employeeSelect.some((opt) => opt.id === value)
+                            ) {
+                              setFieldValue("employeeId", value);
+                            }
+                          }}
+                          onChange={(event, value) => {
+                            setFieldValue(
+                              "employeeId",
+                              value !== null ? value.id : ""
+                            );
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="เลือกพนักงาน (จำเป็น)"
+                              name="employeeId"
+                              error={
+                                touched.employeeId && Boolean(errors.employeeId)
+                              }
+                              helperText={
+                                touched.employeeId && errors.employeeId
+                              }
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
+
+                  <Grid2 size={{ xs: 12 }} mb={2} mt={2}>
+                    <Grid2 container alignItems="center">
+                      <Avatar sx={{ bgcolor: "primary.main" }}>
+                        <Phone size={20} />
+                      </Avatar>
+                      <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
+                        ช่องทางการติดต่อ
+                      </Typography>
+                    </Grid2>
+                  </Grid2>
+
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="customerName">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          name="customerName"
+                          label="ชื่อลูกค้า (จำเป็น)"
+                          // sx={{ textTransform: "uppercase" }}
+                          value={values.customerName ? values.customerName : ""}
+                          onChange={(e) => {
+                            setFieldValue("customerName", e.target.value);
+                          }}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                              readOnly: viewOnly ? true : false,
+                            },
+                          }}
+                          placeholder=""
+                          error={
+                            touched.customerName && Boolean(errors.customerName)
+                          }
+                          helperText={
+                            touched.customerName && errors.customerName
+                          }
+                          fullWidth
+                          disabled={
+                            openBackdrop || isSubmitting || disabledForm
+                          }
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
+
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="customerPhone">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          name="customerPhone"
+                          label="เบอร์โทร (จำเป็น)"
+                          // sx={{ textTransform: "uppercase" }}
+                          value={
+                            values.customerPhone ? values.customerPhone : ""
+                          }
+                          onChange={(e) => {
+                            setFieldValue("customerPhone", e.target.value);
+                          }}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                              readOnly: viewOnly ? true : false,
+                            },
+                          }}
+                          placeholder=""
+                          error={
+                            touched.customerPhone &&
+                            Boolean(errors.customerPhone)
+                          }
+                          helperText={
+                            touched.customerPhone && errors.customerPhone
+                          }
+                          fullWidth
+                          disabled={
+                            openBackdrop || isSubmitting || disabledForm
+                          }
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
+
+                  <Grid2 size={{ xs: 6 }}>
+                    <Field name="customerEmail">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          name="customerEmail"
+                          label="Email (ถ้ามี)"
+                          // sx={{ textTransform: "uppercase" }}
+                          value={
+                            values.customerEmail ? values.customerEmail : ""
+                          }
+                          onChange={(e) => {
+                            setFieldValue("customerEmail", e.target.value);
+                          }}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                              readOnly: viewOnly ? true : false,
+                            },
+                          }}
+                          placeholder=""
+                          error={
+                            touched.customerEmail &&
+                            Boolean(errors.customerEmail)
+                          }
+                          helperText={
+                            touched.customerEmail && errors.customerEmail
+                          }
+                          fullWidth
+                          disabled={
+                            openBackdrop || isSubmitting || disabledForm
+                          }
+                        />
+                      )}
+                    </Field>
+                  </Grid2>
+
+
+                </Grid2>
               </Grid2>
-
-
-
 
               <Grid2
                 sx={{ mt: 5, display: "flex", justifyContent: "flex-start" }}

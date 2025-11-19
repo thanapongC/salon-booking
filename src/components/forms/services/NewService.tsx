@@ -1,5 +1,13 @@
 import React, { FC, useEffect, useState } from "react";
-import { Box, Typography, Grid2, TextField, Avatar, Button, InputAdornment } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid2,
+  TextField,
+  Avatar,
+  Button,
+  InputAdornment,
+} from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik } from "formik";
@@ -7,7 +15,6 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
 import { LoadingButton } from "@mui/lab";
-import { useCategoryContext } from "@/contexts/CategoryContext";
 import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
 import { ButtonType } from "@/interfaces/ShredType";
 import { useNotifyContext } from "@/contexts/NotifyContext";
@@ -120,7 +127,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
         //     purchaseDate: dayjs(data.aboutService.purchaseDate),
         //   },
         // };
-
         // setServices(modifiedData);
       })
       .catch((error) => {
@@ -233,12 +239,8 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                             readOnly: viewOnly ? true : false,
                           },
                         }}
-                        error={
-                          touched.name && Boolean(errors.name)
-                        }
-                        helperText={
-                          touched.name && errors.name
-                        }
+                        error={touched.name && Boolean(errors.name)}
+                        helperText={touched.name && errors.name}
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />
@@ -254,24 +256,31 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                         name="durationMinutes"
                         label="เวลา (จำเป็น)"
                         // sx={{ textTransform: "uppercase" }}
-                        value={values.durationMinutes ? values.durationMinutes : ""}
+                        value={
+                          values.durationMinutes ? values.durationMinutes : ""
+                        }
                         onChange={(e) => {
-                          setFieldValue(
-                            "durationMinutes",
-                            e.target.value
-                          );
+                          setFieldValue("durationMinutes", e.target.value);
                         }}
                         slotProps={{
                           inputLabel: { shrink: true },
                           input: {
                             readOnly: viewOnly ? true : false,
-                            endAdornment: <InputAdornment position="start">นาที</InputAdornment>,
-          
+                            endAdornment: (
+                              <InputAdornment position="start">
+                                นาที
+                              </InputAdornment>
+                            ),
                           },
                         }}
                         placeholder=""
-                        error={touched.durationMinutes && Boolean(errors.durationMinutes)}
-                        helperText={touched.durationMinutes && errors.durationMinutes}
+                        error={
+                          touched.durationMinutes &&
+                          Boolean(errors.durationMinutes)
+                        }
+                        helperText={
+                          touched.durationMinutes && errors.durationMinutes
+                        }
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />
@@ -293,35 +302,26 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                           inputLabel: { shrink: true },
                           input: {
                             readOnly: viewOnly ? true : false,
-                            endAdornment: <InputAdornment position="start">บาท</InputAdornment>,
+                            endAdornment: (
+                              <InputAdornment position="start">
+                                บาท
+                              </InputAdornment>
+                            ),
                           },
                         }}
                         type="number"
                         onChange={(e) => {
                           const newValue = e.target.value.replace(/\D/g, ""); // กรองเฉพาะตัวเลข
-                          setFieldValue(
-                            "price",
-                            newValue || ""
-                          ); // ป้องกัน NaN
+                          setFieldValue("price", newValue || ""); // ป้องกัน NaN
                         }}
-                        error={
-                          touched.price &&
-                          Boolean(errors.price)
-                        }
-                        helperText={
-                          touched.price &&
-                          errors.price
-                        }
+                        error={touched.price && Boolean(errors.price)}
+                        helperText={touched.price && errors.price}
                         fullWidth
                       />
                     )}
                   </Field>
                 </Grid2>
-
               </Grid2>
-
-
-
 
               <Grid2
                 sx={{ mt: 5, display: "flex", justifyContent: "flex-start" }}

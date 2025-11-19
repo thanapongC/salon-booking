@@ -121,19 +121,20 @@ enum BookingStatus {
   RESCHEDULED // เลื่อนนัด
   CANCELLED // ยกเลิก
   COMPLETED // เสร็จสิ้นบริการ
-  WALK_IN // คิว Walk-in (2.4)
 }
 
 model Booking {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
+
   customerName  String // 3.6
   customerPhone String // 3.6
+  customerEmail String?
 
-  startTime DateTime // 3.5 วัน-เวลาเริ่ม
-  endTime   DateTime // คำนวณจาก startTime + Service.durationMinutes
+  bookingDate DateTime // 3.5 วัน-เวลาเริ่ม
+  bookingTime   DateTime // คำนวณจาก startTime + Service.durationMinutes
 
   status   BookingStatus @default(CONFIRMED) // 2.7, 2.8, 2.9
-  isWalkIn Boolean       @default(false) // 2.4 เพิ่มคิว walk-in
+  customerType CustomerType  @default(LINE)  // 2.4 เพิ่มคิว walk-in
 
   // ความสัมพันธ์
   storeId String @db.ObjectId
@@ -159,7 +160,13 @@ model Booking {
   // (แต่ MongoDB/Prisma ไม่รองรับ unique index บน DateTime ในรูปแบบที่ซับซ้อนสำหรับการจองซ้อน) 
   // จึงควรจัดการที่ Application Logic เมื่อสร้าง/แก้ไข Booking
   // อย่างไรก็ตาม การรวม employeeId, startTime เป็น unique index อาจช่วยได้ในระดับหนึ่ง
-  @@index([employeeId, startTime]) // ช่วยในการตรวจสอบคิวซ้ำ/ค้นหาคิว
+  // @@index([employeeId]) // ช่วยในการตรวจสอบคิวซ้ำ/ค้นหาคิว
+}
+
+enum CustomerType {
+    LINE
+    WALK_IN
+    OTHER_CONTACT
 }
 
 model Service {

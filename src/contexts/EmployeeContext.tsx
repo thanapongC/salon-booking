@@ -4,6 +4,7 @@
 
 import {
   Employee,
+  EmployeeSelect,
   initialEmployee,
   // initialemployee,
   // employeeSelect,
@@ -27,8 +28,8 @@ interface EmployeeContextProps {
   employeeEdit: boolean;
   setEmployeeEdit: Dispatch<React.SetStateAction<boolean>>;
   // setTypeForm: Dispatch<React.SetStateAction<Employee>>;
-  // setemployeeSelectState: Dispatch<React.SetStateAction<employeeSelect[]>>;
-  // employeeSelectState: employeeSelect[];
+  setEmployeeSelect: Dispatch<React.SetStateAction<EmployeeSelect[]>>;
+  employeeSelect: EmployeeSelect[];
 }
 
 // สร้าง Context
@@ -38,9 +39,9 @@ const EmployeeContext = createContext<EmployeeContextProps | undefined>(
 
 export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  // const [employeeSelectState, setemployeeSelectState] = useState<
-  //   employeeSelect[]
-  // >([]);
+  const [employeeSelect, setEmployeeSelect] = useState<
+    EmployeeSelect[]
+  >([]);
   const [employeeForm, setEmployeeForm] = useState<Employee>(initialEmployee)
   const [employeeEdit, setEmployeeEdit] = useState<boolean>(false);
 
@@ -70,6 +71,8 @@ export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
         setEmployeeForm,
         employeeEdit,
         setEmployeeEdit,
+        employeeSelect,
+        setEmployeeSelect
         // employeeSelectState,
         // setemployeeSelectState,
       }}

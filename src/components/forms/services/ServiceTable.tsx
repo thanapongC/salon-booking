@@ -102,66 +102,32 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
             itemId={params.row.id}
             onDelete={handleDeleteItem}
             // onDisable={
-            //   params.row.aboutService?.stockStatus ===
-            //     ServiceStatus.CurrentlyRenting ||
-            //   params.row.aboutService?.stockStatus ===
-            //     ServiceStatus.InActive ||
-            //   params.row.aboutService?.stockStatus === ServiceStatus.Damaged
+            //   params.row.aboutEmployee?.stockStatus ===
+            //     EmployeeStatus.CurrentlyRenting ||
+            //   params.row.aboutEmployee?.stockStatus ===
+            //     EmployeeStatus.InActive ||
+            //   params.row.aboutEmployee?.stockStatus === EmployeeStatus.Damaged
             // }
             // massage={`คุณต้องการลบอุปกรณ์ ${params.row.equipmentName} ใช่หรือไม่?`}
           />
         </>
       ),
     },
-    { field: "serialNo", headerName: "SerialNo.", width: 200 },
+    { field: "serialNo", headerName: "บริการ", width: 400 },
     {
       field: "equipmentName",
-      headerName: "ชื่ออุปกรณ์",
-      width: 200,
+      headerName: "ระยะเวลาให้บริการ",
+      width: 300,
       // renderCell: (params) => <b> {params.row.equipmentName} </b>,
-    },
-    { field: "brand", headerName: "แบรนด์", width: 150 },
-    { field: "description", headerName: "รายละเอียด", width: 200 },
-    { field: "remark", headerName: "บันทึกเพิ่มเติม", width: 200 },
-    {
-      field: "equipmentType",
-      headerName: "ประเภท",
-      width: 200,
-      // valueGetter: (value, row) => row.equipmentType?.equipmentTypeName,
-    },
-    {
-      field: "categoryName",
-      headerName: "หมวดหมู่",
-      width: 200,
-      // valueGetter: (value, row) => row.category?.categoryName,
-    },
-    {
-      field: "rentalPriceCurrent",
-      headerName: "ราคาเช่า",
-      width: 150,
-      // valueGetter: (value, row) =>
-        // formatNumber(row.aboutService?.rentalPriceCurrent),
-    },
-    {
-      field: "purchaseDate",
-      headerName: "วันที่ซื้อ",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutService?.purchaseDate,
-    },
-    {
-      field: "unitName",
-      headerName: "หน่วยเรียก",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutService?.unitName,
     },
     {
       field: "stockStatus",
-      headerName: "สถานะ",
+      headerName: "ราคา",
       width: 150,
-      // valueGetter: (value, row) => row.aboutService?.stockStatus,
+      // valueGetter: (value, row) => row.aboutEmployee?.stockStatus,
       renderCell: (params) => (
         <>
-          {/* <StatusService status={params.row.aboutService?.stockStatus} /> */}
+          {/* <StatusEmployee status={params.row.aboutEmployee?.stockStatus} /> */}
         </>
       ),
     },
@@ -261,111 +227,15 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
     }
   };
 
-  useEffect(() => {
-    getData();
-    return () => {
-      setServices([]);
-    };
-  }, [paginationModel, recall]);
+  // useEffect(() => {
+  //   getData();
+  //   return () => {
+  //     setServices([]);
+  //   };
+  // }, [paginationModel, recall]);
 
   return (
     <>
-      {/* <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/inventory/new`)}
-      /> */}
-      {/* <Typography variant="h4" mt={2}>
-        อปุกรณ์ทั้งหมด
-      </Typography> */}
-      {/* <form onSubmit={handleSubmit}>
-        <Box sx={{ display: "grid", gap: 3 }} mb={4} mt={4}>
-          <Grid2 container spacing={2}>
-            <Grid2 size={3}>
-              <TextField
-                fullWidth
-                label="S/N"
-                name="serialNo"
-                value={formData.serialNo}
-                onChange={handleChange}
-                size="small"
-                sx={{ background: "#ffffff" }}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <Barcode />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid2>
-            <Grid2 size={3}>
-              <TextField
-                fullWidth
-                label="ชื่ออุปกรณ์"
-                name="equipmentName"
-                value={formData.equipmentName}
-                onChange={handleChange}
-                size="small"
-                sx={{ background: "#ffffff" }}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <Baseline />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid2>
-            <Grid2 size={3}>
-              <TextField
-                select
-                fullWidth
-                label="สถานะอุปกรณ์"
-                name="stockStatus"
-                size="small"
-                value={formData.stockStatus}
-                onChange={handleChange}
-                sx={{ background: "#ffffff" }}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-              >
-                {Object.values(ServiceStatus).map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid2>
-            <Grid2 size={3} container spacing={1}>
-              <Button
-                type="submit"
-                variant="contained"
-                startIcon={<Search />}
-                sx={{ minWidth: 100, width: "48%" }}
-                onClick={handleSubmit}
-              >
-                ค้นหา
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Clear />}
-                onClick={handleClear}
-                sx={{ minWidth: 100, width: "48%" }}
-              >
-                ล้างฟอร์ม
-              </Button>
-            </Grid2>
-          </Grid2>
-        </Box>
-      </form> */}
-      <BaseCard>
-        <>
           <DataGrid
             getRowId={(row) => row.id}
             initialState={{
@@ -398,8 +268,6 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
               toolbar: CustomToolbar,
             }}
           />
-        </>
-      </BaseCard>
     </>
   );
 };

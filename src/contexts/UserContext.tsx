@@ -42,21 +42,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [typeEdit, setTypeEdit] = useState<boolean>(false);
 
   const makeFakeData = () => {
-    let _name = faker.person.firstName();
-    setUserForm({
-      ...userForm,
-      email: `${_name}@mail.com`,
-      password: "",
-      name: `${_name} ${faker.person.lastName()}`,
-      department: faker.person.jobTitle(),
-      position: faker.person.jobType(),
-      image: "",
-      roleName: RoleName.Employee,
-      userStatus: UserStatus.Active,
-      phone: faker.phone.number({ style: 'human' }),
-      manDay: toNumber(faker.finance.amount({ min: 1, max: 10000, dec: 0 })),
-      address: `${faker.location.buildingNumber()} ${faker.location.street()} ${faker.location.city()} ${faker.location.country()} ${faker.location.zipCode()}`,
-    });
+    // let _name = faker.person.firstName();
+    // setUserForm({
+    //   ...userForm,
+    //   email: `${_name}@mail.com`,
+    //   password: "",
+    //   name: `${_name} ${faker.person.lastName()}`,
+    //   department: faker.person.jobTitle(),
+    //   position: faker.person.jobType(),
+    //   image: "",
+    //   roleName: RoleName.Employee,
+    //   userStatus: UserStatus.Active,
+    //   phone: faker.phone.number({ style: 'human' }),
+    //   manDay: toNumber(faker.finance.amount({ min: 1, max: 10000, dec: 0 })),
+    //   address: `${faker.location.buildingNumber()} ${faker.location.street()} ${faker.location.city()} ${faker.location.country()} ${faker.location.zipCode()}`,
+    // });
   };
 
   return (

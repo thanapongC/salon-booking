@@ -18,6 +18,7 @@ const AuthRegister = () => {
         sx={{
           width: "100%",
           maxWidth: "1200px",
+          minHeight: "70vh",
           display: "flex",
           borderRadius: "16px",
           overflow: "hidden",
@@ -27,7 +28,10 @@ const AuthRegister = () => {
         {/* Left Section */}
         <Box
           sx={{
-            backgroundColor: "#3f51b5",
+            // backgroundColor: "#3f51b5",
+            background:
+              "linear-gradient(90deg, rgba(42, 72, 160, 1) 0%, rgba(69, 189, 187, 1) 100%)",
+
             color: "#fff",
             display: "flex",
             justifyContent: "center",
@@ -63,8 +67,8 @@ const AuthRegister = () => {
             justifyContent: "center",
           }}
         >
-          <Typography variant="h4" fontWeight="bold" textAlign="center" mb={4}>
-            สมัครใช้งานระบบจัดการร้าน
+          <Typography variant="h3" fontWeight="bold" textAlign="center" mb={4}>
+            สมัครใช้งานระบบจัดการร้านเสริมสวย
           </Typography>
           <AuthRegisterForm />
         </Box>

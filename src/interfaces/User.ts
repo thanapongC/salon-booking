@@ -83,6 +83,41 @@ export const initialLogin: Login = {
   password: ""
 };
 
+export const initialResetPasswordToken: ResetPasswordToken = {
+  id: '',
+  userId: '',
+  user: undefined,
+  token: '',
+  expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(), // ตัวอย่าง: กำหนดให้หมดอายุใน 1 ชั่วโมง
+  used: false,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+export const initialRole: Role = {
+  roleId: '',
+  name: 'STAFF' as RoleName, // กำหนดชื่อ Role เริ่มต้น
+  description: undefined,
+  users: undefined,
+  userIds: [],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+// สมมติว่า UserStatus เป็น enum/type ที่คุณกำหนดไว้ เช่น "ACTIVE" | "INACTIVE" | "PENDING"
+export const initialUser: User = {
+  userId: '',
+  email: '',
+  password: undefined, // ไม่ต้องใส่ในค่า initial ถ้าเป็นการสร้าง/แก้ไขข้อมูลที่ไม่รวมถึงการเปลี่ยนรหัสผ่าน
+  name: '',
+  userStatus: 'ACTIVE' as UserStatus, // กำหนดสถานะเริ่มต้น
+  roleId: undefined,
+  role: undefined,
+  store: undefined,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 // ค่าเริ่มต้นสำหรับ User
 // export const initialUser: User = {
 //   userId: "",

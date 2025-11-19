@@ -7,87 +7,83 @@ import {
   Typography,
   Paper,
   Link,
+  Card,
 } from "@mui/material";
 import Image from "next/image";
 import AuthForm from "@/components/forms/auth/AuthForm";
 const LoginPage = () => {
 
   return (
-    <>
-      {/* <PageContainer title="เข้าสู่ระบบ"> */}
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f9f9f9",
+        padding: 4,
+      }}
+    >
+      <Card
+        sx={{
+          minHeight: "70vh",
+          width: "100%",
+          maxWidth: "1200px",
+          display: "flex",
+          borderRadius: "16px",
+          overflow: "hidden",
+          boxShadow: 4,
+        }}
+      >
+        {/* Left Section */}
         <Box
           sx={{
-            minHeight: "100vh",
+            // backgroundColor: "#3f51b5",
+            background:
+              "linear-gradient(90deg, rgba(42, 72, 160, 1) 0%, rgba(69, 189, 187, 1) 100%)",
+
+            color: "#fff",
             display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "50%",
             flexDirection: "column",
-            // backgroundImage:
-            //   'url("/images/backgrounds/about_us.jpg?height=1080&width=1920")',
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            padding: 6,
           }}
         >
-          <Box
-            component="header"
-            sx={{
-              bgcolor: "#013365",
-              py: 2,
-              boxShadow: 1,
-            }}
-          >
-            <Grid2 container justifyContent={"center"}>
-              <Typography variant="h1" color="white">
-                {/* Asset Management Software{" "} */}
-              </Typography>
-            </Grid2>
-          </Box>
+          {/* <Image
+            src="/images/logos/logo-white-png.png"
+            alt="logo"
+            height={70}
+            width={80}
+            priority
+          />
 
-          <Container component="main" maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
-            <Paper
-              elevation={3}
-              sx={{
-                p: 4,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                background: "/images/backgrounds/about_us.jpg",
-              }}
-            >
-              {/* <Image
-                src="/images/logos/image004.png"
-                alt="logo"
-                height={70}
-                width={105}
-                priority
-              /> */}
-              <Box sx={{ mt: 5, width: "100%" }}>
-                <AuthForm />
-              </Box>
-            </Paper>
-          </Container>
-
-          <Box
-            component="footer"
-            sx={{
-              py: 3,
-              px: 2,
-              mt: "auto",
-              backgroundColor: "#003366",
-            }}
-          >
-            <Container maxWidth="lg">
-              <Typography variant="body2" color="white" align="center">
-                {"Copyright © "}
-                <Link color="inherit" href="">
-                  {/* Bouygues Thai */}
-                </Link>{" "}
-                {new Date().getFullYear()}
-                {"."}
-              </Typography>
-            </Container>
-          </Box>
+          <Typography variant="h3" fontWeight="bold" mb={3}>
+            EzyAccount
+          </Typography>
+          <Typography variant="h6" textAlign="center">
+            โปรแกรมบัญชีใช้งานง่าย ที่เป็นเสมือนเพื่อนคู่คิดธุรกิจคุณ
+          </Typography> */}
         </Box>
-      {/* </PageContainer> */}
-    </>
+
+        {/* Right Section */}
+        <Box
+          sx={{
+            flex: 1,
+            padding: 6,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <Typography variant="h3" fontWeight="bold" textAlign="center" mb={4}>
+            เข้าสู่ระบบ
+          </Typography>
+          <AuthForm />
+        </Box>
+      </Card>
+    </Box>
   );
 };
 

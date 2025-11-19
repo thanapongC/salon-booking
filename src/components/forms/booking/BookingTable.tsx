@@ -24,17 +24,22 @@ import {
 } from "@mui/material";
 import BaseCard from "@/components/shared/BaseCard";
 import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
-import { Barcode, Baseline, CirclePlus, Edit, Search } from "lucide-react";
+import {
+  Barcode,
+  Baseline,
+  CirclePlus,
+  Edit,
+  Eraser,
+  Search,
+} from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { CustomNoRowsOverlay } from "@/components/shared/NoData";
 import { fetchData, formatNumber } from "@/utils/utils";
 import StatusBooking from "@/components/shared/used/Status";
-import { Clear } from "@mui/icons-material";
+import { Brush } from "lucide-react";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import NotFound from "@/components/shared/used/NotFound";
-import FloatingButton from "@/components/shared/used/FloatingButton";
 import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
 import { Booking } from "@/interfaces/Booking";
 import { useBookingContext } from "@/contexts/BookingContext";
@@ -70,7 +75,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
   });
 
   const columns: GridColDef<Booking>[] = [
-    { field: "rowIndex", headerName: "ลำดับ", width: 70 },
+    // { field: "rowIndex", headerName: "ลำดับ", width: 70 },
     {
       field: "edit",
       headerName: "",
@@ -113,47 +118,14 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
         </>
       ),
     },
-    { field: "serialNo", headerName: "SerialNo.", width: 200 },
     {
       field: "equipmentName",
-      headerName: "ชื่ออุปกรณ์",
-      width: 200,
+      headerName: "ชื่อลูกค้า",
+      width: 250,
       // renderCell: (params) => <b> {params.row.equipmentName} </b>,
     },
-    { field: "brand", headerName: "แบรนด์", width: 150 },
-    { field: "description", headerName: "รายละเอียด", width: 200 },
-    { field: "remark", headerName: "บันทึกเพิ่มเติม", width: 200 },
-    {
-      field: "equipmentType",
-      headerName: "ประเภท",
-      width: 200,
-      // valueGetter: (value, row) => row.equipmentType?.equipmentTypeName,
-    },
-    {
-      field: "categoryName",
-      headerName: "หมวดหมู่",
-      width: 200,
-      // valueGetter: (value, row) => row.category?.categoryName,
-    },
-    {
-      field: "rentalPriceCurrent",
-      headerName: "ราคาเช่า",
-      width: 150,
-      // valueGetter: (value, row) =>
-        // formatNumber(row.aboutBooking?.rentalPriceCurrent),
-    },
-    {
-      field: "purchaseDate",
-      headerName: "วันที่ซื้อ",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutBooking?.purchaseDate,
-    },
-    {
-      field: "unitName",
-      headerName: "หน่วยเรียก",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutBooking?.unitName,
-    },
+    { field: "brand", headerName: "บริการ", width: 200 },
+    { field: "description", headerName: "วัน/เวลา", width: 200 },
     {
       field: "stockStatus",
       headerName: "สถานะ",
@@ -226,39 +198,39 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
   };
 
   const searchData = async () => {
-    try {
-      await fetchData(
-        `/api/equipment/search?page=${paginationModel.page + 1}&pageSize=${
-          paginationModel.pageSize
-        }&serialNo=${formData.serialNo}&equipmentName=${
-          formData.equipmentName
-        }&stockStatus=${formData.stockStatus}`,
-        setBookings,
-        setRowCount,
-        setLoading
-      );
-    } catch (error: any) {
-      if (error.message !== "Request was canceled") {
-        console.error("Unhandled error:", error);
-      }
-    }
+    // try {
+    //   await fetchData(
+    //     `/api/equipment/search?page=${paginationModel.page + 1}&pageSize=${
+    //       paginationModel.pageSize
+    //     }&serialNo=${formData.serialNo}&equipmentName=${
+    //       formData.equipmentName
+    //     }&stockStatus=${formData.stockStatus}`,
+    //     setBookings,
+    //     setRowCount,
+    //     setLoading
+    //   );
+    // } catch (error: any) {
+    //   if (error.message !== "Request was canceled") {
+    //     console.error("Unhandled error:", error);
+    //   }
+    // }
   };
 
   const getData = async () => {
-    try {
-      await fetchData(
-        `/api/equipment?page=${paginationModel.page + 1}&pageSize=${
-          paginationModel.pageSize
-        }`,
-        setBookings,
-        setRowCount,
-        setLoading
-      );
-    } catch (error: any) {
-      if (error.message !== "Request was canceled") {
-        console.error("Unhandled error:", error);
-      }
-    }
+    // try {
+    //   await fetchData(
+    //     `/api/equipment?page=${paginationModel.page + 1}&pageSize=${
+    //       paginationModel.pageSize
+    //     }`,
+    //     setBookings,
+    //     setRowCount,
+    //     setLoading
+    //   );
+    // } catch (error: any) {
+    //   if (error.message !== "Request was canceled") {
+    //     console.error("Unhandled error:", error);
+    //   }
+    // }
   };
 
   useEffect(() => {
@@ -269,101 +241,124 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
   }, [paginationModel, recall]);
 
   return (
-    <Grid2 container>
-      {/* <Typography variant="h4" mt={2}>
-        ค้นหารายการจอง
-      </Typography> */}
+    <>
+      <Grid2 size={{ xs: 12 }} container justifyContent={"center"}>
+        <Typography variant="h4" mt={2}>
+          ค้นหารายการจอง
+        </Typography>
+      </Grid2>
 
-      <form onSubmit={handleSubmit}>
-        <Box sx={{ display: "grid", gap: 3 }} mb={4} mt={4}>
-          <Grid2 container spacing={2}>
-            <Grid2 size={3}>
-              <TextField
-                fullWidth
-                label="ชื่อลูกค้า"
-                name="ชื่อลูกค้า"
-                value={formData.serialNo}
-                onChange={handleChange}
-                size="small"
-                sx={{ background: "#ffffff" }}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <Barcode />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid2>
-            <Grid2 size={3}>
-              <TextField
-                fullWidth
-                label="Booking ID"
-                name="equipmentName"
-                value={formData.equipmentName}
-                onChange={handleChange}
-                size="small"
-                sx={{ background: "#ffffff" }}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <Baseline />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid2>
-            <Grid2 size={3}>
-              <TextField
-                select
-                fullWidth
-                label="สถานะ"
-                name="stockStatus"
-                size="small"
-                value={formData.stockStatus}
-                onChange={handleChange}
-                sx={{ background: "#ffffff" }}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-              >
-                {/* {Object.values(BookingStatus).map((option) => (
+      <Grid2 container size={{ xs: 12 }} justifyContent={"center"}>
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: "grid" }} mb={4} mt={4}>
+            <Grid2 container spacing={1} size={{ xs: 12 }}>
+              <Grid2 size={2.4}>
+                <TextField
+                  fullWidth
+                  label="ชื่อลูกค้า"
+                  name="ชื่อลูกค้า"
+                  value={formData.serialNo}
+                  onChange={handleChange}
+                  size="small"
+                  sx={{ background: "#ffffff" }}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="start">
+                          <Barcode />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Grid2>
+              <Grid2 size={2.4}>
+                <TextField
+                  fullWidth
+                  label="Booking ID"
+                  name="equipmentName"
+                  value={formData.equipmentName}
+                  onChange={handleChange}
+                  size="small"
+                  sx={{ background: "#ffffff" }}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="start">
+                          <Baseline />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Grid2>
+              <Grid2 size={2.4}>
+                <TextField
+                  fullWidth
+                  label="Booking ID"
+                  name="เบอร์โทรศัพท์"
+                  value={formData.equipmentName}
+                  onChange={handleChange}
+                  size="small"
+                  sx={{ background: "#ffffff" }}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="start">
+                          <Baseline />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Grid2>
+              <Grid2 size={2.4}>
+                <TextField
+                  select
+                  fullWidth
+                  label="สถานะ"
+                  name="stockStatus"
+                  size="small"
+                  value={formData.stockStatus}
+                  onChange={handleChange}
+                  sx={{ background: "#ffffff" }}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
+                >
+                  {/* {Object.values(BookingStatus).map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
                 ))} */}
-              </TextField>
+                </TextField>
+              </Grid2>
+              <Grid2 size={2.4} container spacing={1}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<Search />}
+                  sx={{ minWidth: 80, width: "40%" }}
+                  onClick={handleSubmit}
+                >
+                  ค้นหา
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<Eraser />}
+                  onClick={handleClear}
+                  sx={{ minWidth: 80, width: "40%" }}
+                >
+                  ล้าง
+                </Button>
+              </Grid2>
             </Grid2>
-            <Grid2 size={3} container spacing={1}>
-              <Button
-                type="submit"
-                variant="contained"
-                startIcon={<Search />}
-                sx={{ minWidth: 100, width: "48%" }}
-                onClick={handleSubmit}
-              >
-                ค้นหา
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Clear />}
-                onClick={handleClear}
-                sx={{ minWidth: 100, width: "48%" }}
-              >
-                ล้าง
-              </Button>
-            </Grid2>
-          </Grid2>
-        </Box>
-      </form>
-      <BaseCard>
-        <>
+          </Box>
+        </form>
+        <Grid2 container size={{ xs: 12}}>
           <DataGrid
             getRowId={(row) => row.id}
             initialState={{
@@ -372,14 +367,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
               columns: {
                 columnVisibilityModel: {
                   // Hide columns status and traderName, the other columns will remain visible
-                  equipmentRemark: false,
-                  brand: false,
-                  description: false,
-                  remark: false,
-                  categoryName: false,
-                  equipmentType: false,
-                  purchaseDate: false,
-                  unitName: false,
+                  // equipmentRemark: false,
                 },
               },
             }}
@@ -396,9 +384,9 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
               toolbar: CustomToolbar,
             }}
           />
-        </>
-      </BaseCard>
-    </Grid2>
+        </Grid2>
+      </Grid2>
+    </>
   );
 };
 

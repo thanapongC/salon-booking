@@ -1,18 +1,21 @@
-import { BookingStatus } from "@prisma/client";
+import { BookingStatus, CustomerType } from "@prisma/client";
 import { Employee, Service, Store } from "./Store";
 import { Customer } from "./User";
+import { Dayjs } from "dayjs";
+
 
 export interface Booking {
   id: string;
 
   customerName: string;
   customerPhone: string;
+  customerEmail?: string
 
-  startTime: string; // ใช้ string เพราะจาก API มักส่ง ISO Date เช่น "2025-10-14T10:00:00Z"
-  endTime: string;
+  bookingDate: Dayjs | null | string; // ใช้ string เพราะจาก API มักส่ง ISO Date เช่น "2025-10-14T10:00:00Z"
+  bookingTime: Dayjs | null | string;
 
   status: BookingStatus;
-  isWalkIn: boolean;
+  customerType: CustomerType;
 
   storeId: string;
   store?: Store;
@@ -36,12 +39,13 @@ export const initialBooking: Booking = {
   id: '',
   customerName: '',
   customerPhone: '',
+  customerEmail: '',
   // กำหนดค่าเริ่มต้นเป็นเวลาปัจจุบัน (หรือเวลาที่คุณต้องการให้ฟอร์มเริ่มต้น)
-  startTime: new Date().toISOString(),
+  bookingDate: null,
   // endTime สามารถคำนวณจาก startTime + duration ของ service
-  endTime: new Date(new Date().getTime() + 30 * 60000).toISOString(), // ตัวอย่าง: +30 นาที
+  bookingTime: null, // ตัวอย่าง: +30 นาที
   status: 'PENDING' as BookingStatus, // กำหนดสถานะเริ่มต้น
-  isWalkIn: false,
+  customerType: CustomerType.LINE,
   storeId: '',
   store: undefined,
   serviceId: '',

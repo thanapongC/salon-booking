@@ -24,17 +24,22 @@ import {
 } from "@mui/material";
 import BaseCard from "@/components/shared/BaseCard";
 import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
-import { Barcode, Baseline, CirclePlus, Edit, Search } from "lucide-react";
+import {
+  Barcode,
+  Baseline,
+  CirclePlus,
+  Edit,
+  Eraser,
+  Search,
+} from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { CustomNoRowsOverlay } from "@/components/shared/NoData";
 import { fetchData, formatNumber } from "@/utils/utils";
 import StatusBooking from "@/components/shared/used/Status";
-import { Clear } from "@mui/icons-material";
+import { Brush } from "lucide-react";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import NotFound from "@/components/shared/used/NotFound";
-import FloatingButton from "@/components/shared/used/FloatingButton";
 import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
 import { Booking } from "@/interfaces/Booking";
 import { useBookingContext } from "@/contexts/BookingContext";
@@ -58,11 +63,6 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
 
   const [rowCount, setRowCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<SearchFormData>({
-    equipmentName: "",
-    serialNo: "",
-    stockStatus: "",
-  });
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
@@ -70,7 +70,7 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
   });
 
   const columns: GridColDef<Booking>[] = [
-    { field: "rowIndex", headerName: "ลำดับ", width: 70 },
+    // { field: "rowIndex", headerName: "ลำดับ", width: 70 },
     {
       field: "edit",
       headerName: "",
@@ -113,47 +113,14 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
         </>
       ),
     },
-    { field: "serialNo", headerName: "SerialNo.", width: 200 },
     {
       field: "equipmentName",
-      headerName: "ชื่ออุปกรณ์",
+      headerName: "ชื่อลูกค้า",
       width: 200,
       // renderCell: (params) => <b> {params.row.equipmentName} </b>,
     },
-    { field: "brand", headerName: "แบรนด์", width: 150 },
-    { field: "description", headerName: "รายละเอียด", width: 200 },
-    { field: "remark", headerName: "บันทึกเพิ่มเติม", width: 200 },
-    {
-      field: "equipmentType",
-      headerName: "ประเภท",
-      width: 200,
-      // valueGetter: (value, row) => row.equipmentType?.equipmentTypeName,
-    },
-    {
-      field: "categoryName",
-      headerName: "หมวดหมู่",
-      width: 200,
-      // valueGetter: (value, row) => row.category?.categoryName,
-    },
-    {
-      field: "rentalPriceCurrent",
-      headerName: "ราคาเช่า",
-      width: 150,
-      // valueGetter: (value, row) =>
-        // formatNumber(row.aboutBooking?.rentalPriceCurrent),
-    },
-    {
-      field: "purchaseDate",
-      headerName: "วันที่ซื้อ",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutBooking?.purchaseDate,
-    },
-    {
-      field: "unitName",
-      headerName: "หน่วยเรียก",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutBooking?.unitName,
-    },
+    { field: "brand", headerName: "บริการ", width: 150 },
+    { field: "description", headerName: "วัน/เวลา", width: 200 },
     {
       field: "stockStatus",
       headerName: "สถานะ",
@@ -203,22 +170,6 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
     );
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleClear = () => {
-    setFormData({
-      equipmentName: "",
-      serialNo: "",
-      stockStatus: "",
-    });
-    getData();
-  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -226,39 +177,39 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
   };
 
   const searchData = async () => {
-    try {
-      await fetchData(
-        `/api/equipment/search?page=${paginationModel.page + 1}&pageSize=${
-          paginationModel.pageSize
-        }&serialNo=${formData.serialNo}&equipmentName=${
-          formData.equipmentName
-        }&stockStatus=${formData.stockStatus}`,
-        setBookings,
-        setRowCount,
-        setLoading
-      );
-    } catch (error: any) {
-      if (error.message !== "Request was canceled") {
-        console.error("Unhandled error:", error);
-      }
-    }
+    // try {
+    //   await fetchData(
+    //     `/api/equipment/search?page=${paginationModel.page + 1}&pageSize=${
+    //       paginationModel.pageSize
+    //     }&serialNo=${formData.serialNo}&equipmentName=${
+    //       formData.equipmentName
+    //     }&stockStatus=${formData.stockStatus}`,
+    //     setBookings,
+    //     setRowCount,
+    //     setLoading
+    //   );
+    // } catch (error: any) {
+    //   if (error.message !== "Request was canceled") {
+    //     console.error("Unhandled error:", error);
+    //   }
+    // }
   };
 
   const getData = async () => {
-    try {
-      await fetchData(
-        `/api/equipment?page=${paginationModel.page + 1}&pageSize=${
-          paginationModel.pageSize
-        }`,
-        setBookings,
-        setRowCount,
-        setLoading
-      );
-    } catch (error: any) {
-      if (error.message !== "Request was canceled") {
-        console.error("Unhandled error:", error);
-      }
-    }
+    // try {
+    //   await fetchData(
+    //     `/api/equipment?page=${paginationModel.page + 1}&pageSize=${
+    //       paginationModel.pageSize
+    //     }`,
+    //     setBookings,
+    //     setRowCount,
+    //     setLoading
+    //   );
+    // } catch (error: any) {
+    //   if (error.message !== "Request was canceled") {
+    //     console.error("Unhandled error:", error);
+    //   }
+    // }
   };
 
   useEffect(() => {
@@ -269,7 +220,9 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
   }, [paginationModel, recall]);
 
   return (
-      <BaseCard>
+    <>
+      <Grid2 container size={{ xs: 12 }} justifyContent={"center"}>
+        <Grid2 container size={{ xs: 12}}>
           <DataGrid
             getRowId={(row) => row.id}
             initialState={{
@@ -278,14 +231,7 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
               columns: {
                 columnVisibilityModel: {
                   // Hide columns status and traderName, the other columns will remain visible
-                  equipmentRemark: false,
-                  brand: false,
-                  description: false,
-                  remark: false,
-                  categoryName: false,
-                  equipmentType: false,
-                  purchaseDate: false,
-                  unitName: false,
+                  // equipmentRemark: false,
                 },
               },
             }}
@@ -302,7 +248,9 @@ const WaitingConfirmTable: React.FC<BookingProps> = ({ recall }) => {
               toolbar: CustomToolbar,
             }}
           />
-      </BaseCard>
+        </Grid2>
+      </Grid2>
+    </>
   );
 };
 

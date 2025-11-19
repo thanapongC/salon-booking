@@ -42,7 +42,7 @@ const Booking = () => {
   return (
     <PageContainer title="" description="">
       <BaseCard title="">
-        <BookingTable />
+        {/* <BookingTable /> */}
       </BaseCard>
     </PageContainer>
   );

@@ -32,8 +32,13 @@ interface EmployeeProps {
 }
 
 const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
-  const { setEmployeeForm, employeeEdit, setEmployeeEdit, setEmployees, employees } =
-    useEmployeeContext();
+  const {
+    setEmployeeForm,
+    employeeEdit,
+    setEmployeeEdit,
+    setEmployees,
+    employees,
+  } = useEmployeeContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
@@ -125,7 +130,6 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
         //     purchaseDate: dayjs(data.aboutEmployee.purchaseDate),
         //   },
         // };
-
         // setEmployees(modifiedData);
       })
       .catch((error) => {
@@ -205,7 +209,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
         }) => (
           <Form>
             <Box p={3} border="1px solid #ccc" borderRadius="8px">
-              <Grid2 container spacing={3}>
+              <Grid2 container spacing={3} size={{ xs: 12 }}>
                 <Grid2 size={{ xs: 12 }}>
                   <Grid2 size={{ xs: 12 }} mb={2}>
                     <Grid2 container alignItems="center">
@@ -237,12 +241,8 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
                             readOnly: viewOnly ? true : false,
                           },
                         }}
-                        error={
-                          touched.name && Boolean(errors.name)
-                        }
-                        helperText={
-                          touched.name && errors.name
-                        }
+                        error={touched.name && Boolean(errors.name)}
+                        helperText={touched.name && errors.name}
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />
@@ -260,10 +260,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
                         // sx={{ textTransform: "uppercase" }}
                         value={values.role ? values.role : ""}
                         onChange={(e) => {
-                          setFieldValue(
-                            "role",
-                            e.target.value
-                          );
+                          setFieldValue("role", e.target.value);
                         }}
                         slotProps={{
                           inputLabel: { shrink: true },
@@ -282,7 +279,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
                 </Grid2>
 
                 <Grid2 size={{ xs: 6 }}>
-                        {/* <FormControl sx={{ m: 1, width: 300 }}>
+                  {/* <FormControl sx={{ m: 1, width: 300 }}>
                           <InputLabel id="demo-multiple-chip-label">Chip</InputLabel>
                           <Select
                             labelId="demo-multiple-chip-label"
@@ -312,14 +309,11 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
                           </Select>
                         </FormControl> */}
                 </Grid2>
-
               </Grid2>
-
 
               <Grid2
                 sx={{ mt: 5, display: "flex", justifyContent: "flex-start" }}
               >
-
                 <LoadingButton
                   variant="contained"
                   type="submit"

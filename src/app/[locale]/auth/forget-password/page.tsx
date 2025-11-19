@@ -16,19 +16,22 @@ const ForgetPassword = () => {
     >
       <Card
         sx={{
-          width: "80%",
+          width: "100%",
+          minHeight: "70vh",
           maxWidth: "1200px",
           display: "flex",
           borderRadius: "16px",
           overflow: "hidden",
           boxShadow: 4,
-          minHeight: "500px",
         }}
       >
         {/* Left Section */}
-        {/* <Box
+        <Box
           sx={{
-            backgroundColor: "#3f51b5",
+            // backgroundColor: "#3f51b5",
+            background:
+              "linear-gradient(90deg, rgba(42, 72, 160, 1) 0%, rgba(69, 189, 187, 1) 100%)",
+
             color: "#fff",
             display: "flex",
             justifyContent: "center",
@@ -38,7 +41,7 @@ const ForgetPassword = () => {
             padding: 6,
           }}
         >
-          <Image
+          {/* <Image
             src="/images/logos/logo-white-png.png"
             alt="logo"
             height={70}
@@ -50,9 +53,9 @@ const ForgetPassword = () => {
             EzyAccount
           </Typography>
           <Typography variant="h6" textAlign="center">
-          โปรแกรมบัญชีใช้งานง่าย ที่เป็นเสมือนเพื่อคู่คิดธุรกิจคุณ
-          </Typography>
-        </Box> */}
+            โปรแกรมบัญชีใช้งานง่าย ที่เป็นเสมือนเพื่อนคู่คิดธุรกิจคุณ
+          </Typography> */}
+        </Box>
 
         {/* Right Section */}
         <Box
@@ -64,10 +67,11 @@ const ForgetPassword = () => {
             justifyContent: "center",
           }}
         >
-          <Typography variant="h4" fontWeight="bold" textAlign="center" mb={4}>
-            ลืมรหัสผ่าน
+          <Typography variant="h3" fontWeight="bold" textAlign="center" mb={4}>
+          คุณลืมรหัสผ่านใช่หรือไม่ ?
           </Typography>
-          <ForgetPasswordForm />
+          {/* <AuthRegisterForm /> */}
+          <ForgetPasswordForm/>
         </Box>
       </Card>
     </Box>
