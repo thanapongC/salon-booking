@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -10,6 +9,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Grid2,
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useTranslations } from "next-intl";
@@ -17,6 +17,9 @@ import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import BookingTable from "@/components/forms/booking/BookingTable";
+import IncomeChart from "@/components/forms/dashboard/IncomeChart";
+import CustomerChart from "@/components/forms/dashboard/CustomerChart";
+import Appointment from "@/components/forms/dashboard/Appointment";
 
 const Booking = () => {
   const t = useTranslations("HomePage");
@@ -27,23 +30,59 @@ const Booking = () => {
     setRepairLocation(event.target.value);
   };
 
-  // const { setBreadcrumbs } = useBreadcrumbContext();
+  const { setBreadcrumbs } = useBreadcrumbContext();
 
-  // useEffect(() => {
-  //   setBreadcrumbs([
-  //     { name: "แผงควบคุม", href: "/dashboard" },
-  //     { name: "การจองทั้งหมด", href: "" },
-  //   ]);
-  //   return () => {
-  //     setBreadcrumbs([]);
-  //   };
-  // }, []);
+  useEffect(() => {
+    setBreadcrumbs([
+      { name: "ผู้ดูแลระบบ", href: "/" },
+      { name: "แผงควบคุม", href: "/dashboard" },
+    ]);
+    return () => {
+      setBreadcrumbs([]);
+    };
+  }, []);
 
   return (
     <PageContainer title="" description="">
-      <BaseCard title="">
-        {/* <BookingTable /> */}
-      </BaseCard>
+      <Typography variant="h1" mt={2} color="#fff">
+        แผงควบคุมระบบ
+      </Typography>
+
+      <Grid2 container spacing={2}>
+        <Grid2 size={{ xs: 6 }}>
+          <BaseCard title="">
+            <>
+              <Typography
+                variant="h4"
+                sx={{ marginBottom: 3, fontWeight: 700 }}
+              >
+                รายได้สัปดาห์นี้
+              </Typography>
+              <IncomeChart />
+            </>
+          </BaseCard>
+        </Grid2>
+
+        <Grid2 size={{ xs: 6 }}>
+          <BaseCard title="">
+            <>
+              <Typography
+                variant="h4"
+                sx={{ marginBottom: 3, fontWeight: 700 }}
+              >
+                ลูกค้าสัปดาห์นี้
+              </Typography>
+              <CustomerChart />
+            </>
+          </BaseCard>
+        </Grid2>
+
+        <Grid2 size={{ xs: 12 }}>
+          <BaseCard title="">
+            <Appointment />
+          </BaseCard>
+        </Grid2>
+      </Grid2>
     </PageContainer>
   );
 };

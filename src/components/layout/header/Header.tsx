@@ -55,7 +55,9 @@ const Header = ({toggleMobileSidebar}: ItemType) => {
         </IconButton>
 
         {/* <Search/> */}
+        <Stack spacing={1} direction="row" alignItems="center">
         <BreadcrumbCustom/>
+        </Stack>
         
         <Box flexGrow={1} />
         <Stack spacing={1} direction="row" alignItems="center">

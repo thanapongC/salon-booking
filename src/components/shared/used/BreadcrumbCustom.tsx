@@ -30,7 +30,7 @@ const BreadcrumbCustom: React.FC<BreadcrumbProps> = (
       <Breadcrumbs
         separator={<NavigateNextIcon fontSize="small" color="primary" />}
         aria-label="breadcrumb"
-        sx={{ marginBottom: 2 }} // Add some margin below
+        // sx={{ marginBottom: 2 }} // Add some margin below
       >
         {breadcrumbs.map((breadcrumb, index) =>
           breadcrumb.href ? (
