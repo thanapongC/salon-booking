@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, RoleName, UserStatus } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
 import { User } from "@/interfaces/User";
 // import { TokenService } from '@/utils/services/TokenService';

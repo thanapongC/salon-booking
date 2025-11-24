@@ -213,7 +213,7 @@ const AuthForm: React.FC<loginType> = ({
                 </LoadingButton>
               </Grid2>
               <Grid2 container justifyContent={"flex-end"} size={{ xs: 12 }}>
-                <Button variant="text" onClick={() => router.push(`/${localActive}/auth/forget-password`)}>ลืมรหัสผ่าน</Button>
+                <Button variant="text" onClick={() => router.push(`/${localActive}/auth/forgot-password`)}>ลืมรหัสผ่าน</Button>
                 <Button variant="text" onClick={() => router.push(`/${localActive}/auth/sign-up`)}>สมัครสมาชิก</Button>
               </Grid2>
             </Grid2>
