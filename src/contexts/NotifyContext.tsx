@@ -8,22 +8,22 @@ import React, {
   useState,
   ReactNode,
   Dispatch,
+  useEffect,
 } from "react";
 
 export interface NotifyState {
-  open: boolean
-  message?: string | null
-  color: 'error' | 'success' | 'info' | "warning"
-  header? :string | null,
-
+  open: boolean;
+  message?: string | null;
+  color: "error" | "success" | "info" | "warning";
+  header?: string | null;
 }
 
-export const initialNotify: NotifyState = { 
+export const initialNotify: NotifyState = {
   open: false,
   message: "",
-  color: "success" ,
-  header: ""
-}
+  color: "success",
+  header: "",
+};
 
 // กำหนดประเภทของ Context
 interface NotifyContextProps {
@@ -34,13 +34,15 @@ interface NotifyContextProps {
 }
 
 // สร้าง Context
-const NotifyContext = createContext<NotifyContextProps | undefined>(
-  undefined
-);
+const NotifyContext = createContext<NotifyContextProps | undefined>(undefined);
 
 export const NotifyProvider = ({ children }: { children: ReactNode }) => {
   const [notify, setNotify] = useState<NotifyState>(initialNotify);
   const [openBackdrop, setOpenBackdrop] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log(notify);
+  }, [notify]);
 
   return (
     <NotifyContext.Provider
@@ -48,7 +50,7 @@ export const NotifyProvider = ({ children }: { children: ReactNode }) => {
         notify,
         setNotify,
         setOpenBackdrop,
-        openBackdrop
+        openBackdrop,
       }}
     >
       {children}

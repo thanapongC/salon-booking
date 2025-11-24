@@ -15,23 +15,20 @@ import {
   Avatar,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Field, FieldProps, Form, Formik } from "formik";
+import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useNotifyContext } from "@/contexts/NotifyContext";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { StoreRegister } from "@/interfaces/Store";
 import { useStoreContext } from "@/contexts/StoreContext";
 import { Copy, KeyRound, StoreIcon } from "lucide-react";
+import { authService } from "@/utils/services/api-services/AuthAPI";
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required("กรุณากรอกชื่อ"),
-  username: Yup.string().required("กรุณากรอกชื่อผู้ใช้งาน"),
-  address: Yup.string().required("กรุณากรอกที่อยู่"),
-  phone: Yup.string()
-    .required("กรุณากรอกเบอร์โทร")
-    .matches(/^[0-9]{10}$/, "เบอร์โทรต้องมี 10 หลัก"),
+  // username: Yup.string().required("กรุณากรอกชื่อผู้ใช้งาน"),
+  storeName: Yup.string().required("กรุณากรอกชื่อร้านค้า"),
+  storeUsername: Yup.string().required("กรุณากรอก User Name ร้านค้า"),
   email: Yup.string().required("กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
   password: Yup.string().required("กรุณากรอกรหัสผ่าน"),
   confirmPassword: Yup.string()
@@ -55,66 +52,45 @@ const AuthRegisterForm = () => {
 
   const handleTogglePassword = () => setShowPassword(!showPassword);
 
-  const handleSubmit = async (values: any, { setSubmitting }: any) => {
-    setIsSubmitting(true);
+  // const handleSubmit = async (values: any, { setSubmitting }: any) => {
 
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
+  // };
 
-      const data = await res.json();
+  const handleSubmit = async (
+    values: StoreRegister,
+    {
+      setSubmitting,
+      setErrors,
+      resetForm,
+      validateForm,
+    }: FormikHelpers<StoreRegister> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
+  ) => {
+    validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    // ล้างสถานะข้อความก่อนเริ่ม
+    // setGlobalError(null);
+    // setSuccessMessage(null);
+    setSubmitting(true); // เริ่มสถานะ Loading/Submitting
 
-      if (res.ok) {
-        setRegisteredName(data.user.name); // บันทึกชื่อผู้ใช้ที่สมัครสำเร็จ
-        setNotify({
-          open: true,
-          message: `สมัครสมาชิกสำเร็จ! ยินดีต้อนรับคุณ ${data.user.name}`,
-          color: "success",
-        });
-
-        // **Login อัตโนมัติหลังจากสมัครสมาชิก**
-        const loginRes = await signIn("credentials", {
-          email: values.email,
-          password: values.password,
-          redirect: false,
-        });
-
-        if (loginRes?.error) {
-          setNotify({
-            open: true,
-            message: loginRes.error,
-            color: "error",
-          });
-        } else {
-          router.push("/protected/dashboard"); // ไปหน้า Dashboard
-        }
-      } else {
-        // แสดงข้อความผิดพลาดจาก API
-        const errorMessage =
-          data.message || "เกิดข้อผิดพลาดระหว่างการสมัครสมาชิก";
-        setNotify({
-          open: true,
-          message: errorMessage,
-          color: "error",
-        });
-        console.error("Error during registration:", errorMessage); // ล็อกข้อผิดพลาด
-      }
-    } catch (error) {
-      setNotify({
-        open: true,
-        message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์",
-        color: "error",
-      });
-      console.error("Server error:", error); // ล็อกข้อผิดพลาด
-    } finally {
-      setIsSubmitting(false);
-      setSubmitting(false);
+    // 1. ตรวจสอบเงื่อนไขพื้นฐาน (Formik validation ควรทำใน yupSchema แต่ทำซ้ำเพื่อความชัวร์ได้)
+    if (values.password !== values.confirmPassword) {
+      // หากรหัสผ่านไม่ตรงกัน ให้ใช้ setErrors เพื่อแสดงผลในช่องฟอร์ม
+      setErrors({ confirmPassword: "รหัสผ่านยืนยันไม่ตรงกับรหัสผ่าน" });
+      return;
     }
+
+    // 2. เรียกใช้ API
+    const result = await authService.registerStore(values);
+    
+    if(result.success){
+      resetForm()
+    }
+
+    // // 3. จัดการเมื่อสำเร็จ
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
   };
 
   return (
@@ -138,7 +114,7 @@ const AuthRegisterForm = () => {
           errors,
           touched,
           isSubmitting,
-          resetForm,
+          // resetForm,
         }) => (
           <Form>
             <Grid2 container spacing={2}>
@@ -289,10 +265,7 @@ const AuthRegisterForm = () => {
                         // sx={{ textTransform: "uppercase" }}
                         value={values.storeUsername ? values.storeUsername : ""}
                         onChange={(e) => {
-                          setFieldValue(
-                            "storeUsername",
-                            e.target.value.toUpperCase()
-                          );
+                          setFieldValue("storeUsername", e.target.value);
                         }}
                         slotProps={{
                           inputLabel: { shrink: true },
@@ -328,7 +301,7 @@ const AuthRegisterForm = () => {
                   <Typography color="error">{errors.termsAccepted}</Typography>
                 )}
               </Grid2>
-              <Grid2 size={{ xs: 12 }}>
+              <Grid2 container size={{ xs: 12 }} justifyContent={"center"}>
                 {isSubmitting ? (
                   <CircularProgress />
                 ) : (
@@ -339,9 +312,10 @@ const AuthRegisterForm = () => {
               </Grid2>
               <Grid2 size={{ xs: 12 }}>
                 <Button
-                  type="submit"
+                  // type="submit"
                   variant="outlined"
                   fullWidth
+                  disabled={isSubmitting}
                   onClick={() => router.push(`/${localActive}/auth/sign-in`)}
                 >
                   คุณมีบัญชีอยู่เเล้ว?

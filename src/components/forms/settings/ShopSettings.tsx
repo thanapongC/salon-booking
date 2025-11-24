@@ -241,7 +241,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                         onChange={(e) => {
                           setFieldValue(
                             "storeName",
-                            e.target.value.toUpperCase()
+                            e.target.value
                           );
                         }}
                         slotProps={{
@@ -252,6 +252,36 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                         }}
                         error={touched.storeName && Boolean(errors.storeName)}
                         helperText={touched.storeName && errors.storeName}
+                        fullWidth
+                        disabled={openBackdrop || isSubmitting || disabledForm}
+                      />
+                    )}
+                  </Field>
+                </Grid2>
+
+                <Grid2 size={{ xs: 12 }}>
+                  <Field name="lineOALink">
+                    {({ field }: FieldProps) => (
+                      <TextField
+                        {...field}
+                        name="lineOALink"
+                        label="ลิงก์ไลน์ OA (ถ้ามี)"
+                        // sx={{ textTransform: "uppercase" }}
+                        value={values.lineOALink ? values.lineOALink : ""}
+                        onChange={(e) => {
+                          setFieldValue(
+                            "lineOALink",
+                            e.target.value
+                          );
+                        }}
+                        slotProps={{
+                          inputLabel: { shrink: true },
+                          input: {
+                            readOnly: viewOnly ? true : false,
+                          },
+                        }}
+                        error={touched.lineOALink && Boolean(errors.lineOALink)}
+                        helperText={touched.lineOALink && errors.lineOALink}
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />

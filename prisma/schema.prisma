@@ -9,27 +9,43 @@ datasource db {
 
 model User {
   userId     String     @id @default(auto()) @map("_id") @db.ObjectId
-  email      String
+  email      String     @unique
   password   String?
-  name       String
+  name       String?
   userStatus UserStatus @default(ACTIVE)
+  isEmailVerified Boolean            @default(false) 
 
   role   Role?   @relation(fields: [roleId], references: [roleId])
   roleId String? @db.ObjectId
 
   store Store?
 
-  resetPasswordTokens ResetPasswordToken[]
+  verificationTokens VerificationToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([email])
 }
 
 enum UserStatus {
   ACTIVE
   INACTIVE
+}
+
+enum TokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model VerificationToken {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @db.ObjectId
+  user        User         @relation(fields: [userId], references: [userId])
+  token       String       @unique // <--- ต้องเป็น unique
+  purpose     TokenPurpose // <--- เพิ่ม purpose field
+  expiresAt   DateTime     // ISO Date string
+  used        Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model Role {
@@ -47,29 +63,6 @@ model Role {
 enum RoleName {
   ADMIN
   STOREADMIN
-}
-
-model ResetPasswordToken {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  // ความสัมพันธ์กับ User
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
-
-  // โทเค็นที่ใช้สำหรับรีเซ็ตรหัสผ่าน
-  token String @unique // UUID หรือ random string ที่เข้ารหัสแล้วก็ได้
-
-  // วันหมดอายุ (เช่น 15 นาที - 1 ชม.)
-  expiresAt DateTime
-
-  // สถานะการใช้งาน
-  used Boolean @default(false)
-
-  // วันที่สร้างและอัปเดต
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
 
 model Customer {
@@ -278,6 +271,7 @@ model Store {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
   storeName     String
   storeUsername String @unique
+  lineOALink    String
   // bookingLink      String            @unique // 3.2 ลิงก์ร้านค้า
   // 2.1 กำหนดวันหยุด (วันหยุดประจำสัปดาห์ เช่น [1, 7] = จันทร์, อาทิตย์)
   // weeklyHolidays   Int[]

@@ -53,6 +53,7 @@ export interface Store {
   id: string;
   storeName: string;
   storeUsername: string;
+  lineOALink?: string
 
   lineNotifyToken?: string;
   lineChannelId?: string;
@@ -205,6 +206,7 @@ export const initialStore: Store = {
   id: '',
   storeName: '',
   storeUsername: '',
+  lineOALink: '',
 
   lineNotifyToken: undefined,
   lineChannelId: undefined,
