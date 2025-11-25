@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import Link from "next/link";
 import {
@@ -52,6 +52,10 @@ const Profile = () => {
   const router = useRouter();
   const localActive = useLocale();
 
+  useEffect(() => {
+console.log(session)
+  }, [session])
+
   const handleEdit = () => {
     if (session?.user?.id) {
       router.push(
@@ -102,12 +106,13 @@ const Profile = () => {
           </Typography>
           <Typography
             variant="h5"
+            color="#fff"
             fontWeight="700"
             sx={{
               ml: 1,
             }}
           >
-            {session?.user?.name}
+            {session?.user?.storeName || 'Developer'}
           </Typography>
           <IconChevronDown width="20" height="20" color="#fff" />
         </Box>

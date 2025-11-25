@@ -27,6 +27,8 @@ const authOptions: NextAuthOptions = {
 
         const { email, password } = credentials ?? {};
 
+        // console.log(email)
+
         if (!email || !password) {
           throw new Error("โปรดกรอกอีเมลและรหัสผ่าน");
         }
@@ -37,21 +39,32 @@ const authOptions: NextAuthOptions = {
             password: true, // เลือก password
             email: true,
             userId: true,
-            name: true,
             role: {
               select: {
                 name: true,
+                roleId: true
               },
             },
+            store: {
+              select: {
+                storeName: true,
+                id: true
+              }
+            }
           }, where: {
             email: {
               equals: email
             },
             userStatus: {
-              equals: UserStatus.Active
-            }
+              equals: UserStatus.ACTIVE
+            },
+            // isEmailVerified : {
+            //   equals: true
+            // }     
           },
         })
+
+        console.log(user?.store)
 
         if (!user || !user.password) {
           throw new Error("โปรดตรวจสอบชื่อผู้ใช้งานเเละรหัสผ่าน");
@@ -66,9 +79,11 @@ const authOptions: NextAuthOptions = {
           // return user;
           return {
             email: user.email,
-            role: user.role?.name,
             id: user.userId.toString(),
-            name: user.name,
+            roleName: user.role?.name,
+            roleId: user.role?.roleId,
+            storeName: user.store?.storeName,
+            storeId: user.store?.id,
             url: '/protected/dashboard'
           }
         } else {
@@ -81,18 +96,24 @@ const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.roleId = user.roleId
+        token.roleName = user.roleName,
+        token.storeName = user.storeName,
+        token.storeId = user.storeId
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       return {
         ...session,
         user: {
           ...session.user,
           id: token.id,
-          role: token.role,
           email: token.email,
-          name: token.name
+          roleName: token.roleName,
+          roleId: token.roleId,
+          storeName: token.storeName,
+          storeId: token.storeId,
         }
       }
     },
