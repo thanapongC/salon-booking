@@ -8,7 +8,7 @@ export const storeService = {
     async getStore(storeId: string) {
         try {
             let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?storeId=${storeId}`);
-            return { success: true, data };
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
@@ -20,7 +20,7 @@ export const storeService = {
     async getSelectStore() {
         try {
             let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?selectStore=true`);
-            return { success: true, data };
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");

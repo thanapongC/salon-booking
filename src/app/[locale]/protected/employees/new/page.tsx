@@ -16,10 +16,9 @@ import Breadcrumb from "@/components/shared/used/BreadcrumbCustom";
 import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
-import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
-import EmployeeTable from "@/components/forms/employees/EmployeeTable";
+import NewEmployee from "@/components/forms/employees/NewEmployee";
 
-const NewEmployee = () => {
+const NewEmployeePage = () => {
   const t = useTranslations("HomePage");
   const localActive = useLocale();
 
@@ -48,5 +47,5 @@ const NewEmployee = () => {
   );
 };
 
-export default NewEmployee;
+export default NewEmployeePage;
 

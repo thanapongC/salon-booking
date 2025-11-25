@@ -8,7 +8,7 @@ export const bookingService = {
     async getBooking(bookingId: string) {
         try {
             let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?bookingId=${bookingId}`);
-            return { success: true, data };
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
@@ -20,7 +20,7 @@ export const bookingService = {
     async getSelectBooking() {
         try {
             let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?selectBooking=true`);
-            return { success: true, data };
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");

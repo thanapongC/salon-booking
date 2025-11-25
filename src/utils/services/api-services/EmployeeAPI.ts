@@ -1,14 +1,14 @@
 import { Employee } from "@/interfaces/Store";
 import APIServices from "../APIServices";
 
-export const EMPLOYEE_API_BASE_URL = "/api/employee";
+export const EMPLOYEE_API_BASE_URL = "/api/employees";
 
 export const employeeService = {
 
     async getEmployee(employeeId: string) {
         try {
             let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?employeeId=${employeeId}`);
-            return { success: true, data };
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
@@ -20,7 +20,7 @@ export const employeeService = {
     async getSelectEmployee() {
         try {
             let data: any = await APIServices.get(`${EMPLOYEE_API_BASE_URL}?selectEmployee=true`);
-            return { success: true, data };
+            return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");

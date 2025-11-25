@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from "react";
 import { Box, Typography, Grid2, TextField, Avatar } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
-import { Field, FieldProps, Form, Formik } from "formik";
+import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
@@ -26,6 +26,7 @@ import { IconCurrencyBaht } from "@tabler/icons-react";
 import { employeeService } from "@/utils/services/api-services/EmployeeAPI";
 import { useEmployeeContext } from "@/contexts/EmployeeContext";
 import { Employee, initialEmployee } from "@/interfaces/Store";
+import { useSession } from "next-auth/react";
 
 interface EmployeeProps {
   viewOnly?: boolean;
@@ -49,125 +50,80 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
   const pathname = usePathname();
   const params = useSearchParams();
   const localActive = useLocale();
+  const { data: session } = useSession();
 
   const validationSchema = Yup.object().shape({
-    serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    EmployeeName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
-    aboutEmployee: Yup.object().shape({
-      rentalPriceCurrent: Yup.number()
-        .required("กรุณากรอกราคาค่าเช่า")
-        .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
-      stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
-      QTY: Yup.number().required("กรุณาใส่จำนวน"),
-    }),
+    role: Yup.string().required("กรุณากรอกตำเเหน่ง"),
+    name: Yup.string().required("กรุณากรอกชื่อพนักงาน"),
   });
 
-  const handleFormSubmit = (
-    value: Employee,
-    { resetForm, validateForm }: any
+  const handleFormSubmit = async (
+    values: Employee,
+    {
+      setSubmitting,
+      setErrors,
+      resetForm,
+      validateForm,
+    }: FormikHelpers<Employee> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
   ) => {
     validateForm(); // บังคับ validate หลังจากรีเซ็ต
-    setIsLoading(true);
-    console.log(value);
-    if (employeeEdit) {
-      handleUpdateEmployee(value);
-    } else {
-      handleCreateEmployee(value);
-    }
-    resetForm(); // รีเซ็ตค่าฟอร์ม
-  };
+    // ล้างสถานะข้อความก่อนเริ่ม
+    // setGlobalError(null);
+    // setSuccessMessage(null);
+    setSubmitting(true); // เริ่มสถานะ Loading/Submitting
 
-  const handleUpdateEmployee = async (Employee: Employee) => {
-    setOpenBackdrop(true);
-    const result = await employeeService.updateEmployee(Employee);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
+    if (!session?.user?.storeId) {
+      setNotify({
+        open: true,
+        message: "ไม่พบร้านค้าของคุณ โปรดออกจากระบบ",
+        color: "error",
+      });
+      return null;
     }
-  };
 
-  const handleCreateEmployee = async (Employee: Employee) => {
-    setOpenBackdrop(true);
-    const result = await employeeService.createEmployee(Employee);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
-    }
-  };
+    values = {
+      ...values,
+      userId: session?.user?.id,
+    };
 
-  const handleGetSelectCategory = async () => {
-    // const result = await categoryService.getSelectCategory();
-    // if (result.success) {
-    //   setCategorySelectState(result.data);
+    // 2. เรียกใช้ API
+    let result;
+
+    // if (serviceEdit) {F
+    result = await employeeService.createEmployee(values);
     // } else {
-    //   setNotify({
-    //     open: true,
-    //     message: result.message,
-    //     color: result.success ? "success" : "error",
-    //   });
+    //   result = await serviceService.updateService(values);
     // }
+
+    if (result.success) {
+      resetForm();
+
+      setTimeout(() => {
+        router.push(`/${localActive}/protected/employees`);
+      }, 1000);
+    }
+
+    // // // 3. จัดการเมื่อสำเร็จ
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
   };
 
-  const getDataEmployee = () => {
-    const EmployeeId = params.get("EmployeeId");
-    axios
-      .get(`/api/Employee?EmployeeId=${EmployeeId}`)
-      .then(({ data }) => {
-        // const modifiedData: Employee = {
-        //   ...data,
-        //   aboutEmployee: {
-        //     ...data.aboutEmployee,
-        //     purchaseDate: dayjs(data.aboutEmployee.purchaseDate),
-        //   },
-        // };
-        // setEmployees(modifiedData);
-      })
-      .catch((error) => {
-        if (error.name === "AbortError") {
-          console.log("Request cancelled");
-        } else {
-          console.error("Fetch error:", error);
-        }
-      })
-      .finally(() => {});
-  };
-
-  // const getTypeData = () => {
-  //   axios
-  //     .get(`/api/Employee/type?getbycharacter=true`)
-  //     .then(({ data }) => {
-  //       setTypeSelectState(data.data);
-  //     })
-  //     .catch((error) => {
-  //       if (error.name === "AbortError") {
-  //         console.log("Request cancelled");
-  //       } else {
-  //         console.error("Fetch error:", error);
-  //       }
-  //     })
-  //     .finally(() => {});
-  // };
-
-  // useEffect(() => {
-  //   if (
-  //     Employee.aboutEmployee?.stockStatus ===
-  //       EmployeeStatus.CurrentlyRenting ||
-  //     Employee.aboutEmployee?.stockStatus === EmployeeStatus.InActive ||
-  //     Employee.aboutEmployee?.stockStatus === EmployeeStatus.Damaged
-  //   ) {
-  //     setDisabledForm(true);
+  // const handleUpdateEmployee = async (Employee: Employee) => {
+  //   setOpenBackdrop(true);
+  //   const result = await employeeService.updateEmployee(Employee);
+  //   setOpenBackdrop(false);
+  //   setNotify({
+  //     open: true,
+  //     message: result.message,
+  //     color: result.success ? "success" : "error",
+  //   });
+  //   if (result.success) {
+  //     router.push(`/${localActive}/protected/inventory`);
   //   }
-  // }, [Employee]);
+  // };
 
   useEffect(() => {
     setIsLoading(true);
@@ -178,11 +134,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
       setDisabledForm(false);
     } else {
       setEmployeeEdit(true);
-      getDataEmployee();
     }
-
-    // getTypeData();
-    handleGetSelectCategory();
 
     return () => {
       setEmployeeForm(initialEmployee);
