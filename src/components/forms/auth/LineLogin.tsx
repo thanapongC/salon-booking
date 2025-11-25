@@ -213,7 +213,7 @@ const LineLogin: React.FC = () => {
               color: theme.palette.text.secondary,
             }}
           >
-            © 2025 ICUTESOURCE. All rights reserved.
+            © 2025 All rights reserved.
           </Typography>
         </Box>
       </motion.div>

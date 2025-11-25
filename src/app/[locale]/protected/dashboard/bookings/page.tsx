@@ -11,27 +11,27 @@ import {
   Radio,
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import BookingTabs from "@/components/forms/booking/BookingTabs";
+import FloatingButton from "@/components/shared/used/FloatingButton";
+import { useRouter } from "next/navigation";
+import BookingTable from "@/components/forms/booking/BookingTable";
 
 const Booking = () => {
   const t = useTranslations("HomePage");
-
-  const [issueDate, setIssueDate] = useState("");
-  const [repairLocation, setRepairLocation] = useState<string>("");
-  const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRepairLocation(event.target.value);
-  };
+  const localActive = useLocale();
+  const router = useRouter();
 
   const { setBreadcrumbs } = useBreadcrumbContext();
 
-  useEffect(() => {
+
+    useEffect(() => {
     setBreadcrumbs([
-      { name: "หน้าแรก", href: "/dashboard" },
-      { name: "การจองทั้งหมด", href: "" },
+      { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
+      { name: "การจองทั้งหมด", href: `/${localActive}/protected/dashboard/bookings` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -40,11 +40,14 @@ const Booking = () => {
 
   return (
     <PageContainer title="" description="">
+      <FloatingButton
+        onClick={() => router.push(`/${localActive}/protected/dashboard/bookings/new`)}
+      />
       <Typography variant="h1" mt={2} color="#fff">
         การจองทั้งหมด
       </Typography>
       <BaseCard title="">
-        <BookingTabs />
+        <BookingTable />
       </BaseCard>
     </PageContainer>
   );

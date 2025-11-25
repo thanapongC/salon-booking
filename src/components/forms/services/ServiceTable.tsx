@@ -58,11 +58,6 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
 
   const [rowCount, setRowCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<SearchFormData>({
-    equipmentName: "",
-    serialNo: "",
-    stockStatus: "",
-  });
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
@@ -169,47 +164,6 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
     );
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleClear = () => {
-    setFormData({
-      equipmentName: "",
-      serialNo: "",
-      stockStatus: "",
-    });
-    getData();
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    searchData();
-  };
-
-  const searchData = async () => {
-    try {
-      await fetchData(
-        `/api/equipment/search?page=${paginationModel.page + 1}&pageSize=${
-          paginationModel.pageSize
-        }&serialNo=${formData.serialNo}&equipmentName=${
-          formData.equipmentName
-        }&stockStatus=${formData.stockStatus}`,
-        setServices,
-        setRowCount,
-        setLoading
-      );
-    } catch (error: any) {
-      if (error.message !== "Request was canceled") {
-        console.error("Unhandled error:", error);
-      }
-    }
-  };
-
   const getData = async () => {
     try {
       await fetchData(
@@ -227,12 +181,12 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
     }
   };
 
-  // useEffect(() => {
-  //   getData();
-  //   return () => {
-  //     setServices([]);
-  //   };
-  // }, [paginationModel, recall]);
+  useEffect(() => {
+    getData();
+    return () => {
+      setServices([]);
+    };
+  }, [paginationModel]);
 
   return (
     <>

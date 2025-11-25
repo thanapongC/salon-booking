@@ -18,14 +18,17 @@ import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
 import ServiceTabs from "@/components/forms/services/ServiceTabs";
-import ServiceTable from "@/components/forms/services/ServiceTable";
-import FloatingButton from "@/components/shared/used/FloatingButton";
-import { useRouter } from "next/navigation";
+import NewService from "@/components/forms/services/NewService";
 
 const Services = () => {
   const t = useTranslations("HomePage");
-  const router = useRouter();
   const localActive = useLocale();
+
+  const [issueDate, setIssueDate] = useState("");
+  const [repairLocation, setRepairLocation] = useState<string>("");
+  const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRepairLocation(event.target.value);
+  };
 
   const { setBreadcrumbs } = useBreadcrumbContext();
 
@@ -33,6 +36,7 @@ const Services = () => {
     setBreadcrumbs([
       { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
       { name: "บริการ", href: `/${localActive}/protected/services` },
+      { name: "เพิ่มบริการ", href: `/${localActive}/protected/services/new` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -41,14 +45,11 @@ const Services = () => {
 
   return (
     <PageContainer title="" description="">
-      <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/services/new`)}
-      />
       <Typography variant="h1" mt={2} color="#fff">
         จัดการบริการ
       </Typography>
       <BaseCard title="">
-        <ServiceTable />
+        <NewService />
       </BaseCard>
     </PageContainer>
   );

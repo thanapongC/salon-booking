@@ -4,9 +4,9 @@ import {
   Assessment,
   Badge,
   Shower,
-  Settings
+  Settings,
 } from "@mui/icons-material";
-import { IconHome,  } from "@tabler/icons-react";
+import { IconHome } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
 import { useTranslations, useLocale } from "next-intl";

@@ -5,9 +5,11 @@ const FloatingButton = ({ onClick }: { onClick: () => void }) => {
   return (
     <Button
       variant="contained"
-      color="primary"
+      color="warning"
       onClick={onClick}
       style={{
+        // background: '#fff',
+        // color: 'palette.primary.main',
         position: "fixed",
         bottom: "16px",
         right: "16px",

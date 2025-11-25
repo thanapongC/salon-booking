@@ -12,27 +12,27 @@ import {
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useLocale, useTranslations } from "next-intl";
-import Breadcrumb from "@/components/shared/used/BreadcrumbCustom";
 import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
-import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
-import ServiceTabs from "@/components/forms/services/ServiceTabs";
-import ServiceTable from "@/components/forms/services/ServiceTable";
+import BookingTabs from "@/components/forms/booking/BookingTabs";
 import FloatingButton from "@/components/shared/used/FloatingButton";
 import { useRouter } from "next/navigation";
+import NewBooking from "@/components/forms/booking/NewBooking";
 
-const Services = () => {
+const Booking = () => {
   const t = useTranslations("HomePage");
-  const router = useRouter();
   const localActive = useLocale();
+  const router = useRouter();
 
   const { setBreadcrumbs } = useBreadcrumbContext();
 
-  useEffect(() => {
+
+    useEffect(() => {
     setBreadcrumbs([
       { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "บริการ", href: `/${localActive}/protected/services` },
+      { name: "การจองทั้งหมด", href: `/${localActive}/protected/dashboard/bookings` },
+      { name: "เพิ่มการจองใหม่", href: `/${localActive}/protected/dashboard/bookings/new` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -41,17 +41,14 @@ const Services = () => {
 
   return (
     <PageContainer title="" description="">
-      <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/services/new`)}
-      />
       <Typography variant="h1" mt={2} color="#fff">
-        จัดการบริการ
+        การจองทั้งหมด
       </Typography>
       <BaseCard title="">
-        <ServiceTable />
+        <NewBooking />
       </BaseCard>
     </PageContainer>
   );
 };
 
-export default Services;
+export default Booking;

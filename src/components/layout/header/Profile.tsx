@@ -1,10 +1,8 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import Link from "next/link";
 import {
   Box,
   Menu,
-  Avatar,
   Typography,
   Divider,
   Button,
@@ -17,12 +15,7 @@ import {
 import { Stack } from "@mui/system";
 import {
   IconChevronDown,
-  IconCreditCard,
-  IconCurrencyDollar,
-  IconMail,
-  IconShield,
 } from "@tabler/icons-react";
-import ProfileFormDialog from "@/components/shared/ProfileDialog";
 import { useTranslations, useLocale } from "next-intl";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -102,7 +95,7 @@ console.log(session)
             fontWeight="400"
             sx={{ ml: 1 }}
           >
-            สวัสดีคุณ,
+            สวัสดี,
           </Typography>
           <Typography
             variant="h5"

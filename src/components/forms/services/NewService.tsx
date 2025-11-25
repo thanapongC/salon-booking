@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
-import { Field, FieldProps, Form, Formik } from "formik";
+import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
@@ -34,6 +34,7 @@ import { IconCurrencyBaht } from "@tabler/icons-react";
 import { serviceService } from "@/utils/services/api-services/ServiceAPI";
 import { useServiceContext } from "@/contexts/ServiceContext";
 import { Service, initialService } from "@/interfaces/Store";
+import { useSession } from "next-auth/react";
 
 interface ServiceProps {
   viewOnly?: boolean;
@@ -48,6 +49,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [disabledForm, setDisabledForm] = useState<boolean>(false);
 
+  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -59,100 +61,71 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     price: Yup.number().required("กรุณาใส่ราคาของคอร์ส"),
   });
 
-  const handleFormSubmit = (
-    value: Service,
-    { resetForm, validateForm }: any
+  const handleFormSubmit = async (
+    values: Service,
+    {
+      setSubmitting,
+      setErrors,
+      resetForm,
+      validateForm,
+    }: FormikHelpers<Service> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
   ) => {
     validateForm(); // บังคับ validate หลังจากรีเซ็ต
-    setIsLoading(true);
-    console.log(value);
-    if (serviceEdit) {
-      handleUpdateService(value);
-    } else {
-      handleCreateService(value);
-    }
-    resetForm(); // รีเซ็ตค่าฟอร์ม
-  };
+    // ล้างสถานะข้อความก่อนเริ่ม
+    // setGlobalError(null);
+    // setSuccessMessage(null);
+    setSubmitting(true); // เริ่มสถานะ Loading/Submitting
 
-  const handleUpdateService = async (Service: Service) => {
-    setOpenBackdrop(true);
-    const result = await serviceService.updateService(Service);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
+    if (!session?.user?.storeId) {
+      setNotify({
+        open: true,
+        message: "ไม่พบร้านค้าของคุณ โปรดออกจากระบบ",
+        color: "error",
+      });
+      return null;
     }
-  };
 
-  const handleCreateService = async (Service: Service) => {
-    setOpenBackdrop(true);
-    const result = await serviceService.createService(Service);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
-    }
-  };
+    values = {
+      ...values,
+      storeId: session?.user?.storeId,
+    };
 
-  const handleGetSelectCategory = async () => {
-    // const result = await categoryService.getSelectCategory();
-    // if (result.success) {
-    //   setCategorySelectState(result.data);
+    // 2. เรียกใช้ API
+    let result;
+
+    // if (serviceEdit) {
+      result = await serviceService.createService(values);
     // } else {
-    //   setNotify({
-    //     open: true,
-    //     message: result.message,
-    //     color: result.success ? "success" : "error",
-    //   });
+    //   result = await serviceService.updateService(values);
     // }
+
+    if (result.success) {
+      resetForm();
+
+      setTimeout(() => {
+        router.push(`/${localActive}/protected/services`);
+      }, 1000);
+    }
+
+    // // // 3. จัดการเมื่อสำเร็จ
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
   };
 
-  const getDataService = () => {
-    const ServiceId = params.get("ServiceId");
-    axios
-      .get(`/api/Service?ServiceId=${ServiceId}`)
-      .then(({ data }) => {
-        // const modifiedData: Service = {
-        //   ...data,
-        //   aboutService: {
-        //     ...data.aboutService,
-        //     purchaseDate: dayjs(data.aboutService.purchaseDate),
-        //   },
-        // };
-        // setServices(modifiedData);
-      })
-      .catch((error) => {
-        if (error.name === "AbortError") {
-          console.log("Request cancelled");
-        } else {
-          console.error("Fetch error:", error);
-        }
-      })
-      .finally(() => {});
-  };
-
-  // const getTypeData = () => {
-  //   axios
-  //     .get(`/api/Service/type?getbycharacter=true`)
-  //     .then(({ data }) => {
-  //       setTypeSelectState(data.data);
-  //     })
-  //     .catch((error) => {
-  //       if (error.name === "AbortError") {
-  //         console.log("Request cancelled");
-  //       } else {
-  //         console.error("Fetch error:", error);
-  //       }
-  //     })
-  //     .finally(() => {});
+  // const handleGetSelectCategory = async () => {
+  //   // const result = await categoryService.getSelectCategory();
+  //   // if (result.success) {
+  //   //   setCategorySelectState(result.data);
+  //   // } else {
+  //   //   setNotify({
+  //   //     open: true,
+  //   //     message: result.message,
+  //   //     color: result.success ? "success" : "error",
+  //   //   });
+  //   // }
   // };
 
   // useEffect(() => {
@@ -175,11 +148,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
       setDisabledForm(false);
     } else {
       setServiceEdit(true);
-      getDataService();
     }
-
-    // getTypeData();
-    handleGetSelectCategory();
 
     return () => {
       setServiceForm(initialService);

@@ -258,7 +258,7 @@ const ResetPasswordForm: FC<StoreProps> = ({ viewOnly = false }) => {
                 </Grid2>
 
                 {/* Store ID */}
-                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 12 }}>
                   <Field name="oldPassword">
                     {({ field }: FieldProps) => (
                       <TextField
@@ -286,9 +286,8 @@ const ResetPasswordForm: FC<StoreProps> = ({ viewOnly = false }) => {
                     )}
                   </Field>
                 </Grid2>
-                <Grid2 size={{ xs: 6 }}></Grid2>
 
-                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 12 }}>
                   <Field name="newPassword">
                     {({ field }: FieldProps) => (
                       <TextField
@@ -317,7 +316,7 @@ const ResetPasswordForm: FC<StoreProps> = ({ viewOnly = false }) => {
                 </Grid2>
                 <Grid2 size={{ xs: 6 }}></Grid2>
 
-                <Grid2 size={{ xs: 6 }}>
+                <Grid2 size={{ xs: 12 }}>
                   <Field name="confirmPassword">
                     {({ field }: FieldProps) => (
                       <TextField

@@ -17,14 +17,10 @@ import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
-import ServiceTabs from "@/components/forms/services/ServiceTabs";
-import ServiceTable from "@/components/forms/services/ServiceTable";
-import FloatingButton from "@/components/shared/used/FloatingButton";
-import { useRouter } from "next/navigation";
+import EmployeeTable from "@/components/forms/employees/EmployeeTable";
 
-const Services = () => {
+const NewEmployee = () => {
   const t = useTranslations("HomePage");
-  const router = useRouter();
   const localActive = useLocale();
 
   const { setBreadcrumbs } = useBreadcrumbContext();
@@ -32,7 +28,8 @@ const Services = () => {
   useEffect(() => {
     setBreadcrumbs([
       { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "บริการ", href: `/${localActive}/protected/services` },
+      { name: "จัดการพนักงาน", href: `/${localActive}/protected/employees` },
+      { name: "เพิ่มพนักงาน", href: `/${localActive}/protected/employees/new` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -41,17 +38,15 @@ const Services = () => {
 
   return (
     <PageContainer title="" description="">
-      <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/services/new`)}
-      />
       <Typography variant="h1" mt={2} color="#fff">
-        จัดการบริการ
+        การจัดการพนักงาน
       </Typography>
       <BaseCard title="">
-        <ServiceTable />
+        <NewEmployee/>
       </BaseCard>
     </PageContainer>
   );
 };
 
-export default Services;
+export default NewEmployee;
+
