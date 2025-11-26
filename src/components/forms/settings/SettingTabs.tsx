@@ -3,8 +3,6 @@ import { Tabs, Box, Tab, Grid2 } from "@mui/material";
 // import ReportSettingForm from "../shared/ReportSettingForm";
 // import { ReportType } from "@/contexts/ReportContext";
 import { a11yProps, CustomTabPanel } from "../../shared/TabSetting";
-import { CalendarMonth, LocalOffer, PriceCheck } from "@mui/icons-material";
-import NewService from "./ShopSettings";
 import ShopSettings from "./ShopSettings";
 import TimeSettings from "./TimeSettings";
 import LineSettings from "./LineSettings";

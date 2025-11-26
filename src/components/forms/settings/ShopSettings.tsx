@@ -29,9 +29,6 @@ import { useLocale } from "next-intl";
 import StatusService from "@/components/shared/used/Status";
 import dayjs from "dayjs";
 import { Bath, MonitorCog, Save, Store as StoreIcon, Copy } from "lucide-react";
-import { AutoFixHigh, Category, Handyman, More } from "@mui/icons-material";
-import { IconCurrencyBaht } from "@tabler/icons-react";
-import { serviceService } from "@/utils/services/api-services/ServiceAPI";
 import { useServiceContext } from "@/contexts/ServiceContext";
 import {
   Service,
@@ -59,15 +56,15 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const localActive = useLocale();
 
   const validationSchema = Yup.object().shape({
-    serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    ServiceName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
-    aboutService: Yup.object().shape({
-      rentalPriceCurrent: Yup.number()
-        .required("กรุณากรอกราคาค่าเช่า")
-        .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
-      stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
-      QTY: Yup.number().required("กรุณาใส่จำนวน"),
-    }),
+    // serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
+    // ServiceName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
+    // aboutService: Yup.object().shape({
+    //   rentalPriceCurrent: Yup.number()
+    //     .required("กรุณากรอกราคาค่าเช่า")
+    //     .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
+    //   stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
+    //   QTY: Yup.number().required("กรุณาใส่จำนวน"),
+    // }),
   });
 
   const handleFormSubmit = (value: Store, { resetForm, validateForm }: any) => {
@@ -146,33 +143,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
       })
       .finally(() => {});
   };
-
-  // const getTypeData = () => {
-  //   axios
-  //     .get(`/api/Service/type?getbycharacter=true`)
-  //     .then(({ data }) => {
-  //       setTypeSelectState(data.data);
-  //     })
-  //     .catch((error) => {
-  //       if (error.name === "AbortError") {
-  //         console.log("Request cancelled");
-  //       } else {
-  //         console.error("Fetch error:", error);
-  //       }
-  //     })
-  //     .finally(() => {});
-  // };
-
-  // useEffect(() => {
-  //   if (
-  //     Service.aboutService?.stockStatus ===
-  //       ServiceStatus.CurrentlyRenting ||
-  //     Service.aboutService?.stockStatus === ServiceStatus.InActive ||
-  //     Service.aboutService?.stockStatus === ServiceStatus.Damaged
-  //   ) {
-  //     setDisabledForm(true);
-  //   }
-  // }, [Service]);
 
   useEffect(() => {
     setIsLoading(true);

@@ -46,15 +46,15 @@ const StoreForm: FC<StoreProps> = ({ viewOnly = false }) => {
   const localActive = useLocale();
 
   const validationSchema = Yup.object().shape({
-    serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    StoreName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
-    aboutStore: Yup.object().shape({
-      rentalPriceCurrent: Yup.number()
-        .required("กรุณากรอกราคาค่าเช่า")
-        .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
-      stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
-      QTY: Yup.number().required("กรุณาใส่จำนวน"),
-    }),
+    // serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
+    // StoreName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
+    // aboutStore: Yup.object().shape({
+    //   rentalPriceCurrent: Yup.number()
+    //     .required("กรุณากรอกราคาค่าเช่า")
+    //     .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
+    //   stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
+    //   QTY: Yup.number().required("กรุณาใส่จำนวน"),
+    // }),
   });
 
   const handleFormSubmit = (value: Store, { resetForm, validateForm }: any) => {
@@ -69,33 +69,33 @@ const StoreForm: FC<StoreProps> = ({ viewOnly = false }) => {
     resetForm(); // รีเซ็ตค่าฟอร์ม
   };
 
-  const handleUpdateStore = async (Store: Store) => {
-    setOpenBackdrop(true);
-    const result = await storeService.updateStore(Store);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
-    }
-  };
+  // const handleUpdateStore = async (Store: Store) => {
+  //   setOpenBackdrop(true);
+  //   const result = await storeService.updateStore(Store);
+  //   setOpenBackdrop(false);
+  //   setNotify({
+  //     open: true,
+  //     message: result.message,
+  //     color: result.success ? "success" : "error",
+  //   });
+  //   if (result.success) {
+  //     router.push(`/${localActive}/protected/inventory`);
+  //   }
+  // };
 
-  const handleCreateStore = async (Store: Store) => {
-    setOpenBackdrop(true);
-    const result = await storeService.createStore(Store);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
-    }
-  };
+  // const handleCreateStore = async (Store: Store) => {
+  //   setOpenBackdrop(true);
+  //   const result = await storeService.createStore(Store);
+  //   setOpenBackdrop(false);
+  //   setNotify({
+  //     open: true,
+  //     message: result.message,
+  //     color: result.success ? "success" : "error",
+  //   });
+  //   if (result.success) {
+  //     router.push(`/${localActive}/protected/inventory`);
+  //   }
+  // };
 
   const handleGetSelectCategory = async () => {
     // const result = await categoryStore.getSelectCategory();

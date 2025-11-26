@@ -64,51 +64,39 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const params = useSearchParams();
   const localActive = useLocale();
 
-  // const validationSchema = Yup.object().shape({
-  //   serialNo: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-  //   StoreName: Yup.string().required("กรุณากรอกชื่ออุปกรณ์"),
-  //   aboutStore: Yup.object().shape({
-  //     rentalPriceCurrent: Yup.number()
-  //       .required("กรุณากรอกราคาค่าเช่า")
-  //       .min(1, "กรุณากรอกค่าที่มากกว่า 0"),
-  //     stockStatus: Yup.string().required("กรุณาเลือกสถานะอุปกรณ์"),
-  //     QTY: Yup.number().required("กรุณาใส่จำนวน"),
-  //   }),
-  // });
-
   const validationSchema = Yup.object({
-    MON_isOpen: Yup.boolean().required(),
-    MON_openTime: Yup.string()
-      .nullable()
-      .when("MON_isOpen", {
-        is: true,
-        then: (schema) => schema.required("กรุณากรอกเวลาเปิด"),
-        otherwise: (schema) => schema.nullable(),
-      }),
+    // MON_isOpen: Yup.boolean().required(),
+    // MON_openTime: Yup.string()
+    //   .nullable()
+    //   .when("MON_isOpen", {
+    //     is: true,
+    //     then: (schema) => schema.required("กรุณากรอกเวลาเปิด"),
+    //     otherwise: (schema) => schema.nullable(),
+    //   }),
 
-    MON_closeTime: Yup.string()
-      .nullable()
-      .when("MON_isOpen", {
-        is: true,
-        then: (schema) =>
-          schema
-            .required("กรุณากรอกเวลาปิด")
-            .test(
-              "is-after-open",
-              "เวลาปิดต้องมากกว่าเวลาเปิด",
-              function (closeTime) {
-                const { MON_openTime, MON_isOpen } = this.parent;
+    // MON_closeTime: Yup.string()
+    //   .nullable()
+    //   .when("MON_isOpen", {
+    //     is: true,
+    //     then: (schema) =>
+    //       schema
+    //         .required("กรุณากรอกเวลาปิด")
+    //         .test(
+    //           "is-after-open",
+    //           "เวลาปิดต้องมากกว่าเวลาเปิด",
+    //           function (closeTime) {
+    //             const { MON_openTime, MON_isOpen } = this.parent;
 
-                // ถ้าไม่เปิดร้าน ไม่ validate
-                if (!MON_isOpen) return true;
+    //             // ถ้าไม่เปิดร้าน ไม่ validate
+    //             if (!MON_isOpen) return true;
 
-                if (!closeTime || !MON_openTime) return false;
+    //             if (!closeTime || !MON_openTime) return false;
 
-                return new Date(closeTime) > new Date(MON_openTime);
-              }
-            ),
-        otherwise: (schema) => schema.nullable(),
-      }),
+    //             return new Date(closeTime) > new Date(MON_openTime);
+    //           }
+    //         ),
+    //     otherwise: (schema) => schema.nullable(),
+    //   }),
   });
 
   const handleFormSubmit = (
