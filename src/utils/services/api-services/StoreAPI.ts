@@ -1,4 +1,4 @@
-import { Store } from "@/interfaces/Store";
+import { DefaultOperatingHour, Store } from "@/interfaces/Store";
 import APIServices from "../APIServices";
 
 export const STORE_API_BASE_URL = "/api/store";
@@ -29,6 +29,18 @@ export const storeService = {
         }
     },
 
+    async getTimeSetting() {
+        try {
+            let data: any = await APIServices.get1only(`${STORE_API_BASE_URL}/timesetting`);
+            return { success: true, message: data.message, data: data.data };
+        } catch (error: any) {
+            if (error.name === "AbortError") {
+                console.log("Request cancelled");
+            }
+            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+        }
+    },
+
     async getSelectStore() {
         try {
             let data: any = await APIServices.get(`${STORE_API_BASE_URL}?selectStore=true`);
@@ -44,6 +56,18 @@ export const storeService = {
     async updateStore(Store: Store) {
         try {
             let data: any = await APIServices.patch(STORE_API_BASE_URL, Store);
+            return { success: true, message: data.message };
+        } catch (error: any) {
+            if (error.name === "AbortError") {
+                console.log("Request cancelled");
+            }
+            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+        }
+    },
+
+    async updateTimeSettingStore(operatingHour: DefaultOperatingHour) {
+        try {
+            let data: any = await APIServices.patch(`${STORE_API_BASE_URL}/timesetting`, operatingHour);
             return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {

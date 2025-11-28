@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
-import { Field, FieldProps, Form, Formik } from "formik";
+import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
@@ -30,15 +30,12 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useLocale } from "next-intl";
-import StatusService from "@/components/shared/used/Status";
 import dayjs from "dayjs";
 import { Save, Timer } from "lucide-react";
 import {
   DefaultOperatingHour,
-  Service,
   Store,
   initialOperatingHour,
-  initialService,
   initialStore,
 } from "@/interfaces/Store";
 import { storeService } from "@/utils/services/api-services/StoreAPI";
@@ -51,7 +48,7 @@ interface ServiceProps {
 }
 
 const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
-  const { setStoreForm, StoreEdit, setStoreEdit, setStores, Stores } =
+  const { setStoreForm, setStoreTime, storeTime } =
     useStoreContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
@@ -99,139 +96,50 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     //   }),
   });
 
-  const handleFormSubmit = (
-    value: DefaultOperatingHour,
-    { resetForm, validateForm }: any
+  const handleFormSubmit = async (
+    values: DefaultOperatingHour,
+    { setSubmitting, setErrors, resetForm, validateForm }: FormikHelpers<DefaultOperatingHour> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
   ) => {
-    // validateForm(); // บังคับ validate หลังจากรีเซ็ต
-    // setIsLoading(true);
-    // console.log(value);
-    // if (StoreEdit) {
-    //   handleUpdateStore(value);
-    // } else {
-    //   handleCreateStore(value);
-    // }
-    // resetForm(); // รีเซ็ตค่าฟอร์ม
-  };
+    
+    validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    setSubmitting(true); // เริ่มสถานะ Loading/Submittings
 
-  const handleUpdateStore = async (Store: Store) => {
-    setOpenBackdrop(true);
-    const result = await storeService.updateStore(Store);
-    setOpenBackdrop(false);
+    const result = await storeService.updateTimeSettingStore(values);
+
+    // // // // 3. จัดการเมื่อสำเร็จ
     setNotify({
       open: true,
       message: result.message,
       color: result.success ? "success" : "error",
     });
+  };
+
+  const getTimeSetting = async () => {
+    let result = await storeService.getTimeSetting();
+
     if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
+      setStoreTime(result.data);
+    } else {
+      setNotify({
+        open: true,
+        message: result.message,
+        color: result.success ? "success" : "error",
+      });
     }
   };
-
-  const handleCreateStore = async (Store: Store) => {
-    setOpenBackdrop(true);
-    const result = await storeService.createStore(Store);
-    setOpenBackdrop(false);
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
-    if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
-    }
-  };
-
-  const handleGetSelectCategory = async () => {
-    // const result = await categoryStore.getSelectCategory();
-    // if (result.success) {
-    //   setCategorySelectState(result.data);
-    // } else {
-    //   setNotify({
-    //     open: true,
-    //     message: result.message,
-    //     color: result.success ? "success" : "error",
-    //   });
-    // }
-  };
-
-  const getDataStore = () => {
-    const StoreId = params.get("StoreId");
-    axios
-      .get(`/api/Store?StoreId=${StoreId}`)
-      .then(({ data }) => {
-        // const modifiedData: Store = {
-        //   ...data,
-        //   aboutStore: {
-        //     ...data.aboutStore,
-        //     purchaseDate: dayjs(data.aboutStore.purchaseDate),
-        //   },
-        // };
-        // setStores(modifiedData);
-      })
-      .catch((error) => {
-        if (error.name === "AbortError") {
-          console.log("Request cancelled");
-        } else {
-          console.error("Fetch error:", error);
-        }
-      })
-      .finally(() => {});
-  };
-
-  // const getTypeData = () => {
-  //   axios
-  //     .get(`/api/Store/type?getbycharacter=true`)
-  //     .then(({ data }) => {
-  //       setTypeSelectState(data.data);
-  //     })
-  //     .catch((error) => {
-  //       if (error.name === "AbortError") {
-  //         console.log("Request cancelled");
-  //       } else {
-  //         console.error("Fetch error:", error);
-  //       }
-  //     })
-  //     .finally(() => {});
-  // };
-
-  // useEffect(() => {
-  //   if (
-  //     Store.aboutStore?.stockStatus ===
-  //       StoreStatus.CurrentlyRenting ||
-  //     Store.aboutStore?.stockStatus === StoreStatus.InActive ||
-  //     Store.aboutStore?.stockStatus === StoreStatus.Damaged
-  //   ) {
-  //     setDisabledForm(true);
-  //   }
-  // }, [Store]);
 
   useEffect(() => {
-    setIsLoading(true);
-
-    if (pathname.includes("new")) {
-      setStoreForm(initialStore);
-      setStoreEdit(false);
-      setDisabledForm(false);
-    } else {
-      setStoreEdit(true);
-      getDataStore();
-    }
-
-    // getTypeData();
-    handleGetSelectCategory();
-
+    // setIsLoading(true);
+    getTimeSetting();
     return () => {
-      setStoreForm(initialStore);
-      setStoreEdit(false);
-      setDisabledForm(false);
+      setStoreTime(initialOperatingHour);
     };
   }, []);
 
   return (
     <>
       <Formik<DefaultOperatingHour>
-        initialValues={initialOperatingHour} // ใช้ state เป็น initialValues
+        initialValues={storeTime} // ใช้ state เป็น initialValues
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
         enableReinitialize // เพื่อให้ Formik อัปเดตค่าจาก useState

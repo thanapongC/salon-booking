@@ -3,10 +3,12 @@
 "use client";
 
 import {
+  DefaultOperatingHour,
   Service,
   ServiceSelect,
   Store,
   StoreRegister,
+  initialOperatingHour,
   initialStore,
   initialStoreRegister,
   // initialStore,
@@ -30,13 +32,12 @@ interface StoreContextProps {
   setStoreForm: Dispatch<React.SetStateAction<Store>>;
   StoreEdit: boolean;
   setStoreEdit: Dispatch<React.SetStateAction<boolean>>;
-  // setTypeForm: Dispatch<React.SetStateAction<Store>>;
-  // setStoreSelectState: Dispatch<React.SetStateAction<StoreSelect[]>>;
-  // StoreSelectState: StoreSelect[];
   setServicesSelect: Dispatch<React.SetStateAction<ServiceSelect[]>>;
   servicesSelect: ServiceSelect[];
   setStoreRegister: Dispatch<React.SetStateAction<StoreRegister>>;
   storeRegister: StoreRegister;
+  setStoreTime: Dispatch<React.SetStateAction<DefaultOperatingHour>>;
+  storeTime: DefaultOperatingHour;
 }
 
 // สร้าง Context
@@ -46,6 +47,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [Stores, setStores] = useState<Store[]>([]);
   const [storeRegister, setStoreRegister] =
     useState<StoreRegister>(initialStoreRegister);
+  const [storeTime, setStoreTime] =
+    useState<DefaultOperatingHour>(initialOperatingHour);
   const [servicesSelect, setServicesSelect] = useState<ServiceSelect[]>([]);
   const [StoreForm, setStoreForm] = useState<Store>(initialStore);
   const [StoreEdit, setStoreEdit] = useState<boolean>(false);
@@ -76,12 +79,12 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         setStoreForm,
         StoreEdit,
         setStoreEdit,
-        // StoreSelectState,
-        // setStoreSelectState,
         setServicesSelect,
         servicesSelect,
         setStoreRegister,
         storeRegister,
+        setStoreTime,
+        storeTime
       }}
     >
       {children}
