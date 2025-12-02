@@ -13,7 +13,7 @@ export const storeService = {
     //         if (error.name === "AbortError") {
     //             console.log("Request cancelled");
     //         }
-    //         return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+    //         return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
     //     }
     // },
 
@@ -25,7 +25,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -37,7 +37,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -49,7 +49,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -61,7 +61,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -73,7 +73,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -85,7 +85,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -98,7 +98,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.response?.data || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 
@@ -110,7 +110,7 @@ export const storeService = {
             if (error.name === "AbortError") {
                 console.log("Request cancelled");
             }
-            return { success: false, message: error.message || "เกิดข้อผิดพลาด" };
+            return { success: false, message: error.response?.data.message || "เกิดข้อผิดพลาด" };
         }
     },
 };

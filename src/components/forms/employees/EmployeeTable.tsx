@@ -38,6 +38,8 @@ import FloatingButton from "@/components/shared/used/FloatingButton";
 import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
 import { Employee } from "@/interfaces/Store";
 import { useEmployeeContext } from "@/contexts/EmployeeContext";
+import { employeeService } from "@/utils/services/api-services/EmployeeAPI";
+import APIServices from "@/utils/services/APIServices";
 
 interface EmployeeProps {
   data?: Employee | null;
@@ -97,32 +99,32 @@ const EmployeeTable: React.FC<EmployeeProps> = ({ recall }) => {
             //     EmployeeStatus.InActive ||
             //   params.row.aboutEmployee?.stockStatus === EmployeeStatus.Damaged
             // }
-            // massage={`คุณต้องการลบอุปกรณ์ ${params.row.equipmentName} ใช่หรือไม่?`}
+            massage={`คุณต้องการลบอุปกรณ์ ${params.row.name} ใช่หรือไม่?`}
           />
         </>
       ),
     },
-    { field: "serialNo", headerName: "ชื่อ", width: 400 },
+    { field: "name", headerName: "ชื่อ", width: 400 },
     {
-      field: "equipmentName",
-      headerName: "ตำเเหน่ง",
+      field: "role",
+      headerName: "ตำแหน่ง",
       width: 300,
       // renderCell: (params) => <b> {params.row.equipmentName} </b>,
     },
-    {
-      field: "stockStatus",
-      headerName: "สถานะ",
-      width: 150,
-      // valueGetter: (value, row) => row.aboutEmployee?.stockStatus,
-      renderCell: (params) => (
-        <>
-          {/* <StatusEmployee status={params.row.aboutEmployee?.stockStatus} /> */}
-        </>
-      ),
-    },
   ];
 
-  const handleDeleteItem = (equipmentId: string) => {
+  const handleDeleteItem = async (equipmentId: string) => {
+    let result = await employeeService.deleteEmployee(equipmentId);
+
+    if (result.success) {
+      getStore();
+    }
+
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
     // axios
     //   .delete(`/api/equipment?equipmentId=${equipmentId}`)
     //   .then((data) => {
@@ -152,74 +154,76 @@ const EmployeeTable: React.FC<EmployeeProps> = ({ recall }) => {
     //   });
   };
 
-  const handleEdit = (equipmentId: string) => {
+  const handleEdit = (employeeId: string) => {
     router.push(
-      `/${localActive}/protected/inventory/edit/?equipmentId=${equipmentId}`
+      `/${localActive}/protected/employees/edit/?employeeId=${employeeId}`
     );
   };
 
-
-  const getData = async () => {
-    // try {
-    //   await fetchData(
-    //     `/api/equipment?page=${paginationModel.page + 1}&pageSize=${
-    //       paginationModel.pageSize
-    //     }`,
-    //     setEmployees,
-    //     setRowCount,
-    //     setLoading
-    //   );
-    // } catch (error: any) {
-    //   if (error.message !== "Request was canceled") {
-    //     console.error("Unhandled error:", error);
-    //   }
-    // }
+  const getStore = async () => {
+    try {
+      await APIServices.get(
+        `/api/employees?page=${paginationModel.page + 1}&pageSize=${
+          paginationModel.pageSize
+        }`,
+        setEmployees,
+        setRowCount,
+        setLoading
+      );
+    } catch (error: any) {
+      setNotify({
+        open: true,
+        message: error,
+        color: "error",
+      });
+    }
   };
 
-  // useEffect(() => {
-  //   getData();
-  //   return () => {
-  //     setEmployees([]);
-  //   };
-  // }, [paginationModel, recall]);
+  useEffect(() => {
+    // setIsLoading(true);
+    getStore();
+    return () => {
+      setEmployees([]);
+    };
+  }, [paginationModel, recall]);
 
   return (
     <>
       {/* <BaseCard> */}
-        <>
-          <DataGrid
-            getRowId={(row) => row.id}
-            initialState={{
-              density: "comfortable",
-              pagination: { paginationModel },
-              columns: {
-                columnVisibilityModel: {
-                  // Hide columns status and traderName, the other columns will remain visible
-                  // equipmentRemark: false,
-                  // brand: false,
-                  // description: false,
-                  // remark: false,
-                  // categoryName: false,
-                  // equipmentType: false,
-                  // purchaseDate: false,
-                  // unitName: false,
-                },
+      <>
+        <DataGrid
+          getRowId={(row) => row.id}
+          initialState={{
+            density: "comfortable",
+            pagination: { paginationModel },
+            columns: {
+              columnVisibilityModel: {
+                // Hide columns status and traderName, the other columns will remain visible
+                // equipmentRemark: false,
+                // brand: false,
+                // description: false,
+                // remark: false,
+                // categoryName: false,
+                // equipmentType: false,
+                // purchaseDate: false,
+                // unitName: false,
               },
-            }}
-            pageSizeOptions={[5, 10, 20, 50, 100]}
-            sx={{ border: 0, "--DataGrid-overlayHeight": "300px" }}
-            rows={employees}
-            columns={columns}
-            paginationMode="server"
-            rowCount={rowCount}
-            onPaginationModelChange={setPaginationModel}
-            loading={loading}
-            slots={{
-              noRowsOverlay: CustomNoRowsOverlay,
-              toolbar: CustomToolbar,
-            }}
-          />
-        </>
+            },
+          }}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
+          sx={{ border: 0, "--DataGrid-overlayHeight": "300px" }}
+          rows={employees}
+          columns={columns}
+          paginationMode="server"
+          rowCount={rowCount}
+          onPaginationModelChange={setPaginationModel}
+          loading={loading}
+          slots={{
+            noRowsOverlay: CustomNoRowsOverlay,
+            toolbar: CustomToolbar,
+          }}
+        />
+      </>
       {/* </BaseCard> */}
     </>
   );

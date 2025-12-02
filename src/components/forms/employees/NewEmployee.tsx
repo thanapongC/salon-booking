@@ -39,6 +39,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
     setEmployeeEdit,
     setEmployees,
     employees,
+    employeeForm,
   } = useEmployeeContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
@@ -81,49 +82,61 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
       return null;
     }
 
-    values = {
-      ...values,
-      userId: session?.user?.id,
-    };
-
     // 2. เรียกใช้ API
     let result;
 
-    // if (serviceEdit) {F
-    result = await employeeService.createEmployee(values);
-    // } else {
-    //   result = await serviceService.updateService(values);
-    // }
+    if (!employeeEdit) {
+      result = await employeeService.createEmployee(values);
+    } else {
+      result = await employeeService.updateEmployee(values);
+    }
 
+    // สำเร็จจะ redirect ไปที่ table
     if (result.success) {
       resetForm();
+
+      setNotify({
+        open: true,
+        message: result.message,
+        color: result.success ? "success" : "error",
+      });
 
       setTimeout(() => {
         router.push(`/${localActive}/protected/employees`);
       }, 1000);
+    } else {
+      // // // 3. จัดการเมื่อสำเร็จ
+      setNotify({
+        open: true,
+        message: result.message,
+        color: "error",
+      });
     }
-
-    // // // 3. จัดการเมื่อสำเร็จ
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
   };
 
-  // const handleUpdateEmployee = async (Employee: Employee) => {
-  //   setOpenBackdrop(true);
-  //   const result = await employeeService.updateEmployee(Employee);
-  //   setOpenBackdrop(false);
-  //   setNotify({
-  //     open: true,
-  //     message: result.message,
-  //     color: result.success ? "success" : "error",
-  //   });
-  //   if (result.success) {
-  //     router.push(`/${localActive}/protected/inventory`);
-  //   }
-  // };
+  const getEmployee = async () => {
+    const employeeId = params.get("employeeId");
+
+    if (employeeId) {
+      let result = await employeeService.getEmployee(employeeId);
+
+      if (result.success) {
+        setEmployeeForm(result.data);
+      } else {
+        setNotify({
+          open: true,
+          message: result.message,
+          color: result.success ? "success" : "error",
+        });
+      }
+    } else {
+      setNotify({
+        open: true,
+        message: "ไม่พบ Id",
+        color: "error",
+      });
+    }
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -133,6 +146,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
       setEmployeeEdit(false);
       setDisabledForm(false);
     } else {
+      getEmployee();
       setEmployeeEdit(true);
     }
 
@@ -146,7 +160,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
   return (
     <>
       <Formik<Employee>
-        initialValues={initialEmployee} // ใช้ state เป็น initialValues
+        initialValues={employeeForm} // ใช้ state เป็น initialValues
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
         enableReinitialize // เพื่อให้ Formik อัปเดตค่าจาก useState
@@ -169,7 +183,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
                         <Plus size={20} />
                       </Avatar>
                       <Typography variant="h4" gutterBottom ml={2} mt={0.5}>
-                        เพิ่มพนักงาน
+                         {employeeEdit ? "แก้ไขพนักงาน" : "เพิ่มพนักงาน"}
                       </Typography>
                     </Grid2>
                   </Grid2>
@@ -275,7 +289,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
                   loading={openBackdrop || isSubmitting}
                   startIcon={<Save />}
                 >
-                  เพิ่มพนักงาน
+                  {employeeEdit ? "แก้ไขพนักงาน" : "เพิ่มพนักงาน"}
                 </LoadingButton>
                 <ConfirmDelete
                   itemId={uniqueId()}
