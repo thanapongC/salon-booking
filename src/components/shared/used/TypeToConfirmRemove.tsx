@@ -19,19 +19,19 @@ import { useNotifyContext } from "@/contexts/NotifyContext";
 import { AlertOctagon } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { DocumentStatus, DocumentStep } from "@prisma/client";
+// import { DocumentStatus, DocumentStep } from "@prisma/client";
 
 interface TypeToConfirmRemoveProps {
   massage?: string;
   onDelete: (
     documentId: string,
     documentIdNo: string,
-    documentStatus: DocumentStatus,
-    documentStep?: DocumentStep
+    // documentStatus: DocumentStatus,
+    // documentStep?: DocumentStep
   ) => void;
   documentIdNo: string;
-  documentStatus: DocumentStatus;
-  documentStep?: DocumentStep;
+  // documentStatus: DocumentStatus;
+  // documentStep?: DocumentStep;
   documentId: string; // ID ที่ต้องตรงกัน
   dialogTitle?: string;
   buttonName?: string;
@@ -44,8 +44,8 @@ interface TypeToConfirmRemoveProps {
 const TypeToConfirmRemove: React.FC<TypeToConfirmRemoveProps> = ({
   massage,
   onDelete,
-  documentStatus,
-  documentStep,
+  // documentStatus,
+  // documentStep,
   documentId,
   dialogTitle,
   buttonName,
@@ -60,14 +60,14 @@ const TypeToConfirmRemove: React.FC<TypeToConfirmRemoveProps> = ({
 
   // เปิด Dialog
   const handleClickOpen = () => {
-    if (
-      documentStatus === DocumentStatus.Close ||
-      documentStatus === DocumentStatus.Cancel
-    ) {
-      onDelete(documentId, documentIdNo, documentStatus, documentStep);
-    } else {
-      setOpen(true);
-    }
+    // if (
+    //   documentStatus === DocumentStatus.Close ||
+    //   documentStatus === DocumentStatus.Cancel
+    // ) {
+    //   onDelete(documentId, documentIdNo, documentStatus, documentStep);
+    // } else {
+    //   setOpen(true);
+    // }
   };
 
   // ปิด Dialog
@@ -96,7 +96,7 @@ const TypeToConfirmRemove: React.FC<TypeToConfirmRemoveProps> = ({
         })
         return;
       }
-      onDelete(documentId, documentIdNo, documentStatus, documentStep);
+      // onDelete(documentId, documentIdNo, documentStatus, documentStep);
       handleClose();
     },
   });

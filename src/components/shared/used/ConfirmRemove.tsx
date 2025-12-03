@@ -13,20 +13,13 @@ import {
 } from "@mui/material";
 import { Cancel, Close, Delete, RemoveCircle } from "@mui/icons-material";
 import { useNotifyContext } from "@/contexts/NotifyContext";
-import { DocumentStatus } from "@prisma/client";
 import { AlertOctagon, BookDown } from "lucide-react";
-import {
-  Additional,
-  BrokenItems,
-  Part,
-  Repairman,
-} from "@/interfaces/Maintenance";
 
 interface ConfirmRemoveProps {
   massage?: string; // Name of the item to be deleted
   onDelete: (value: any, subvalue?: any) => void; // Callback for deletion action
-  itemId: string | null | BrokenItems | Repairman | Additional;
-  subItemId?: string | null | BrokenItems | Part;
+  // itemId: string | null | BrokenItems | Repairman | Additional;
+  // subItemId?: string | null | BrokenItems | Part;
   dialogTitle?: string;
   buttonName?: string;
   iconButton?: JSX.Element | null;
@@ -39,10 +32,10 @@ interface ConfirmRemoveProps {
 const ConfirmRemove: React.FC<ConfirmRemoveProps> = ({
   massage,
   onDelete,
-  itemId,
+  // itemId,
   dialogTitle,
   buttonName,
-  subItemId,
+  // subItemId,
   iconButton,
   colorButton,
   variantButton,
@@ -64,16 +57,16 @@ const ConfirmRemove: React.FC<ConfirmRemoveProps> = ({
 
   // Handle the deletion
   const handleDelete = () => {
-    if (!itemId) {
-      setNotify({
-        ...notify,
-        open: true,
-        message: "พบปัญหาบางอย่างโปรดติดต่อผู้พัฒนา",
-        color: "error",
-      });
-      return;
-    }
-    onDelete(itemId, subItemId);
+    // if (!itemId) {
+    //   setNotify({
+    //     ...notify,
+    //     open: true,
+    //     message: "พบปัญหาบางอย่างโปรดติดต่อผู้พัฒนา",
+    //     color: "error",
+    //   });
+    //   return;
+    // }
+    // onDelete(itemId, subItemId);
     handleClose();
   };
 

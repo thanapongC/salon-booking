@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from "@prisma/client"; // นำเข้า Prisma Client
 import { Store } from '@/interfaces/Store';
 import { getCurrentUserAndStoreIdsByToken } from '@/utils/lib/auth';
-import { getStoreByCurrentUserId } from '../route';
+import { getStoreByCurrentUserId } from '@/utils/services/database-services/StoreDBService';
 
 const prisma = new PrismaClient();
 

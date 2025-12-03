@@ -15,17 +15,18 @@ import { Cancel, Delete, RemoveCircle } from "@mui/icons-material";
 import { ButtonType } from "@/interfaces/ShredType";
 import { AlertOctagon, Trash2 } from "lucide-react";
 import { useNotifyContext } from "@/contexts/NotifyContext";
-import { DocumentStatus } from "@prisma/client";
+// import { DocumentStatus } from "@prisma/client";
 
 interface ConfirmDeleteProps {
   massage?: string; // Name of the item to be deleted
-  onDelete: (value: string, documentStatus?: DocumentStatus) => void; // Callback for deletion action
+  // onDelete: (value: string, documentStatus?: DocumentStatus) => void; // Callback for deletion action
+  onDelete: (value: string) => void; // Callback for deletion action
   itemId: string | null;
   buttonType?: ButtonType;
   dialogTitle?: string;
   onDisable?: boolean;
   deleteIcon?: string | JSX.Element;
-  documentStatus?: DocumentStatus;
+  // documentStatus?: DocumentStatus;
 }
 
 const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
@@ -36,7 +37,7 @@ const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
   dialogTitle,
   onDisable = false,
   deleteIcon,
-  documentStatus,
+  // documentStatus,
 }) => {
   const [open, setOpen] = useState(false);
   const { setNotify, notify } = useNotifyContext();
@@ -65,7 +66,7 @@ const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
       return;
     }
 
-    onDelete(itemId, documentStatus);
+    // onDelete(itemId, documentStatus);
     handleClose();
   };
 

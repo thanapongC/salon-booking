@@ -25,7 +25,6 @@ import { ButtonType } from "@/interfaces/ShredType";
 import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
 import { useReportContext } from "@/contexts/ReportContext";
 import PageTitle from "@/components/shared/used/PageTitle";
-import { categoryService } from "@/utils/services/api-services/CategoryApi";
 import { initialReport, ReportSetting } from "@/interfaces/Report";
 import { uniqueId } from "lodash";
 import { FilePenLine } from "lucide-react";
@@ -67,16 +66,16 @@ const ReportExport: React.FC<Props> = (
   });
 
   const handleGetSelectCategory = async () => {
-    const result = await categoryService.getSelectCategory();
-    if (result.success) {
-      // setCategorySelectState(result.data);
-    } else {
-      setNotify({
-        open: true,
-        message: result.message,
-        color: result.success ? "success" : "error",
-      });
-    }
+    // const result = await categoryService.getSelectCategory();
+    // if (result.success) {
+    //   // setCategorySelectState(result.data);
+    // } else {
+    //   setNotify({
+    //     open: true,
+    //     message: result.message,
+    //     color: result.success ? "success" : "error",
+    //   });
+    // }
   };
 
   const handleGetSelectSite = async () => {
