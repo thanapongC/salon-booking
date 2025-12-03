@@ -1,9 +1,51 @@
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import * as XLSX from 'xlsx';
+import { OperatingHourRequest } from "@/interfaces/Store"
 // import { EquipmentRow } from '@/interfaces/Equipment';
 // import { ReportType, SelectType } from "@/contexts/ReportContext";
 // import { DocumentCategory, DocumentStep, MaintenanceType } from "@prisma/client";
+
+// --------------------------------------------------------------------------
+// Helper Functions & Types
+// --------------------------------------------------------------------------
+
+// Helper function to convert "HH:MM" string to a valid Date object for Prisma
+// Note: เราใช้ 2000-01-01T...Z เพื่อให้เป็น Time Object ที่อ้างอิง UTC Date
+
+export function getTimeAsDateTime(timeString: string | null | undefined): Date | null | undefined {
+  if (!timeString) return null;
+
+  // แปลงเป็น ISO String format: YYYY-MM-DDTZ เพื่อให้ Prisma จัดการได้
+  const safeDate = new Date(`2000-01-01T${timeString}:00Z`);
+
+  if (isNaN(safeDate.getTime())) return null;
+
+  return safeDate;
+}
+
+// ฟังก์ชันแปลง Request Body เป็นโครงสร้างที่ Flatten สำหรับ Prisma
+export function mapRequestToPrismaData(requestData: OperatingHourRequest) {
+  const prismaData: any = {};
+  const days: ('MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN')[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+  days.forEach(day => {
+    const dayData = requestData[day];
+    if (dayData) {
+      if (dayData.isOpen !== undefined) {
+        prismaData[`${day}_isOpen`] = dayData.isOpen;
+      }
+      if (dayData.openTime !== undefined) {
+        prismaData[`${day}_openTime`] = getTimeAsDateTime(dayData.openTime);
+      }
+      if (dayData.closeTime !== undefined) {
+        prismaData[`${day}_closeTime`] = getTimeAsDateTime(dayData.closeTime);
+      }
+    }
+  });
+
+  return prismaData;
+}
 
 export function getBaseUrl(): string | null {
   if (typeof window !== "undefined") {

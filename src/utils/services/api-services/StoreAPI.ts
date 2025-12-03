@@ -20,7 +20,7 @@ export const storeService = {
 
     async getTimeSetting() {
         try {
-            let data: any = await APIServices.get1only(`${STORE_API_BASE_URL}/timesetting`);
+            let data: any = await APIServices.get1only(`${STORE_API_BASE_URL}/operating-hours`);
             return { success: true, message: data.message, data: data.data };
         } catch (error: any) {
             if (error.name === "AbortError") {
@@ -68,7 +68,7 @@ export const storeService = {
 
     async updateTimeSettingStore(operatingHour: DefaultOperatingHour) {
         try {
-            let data: any = await APIServices.patch(`${STORE_API_BASE_URL}/timesetting`, operatingHour);
+            let data: any = await APIServices.patch(`${STORE_API_BASE_URL}/operating-hours`, operatingHour);
             return { success: true, message: data.message };
         } catch (error: any) {
             if (error.name === "AbortError") {

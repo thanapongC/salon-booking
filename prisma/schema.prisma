@@ -200,7 +200,7 @@ model Employee {
 
 model DefaultOperatingHour {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-
+  
   // 2. สถานะและเวลาทำการปกติ
   MON_isOpen    Boolean   @default(true) // true = เปิด, false = ปิด (วันปิดปกติของสัปดาห์)
   MON_openTime  DateTime? // "09:00" รูปแบบ HH:MM

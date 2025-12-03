@@ -100,18 +100,20 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     values: DefaultOperatingHour,
     { setSubmitting, setErrors, resetForm, validateForm }: FormikHelpers<DefaultOperatingHour> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
   ) => {
+
+    console.log(values)
     
-    validateForm(); // บังคับ validate หลังจากรีเซ็ต
-    setSubmitting(true); // เริ่มสถานะ Loading/Submittings
+    // validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    // setSubmitting(true); // เริ่มสถานะ Loading/Submittings
 
-    const result = await storeService.updateTimeSettingStore(values);
+    // const result = await storeService.updateTimeSettingStore(values);
 
-    // // // // 3. จัดการเมื่อสำเร็จ
-    setNotify({
-      open: true,
-      message: result.message,
-      color: result.success ? "success" : "error",
-    });
+    // // // // // 3. จัดการเมื่อสำเร็จ
+    // setNotify({
+    //   open: true,
+    //   message: result.message,
+    //   color: result.success ? "success" : "error",
+    // });
   };
 
   const getTimeSetting = async () => {
@@ -677,7 +679,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                 </Grid2>
 
                 <Grid2 size={{ xs: 3 }}>
-                  <Field name="SUN_openTime">
+                  <Field name="SAT_openTime">
                     {({ field, form }: FieldProps) => (
                       <TimePicker
                         disabled={openBackdrop || isSubmitting || disabledForm}
@@ -685,14 +687,14 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                         sx={{ minWidth: "100%" }}
                         // ✔ เวลา (dayjs) หรือ null
                         value={
-                          values.SUN_openTime
-                            ? dayjs(values.SUN_openTime)
+                          values.SAT_openTime
+                            ? dayjs(values.SAT_openTime)
                             : null
                         }
                         // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
                         onChange={(newValue) => {
                           form.setFieldValue(
-                            "SUN_openTime",
+                            "SAT_openTime",
                             newValue ? newValue.toISOString() : null
                           );
                         }}
@@ -700,11 +702,11 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                           textField: {
                             fullWidth: true,
                             error: Boolean(
-                              touched.SUN_openTime && errors.SUN_openTime
+                              touched.SAT_openTime && errors.SAT_openTime
                             ),
                             helperText:
-                              touched.SUN_openTime && errors.SUN_openTime
-                                ? String(errors.SUN_openTime)
+                              touched.SAT_openTime && errors.SAT_openTime
+                                ? String(errors.SAT_openTime)
                                 : "",
                           },
                         }}

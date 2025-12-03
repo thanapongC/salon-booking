@@ -80,7 +80,6 @@ export interface Store {
 
 export interface DefaultOperatingHour {
   id: string;
-  date: string; // DateTime
 
   // 2. สถานะและเวลาทำการปกติ
   MON_isOpen: string;
@@ -162,9 +161,25 @@ export const initialEmployee: Employee = {
   updatedAt: new Date().toISOString(),
 };
 
+// Interface mirroring the expected body structure (ใช้โครงสร้างแบบ Nested เพื่อความยืดหยุ่น)
+interface DayHours {
+    isOpen?: boolean;
+    openTime?: string | null; // "HH:MM"
+    closeTime?: string | null; // "HH:MM"
+}
+
+export interface OperatingHourRequest {
+    MON?: DayHours;
+    TUE?: DayHours;
+    WED?: DayHours;
+    THU?: DayHours;
+    FRI?: DayHours;
+    SAT?: DayHours;
+    SUN?: DayHours;
+}
+
 export const initialOperatingHour: DefaultOperatingHour = {
   id: '',
-  date: new Date().toISOString(), // วันที่ปัจจุบัน
 
   // 2. สถานะและเวลาทำการปกติ
   MON_isOpen: "true",
