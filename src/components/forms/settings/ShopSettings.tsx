@@ -8,17 +8,13 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
 import { LoadingButton } from "@mui/lab";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
-import { ButtonType } from "@/interfaces/ShredType";
 import { useNotifyContext } from "@/contexts/NotifyContext";
-import axios from "axios";
 import {
   useParams,
   usePathname,
@@ -39,19 +35,20 @@ import {
 import { storeService } from "@/utils/services/api-services/StoreAPI";
 import { useSession } from "next-auth/react";
 import { useStoreContext } from "@/contexts/StoreContext";
+import { getBaseUrl } from "@/utils/utils";
 
 interface ServiceProps {
   viewOnly?: boolean;
 }
 
 const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
-  const { setStoreForm, StoreForm } =
-    useStoreContext();
+  const { setStoreForm, StoreForm } = useStoreContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [disabledForm, setDisabledForm] = useState<boolean>(false);
+  const [storeURL, setStoreURL] = useState<string | null>();
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -92,11 +89,12 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   };
 
   const getStore = async () => {
-
     let result = await storeService.getStore();
 
     if (result.success) {
       setStoreForm(result.data);
+      let baseURL = getBaseUrl();
+      setStoreURL(`${baseURL}/shop/${result.data?.storeUsername}/booking`);
     } else {
       setNotify({
         open: true,
@@ -108,9 +106,10 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
   useEffect(() => {
     setIsLoading(true);
-     getStore();
+    getStore();
     return () => {
       setStoreForm(initialStore);
+      setStoreURL(null);
     };
   }, []);
 
@@ -192,8 +191,12 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                             readOnly: viewOnly ? true : false,
                           },
                         }}
-                        error={touched.storeUsername && Boolean(errors.storeUsername)}
-                        helperText={touched.storeUsername && errors.storeUsername}
+                        error={
+                          touched.storeUsername && Boolean(errors.storeUsername)
+                        }
+                        helperText={
+                          touched.storeUsername && errors.storeUsername
+                        }
                         fullWidth
                         disabled={openBackdrop || isSubmitting || disabledForm}
                       />
@@ -230,28 +233,24 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
                 {/* Service Name */}
                 <Grid2 size={{ xs: 12 }}>
-                  <Field name="storeUsername">
+                  <Field name="storeURL">
                     {({ field }: FieldProps) => (
                       <TextField
                         {...field}
-                        name="storeUsername"
+                        name="storeURL"
                         label="URL สำหรับจอง"
-                        value={values.storeUsername}
-                        onChange={(e) => {
-                          setFieldValue("storeUsername", e.target.value);
-                        }}
+                        value={storeURL}
                         fullWidth
                         disabled={true}
                         slotProps={{
                           inputLabel: { shrink: true },
                           input: {
-                            readOnly: viewOnly ? true : false,
                             endAdornment: (
                               <InputAdornment position="end">
                                 <IconButton
                                   onClick={() => {
                                     navigator.clipboard.writeText(
-                                      values.storeUsername
+                                      storeURL ? storeURL : ""
                                     );
                                   }}
                                   edge="end"

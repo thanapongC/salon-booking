@@ -5,6 +5,13 @@ import * as XLSX from 'xlsx';
 // import { ReportType, SelectType } from "@/contexts/ReportContext";
 // import { DocumentCategory, DocumentStep, MaintenanceType } from "@prisma/client";
 
+export function getBaseUrl(): string | null {
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+  return null;
+}
+
 export function parseDateToMongo(dateStr: string): Date | null {
   if (!dateStr || typeof dateStr !== 'string') return null;
 
