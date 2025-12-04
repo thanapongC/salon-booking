@@ -171,7 +171,7 @@ const BookingTable: React.FC<BookingProps> = ({ recall }) => {
 
   const handleEdit = (equipmentId: string) => {
     router.push(
-      `/${localActive}/protected/inventory/edit/?equipmentId=${equipmentId}`
+      `/${localActive}/protected/admin/inventory/edit/?equipmentId=${equipmentId}`
     );
   };
 

@@ -30,8 +30,8 @@ const Booking = () => {
 
     useEffect(() => {
     setBreadcrumbs([
-      { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "การจองทั้งหมด", href: `/${localActive}/protected/dashboard/bookings` },
+      { name: "หน้าแรก", href: `/${localActive}/protected/admin/dashboard` },
+      { name: "การจองทั้งหมด", href: `/${localActive}/protected/admin/dashboard/bookings` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -41,7 +41,7 @@ const Booking = () => {
   return (
     <PageContainer title="" description="">
       <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/dashboard/bookings/new`)}
+        onClick={() => router.push(`/${localActive}/protected/admin/dashboard/bookings/new`)}
       />
       <Typography variant="h1" mt={2} color="#fff">
         การจองทั้งหมด

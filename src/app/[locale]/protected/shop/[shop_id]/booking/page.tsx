@@ -1,8 +1,7 @@
 "use client"
 
 import { Container, Box, Typography } from "@mui/material"
-import BookingForm from "@/components/forms/booking/CustomerBooking-md"
-import BookingForm_lg from "@/components/forms/booking/CustomerBooking-lg"
+import BookingForm from "@/components/forms/booking/CustomerBooking"
 
 export default function BookingPage() {
   const handleBookingSubmit = (values: any) => {

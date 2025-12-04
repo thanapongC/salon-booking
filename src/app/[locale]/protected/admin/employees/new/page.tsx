@@ -26,9 +26,9 @@ const NewEmployeePage = () => {
 
   useEffect(() => {
     setBreadcrumbs([
-      { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "จัดการพนักงาน", href: `/${localActive}/protected/employees` },
-      { name: "เพิ่มพนักงาน", href: `/${localActive}/protected/employees/new` },
+      { name: "หน้าแรก", href: `/${localActive}/protected/admin/dashboard` },
+      { name: "จัดการพนักงาน", href: `/${localActive}/protected/admin/employees` },
+      { name: "เพิ่มพนักงาน", href: `/${localActive}/protected/admin/employees/new` },
     ]);
     return () => {
       setBreadcrumbs([]);

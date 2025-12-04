@@ -35,6 +35,46 @@ export function checkBooleanValue(value: string | boolean): boolean {
   return value;
 }
 
+export function checkShopLoginCallbackUrl(urlString: string | null): boolean {
+  try {
+
+    if(!urlString){
+      return false
+    }
+
+    console.log(urlString)
+    
+    // 4. ✅ ตรวจสอบค่าพารามิเตอร์: 
+    // เรากำลังตรวจสอบว่าค่าที่ถูกถอดรหัส (Decoded Value) มี '/th/protected/shop/' อยู่หรือไม่
+    // (ค่าที่ถูกส่งมาใน URL คือ %2Fth%2Fprotected%2Fshop%2F)
+    const targetPathPattern = '/th/protected/shop/';
+
+    // เนื่องจาก URL Object จะถอดรหัสค่าพารามิเตอร์ให้เราแล้ว (เช่น %2F เป็น /)
+    // เราจึงสามารถตรวจสอบกับสตริงที่ไม่ได้เข้ารหัสได้
+    return urlString.includes(targetPathPattern);
+    
+  } catch (error) {
+    // จัดการข้อผิดพลาดหากสตริงที่ส่งมาไม่ใช่ URL ที่ถูกต้อง
+    console.error("Invalid URL:", urlString);
+    return false;
+  }
+}
+
+export function isShopLoginURL(pathname: string) {
+  const locales = ["th", "en"];
+
+  // ตัวอย่าง URL:
+  // /th/auth/sign-in?callbackUrl=%2Fth%2Fprotected%2Fshop%2Ficute-salon-shop
+  // เราต้อง decode callbackUrl ก่อน
+  const url = decodeURIComponent(pathname);
+
+  const regex = new RegExp(
+    `^/(${locales.join("|")})/protected/shop/([^/]+)(/.*)?$`,
+    "i"
+  );
+
+  return regex.test(url);
+}
 // ฟังก์ชันแปลง Request Body เป็นโครงสร้างที่ Flatten สำหรับ Prisma
 // export function mapRequestToPrismaData(requestData: DefaultOperatingHour) {
 //   // 1. กำหนดชื่อวันในสัปดาห์

@@ -12,24 +12,24 @@ import {
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useLocale, useTranslations } from "next-intl";
+import Breadcrumb from "@/components/shared/used/BreadcrumbCustom";
 import BaseCard from "@/components/shared/BaseCard";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
+import EmployeeTable from "@/components/forms/employees/EmployeeTable";
+import FloatingButton from "@/components/shared/used/FloatingButton";
 import { useRouter } from "next/navigation";
-import NewBooking from "@/components/forms/booking/NewBooking";
 
-const Booking = () => {
+const Employees = () => {
   const t = useTranslations("HomePage");
   const localActive = useLocale();
   const router = useRouter();
-
   const { setBreadcrumbs } = useBreadcrumbContext();
 
-    useEffect(() => {
+  useEffect(() => {
     setBreadcrumbs([
-      { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "การจองทั้งหมด", href: `/${localActive}/protected/dashboard/bookings` },
-      { name: "เพิ่มการจองใหม่", href: `/${localActive}/protected/dashboard/bookings/new` },
+      { name: "หน้าแรก", href: `/${localActive}/protected/admin/dashboard` },
+      { name: "จัดการพนักงาน", href: `/${localActive}/protected/admin/employees` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -38,14 +38,17 @@ const Booking = () => {
 
   return (
     <PageContainer title="" description="">
+      <FloatingButton
+        onClick={() => router.push(`/${localActive}/protected/admin/employees/new`)}
+      />
       <Typography variant="h1" mt={2} color="#fff">
-        การจองทั้งหมด
+        การจัดการพนักงาน
       </Typography>
       <BaseCard title="">
-        <NewBooking />
+        <EmployeeTable />
       </BaseCard>
     </PageContainer>
   );
 };
 
-export default Booking;
+export default Employees;

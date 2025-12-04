@@ -90,7 +90,7 @@ const EmployeeForm: FC<EmployeeProps> = ({ viewOnly = false }) => {
       });
 
       setTimeout(() => {
-        router.push(`/${localActive}/protected/employees`);
+        router.push(`/${localActive}/protected/admin/employees`);
       }, 1000);
     } else {
       // // // 3. จัดการเมื่อสำเร็จ

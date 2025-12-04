@@ -94,7 +94,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     if (result.success) {
       setStoreForm(result.data);
       let baseURL = getBaseUrl();
-      setStoreURL(`${baseURL}/shop/${result.data?.storeUsername}/booking`);
+      setStoreURL(`${baseURL}/protected/shop/${result.data?.storeUsername}/booking`);
     } else {
       setNotify({
         open: true,

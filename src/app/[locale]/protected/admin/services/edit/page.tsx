@@ -34,9 +34,9 @@ const Services = () => {
 
   useEffect(() => {
     setBreadcrumbs([
-      { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "บริการ", href: `/${localActive}/protected/services` },
-      { name: "เพิ่มบริการ", href: `/${localActive}/protected/services/new` },
+      { name: "หน้าแรก", href: `/${localActive}/protected/admin/dashboard` },
+      { name: "บริการ", href: `/${localActive}/protected/admin/services` },
+      { name: "เพิ่มบริการ", href: `/${localActive}/protected/admin/services/new` },
     ]);
     return () => {
       setBreadcrumbs([]);

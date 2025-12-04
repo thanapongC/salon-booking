@@ -92,7 +92,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
       });
 
       setTimeout(() => {
-        router.push(`/${localActive}/protected/services`);
+        router.push(`/${localActive}/protected/admin/services`);
       }, 1000);
     } else {
       // // // 3. จัดการเมื่อสำเร็จ

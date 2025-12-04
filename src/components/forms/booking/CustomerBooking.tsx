@@ -107,68 +107,68 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
 
   const handleFormSubmit = async (values: Booking, { resetForm }: { resetForm: () => void }) => {
     setOpenBackdrop(true)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+    // try {
+    //   await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      if (onSubmit) {
-        onSubmit(values)
-      }
+    //   if (onSubmit) {
+    //     onSubmit(values)
+    //   }
 
-      alert("จองสำเร็จ!")
-      resetForm()
-    } catch (error) {
-      console.error("Error submitting booking:", error)
-      alert("เกิดข้อผิดพลาดในการจอง")
-    } finally {
-      setOpenBackdrop(false)
-    }
+    //   alert("จองสำเร็จ!")
+    //   resetForm()
+    // } catch (error) {
+    //   console.error("Error submitting booking:", error)
+    //   alert("เกิดข้อผิดพลาดในการจอง")
+    // } finally {
+    //   setOpenBackdrop(false)
+    // }
   }
 
-  if (!isMobile) {
-    return (
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            p: 3,
-          }}
-        >
-          <Paper
-            elevation={3}
-            sx={{
-              p: 4,
-              textAlign: "center",
-              borderRadius: 3,
-              bgcolor: "background.paper",
-            }}
-          >
-            <Avatar
-              sx={{
-                width: 80,
-                height: 80,
-                bgcolor: "primary.main",
-                margin: "0 auto 20px",
-              }}
-            >
-              <Smartphone size={40} />
-            </Avatar>
-            <Typography variant="h4" gutterBottom color="primary" fontWeight="bold">
-              กรุณาเปิดด้วยอุปกรณ์มือถือ
-            </Typography>
-            <Typography variant="body1" color="text.secondary" mt={2}>
-              แบบฟอร์มจองนี้ออกแบบมาสำหรับ Smartphone และ Tablet เท่านั้น
-            </Typography>
-            <Typography variant="body2" color="text.secondary" mt={1}>
-              กรุณาเปิดหน้านี้ด้วยอุปกรณ์มือถือหรือแท็บเล็ตของคุณ
-            </Typography>
-          </Paper>
-        </Box>
-      </Container>
-    )
-  }
+  // if (!isMobile) {
+  //   return (
+  //     <Container maxWidth="sm">
+  //       <Box
+  //         sx={{
+  //           minHeight: "100vh",
+  //           display: "flex",
+  //           alignItems: "center",
+  //           justifyContent: "center",
+  //           p: 3,
+  //         }}
+  //       >
+  //         <Paper
+  //           elevation={3}
+  //           sx={{
+  //             p: 4,
+  //             textAlign: "center",
+  //             borderRadius: 3,
+  //             bgcolor: "background.paper",
+  //           }}
+  //         >
+  //           <Avatar
+  //             sx={{
+  //               width: 80,
+  //               height: 80,
+  //               bgcolor: "primary.main",
+  //               margin: "0 auto 20px",
+  //             }}
+  //           >
+  //             <Smartphone size={40} />
+  //           </Avatar>
+  //           <Typography variant="h4" gutterBottom color="primary" fontWeight="bold">
+  //             กรุณาเปิดด้วยอุปกรณ์มือถือ
+  //           </Typography>
+  //           <Typography variant="body1" color="text.secondary" mt={2}>
+  //             แบบฟอร์มจองนี้ออกแบบมาสำหรับ Smartphone และ Tablet เท่านั้น
+  //           </Typography>
+  //           <Typography variant="body2" color="text.secondary" mt={1}>
+  //             กรุณาเปิดหน้านี้ด้วยอุปกรณ์มือถือหรือแท็บเล็ตของคุณ
+  //           </Typography>
+  //         </Paper>
+  //       </Box>
+  //     </Container>
+  //   )
+  // }
 
   return (
     <Formik<Booking>
@@ -190,29 +190,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                     เพิ่มการจอง
                   </Typography>
                 </Grid2>
-              </Grid2>
-
-              <Grid2 size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="customer-type-label">ช่องทางการจอง (จำเป็น)</InputLabel>
-                  <Select
-                    labelId="customer-type-label"
-                    label="ช่องทางการจอง (จำเป็น)"
-                    value={values.customerType || ""}
-                    onChange={(e) => {
-                      setFieldValue("customerType", e.target.value)
-                    }}
-                    error={touched.customerType && Boolean(errors.customerType)}
-                  >
-                    <MenuItem value={CustomerType.WALK_IN}>Walk In</MenuItem>
-                    <MenuItem value={CustomerType.OTHER_CONTACT}>ช่องทางอื่นๆ</MenuItem>
-                  </Select>
-                  {touched.customerType && errors.customerType && (
-                    <Typography color="error" variant="caption" sx={{ mt: 0.5 }}>
-                      {errors.customerType}
-                    </Typography>
-                  )}
-                </FormControl>
               </Grid2>
 
               <Grid2 size={{ xs: 12, sm: 6 }}>

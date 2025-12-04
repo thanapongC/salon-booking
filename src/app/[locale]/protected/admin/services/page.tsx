@@ -31,8 +31,8 @@ const Services = () => {
 
   useEffect(() => {
     setBreadcrumbs([
-      { name: "หน้าแรก", href: `/${localActive}/protected/dashboard` },
-      { name: "บริการ", href: `/${localActive}/protected/services` },
+      { name: "หน้าแรก", href: `/${localActive}/protected/admin/dashboard` },
+      { name: "บริการ", href: `/${localActive}/protected/admin/services` },
     ]);
     return () => {
       setBreadcrumbs([]);
@@ -42,7 +42,7 @@ const Services = () => {
   return (
     <PageContainer title="" description="">
       <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/services/new`)}
+        onClick={() => router.push(`/${localActive}/protected/admin/services/new`)}
       />
       <Typography variant="h1" mt={2} color="#fff">
         จัดการบริการ

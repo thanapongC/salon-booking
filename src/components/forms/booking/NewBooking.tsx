@@ -33,8 +33,6 @@ import { useLocale } from "next-intl";
 import StatusBooking from "@/components/shared/used/Status";
 import dayjs from "dayjs";
 import { Bath, MonitorCog, Phone, Plus, Save, Timer } from "lucide-react";
-import { AutoFixHigh, Category, Handyman, More } from "@mui/icons-material";
-import { IconCurrencyBaht } from "@tabler/icons-react";
 import { bookingService } from "@/utils/services/api-services/BookingAPI";
 import { useBookingContext } from "@/contexts/BookingContext";
 import { Booking, initialBooking } from "@/interfaces/Booking";
@@ -95,7 +93,7 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
       color: result.success ? "success" : "error",
     });
     if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
+      router.push(`/${localActive}/protected/admin/inventory`);
     }
   };
 
@@ -109,7 +107,7 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
       color: result.success ? "success" : "error",
     });
     if (result.success) {
-      router.push(`/${localActive}/protected/inventory`);
+      router.push(`/${localActive}/protected/admin/inventory`);
     }
   };
 

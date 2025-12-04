@@ -35,7 +35,7 @@ const Booking = () => {
   useEffect(() => {
     setBreadcrumbs([
       { name: "ผู้ดูแลระบบ", href: "/" },
-      { name: "แผงควบคุม", href: "/dashboard" },
+      { name: "แผงควบคุม", href: "#" },
     ]);
     return () => {
       setBreadcrumbs([]);

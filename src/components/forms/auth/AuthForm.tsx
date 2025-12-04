@@ -6,6 +6,8 @@ import {
   InputAdornment,
   IconButton,
   TextField,
+  Box,
+  Card,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { initialLogin, Login } from "@/interfaces/User";
@@ -29,14 +31,9 @@ interface loginType {
   successPath?: string;
 }
 
-const AuthForm: React.FC<loginType> = ({
-  title,
-  subtitle,
-  subtext,
-}) => {
-
+const AuthForm: React.FC<loginType> = ({ title, subtitle, subtext }) => {
   const localActive = useLocale();
-  
+
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [credentail, setCredentail] = useState<Login>(initialLogin);
 
@@ -63,7 +60,7 @@ const AuthForm: React.FC<loginType> = ({
   const router = useRouter();
 
   const [disableLogin, setDisableLogin] = useState<boolean>(false);
-  const { setNotify, notify } = useNotifyContext()
+  const { setNotify, notify } = useNotifyContext();
 
   const onLogin = async (credential: Login) => {
     setDisableLogin(true);
@@ -77,15 +74,15 @@ const AuthForm: React.FC<loginType> = ({
         callbackUrl: "/",
       });
 
-      console.log(result)
+      console.log(result);
 
       if (result?.error) {
         setNotify({
           ...notify,
           open: true,
-          color: 'error',
-          message: result.error
-        })
+          color: "error",
+          message: result.error,
+        });
         setDisableLogin(false);
       } else if (result?.url) {
         setDisableLogin(true);
@@ -96,9 +93,9 @@ const AuthForm: React.FC<loginType> = ({
             setNotify({
               ...notify,
               open: true,
-              color: 'error',
-              message: result.error
-            })
+              color: "error",
+              message: result.error,
+            });
           }
         }, 1000);
       }
@@ -119,109 +116,203 @@ const AuthForm: React.FC<loginType> = ({
 
   return (
     <>
-      {title ? (
-        <Grid2 container justifyContent={"center"}>
-          <Typography fontWeight="700" variant="h2" mb={3}>
-            {title}
-          </Typography>
-        </Grid2>
-      ) : null}
-
-      {subtext}
-
-      <Formik
-        initialValues={credentail} // ใช้ state เป็น initialValues
-        validationSchema={validationSchema}
-        onSubmit={onLoginPress}
-        enableReinitialize // เพื่อให้ Formik อัปเดตค่าจาก useState
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#f9f9f9",
+          padding: 4,
+        }}
       >
-        {({ errors, touched, values, setFieldValue }) => (
-          <Form>
-            <Grid2 container spacing={2} sx={{ mb: 1 }}>
-              <Grid2 size={{ xs: 12 }}>
-                <Field name="email">
-                  {({ field }: any) => (
-                    <TextField
-                      {...field}
-                      name="email"
-                      label="อีเมลผู้ใช้งาน"
-                      value={values.email ? values.email : ""}
-                      onChange={(e) => {
-                        setFieldValue("email", e.target.value);
-                      }}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
-                      error={touched.email && Boolean(errors.email)}
-                      helperText={touched.email && errors.email}
-                      fullWidth
-                    />
-                  )}
-                </Field>
+        <Card
+          sx={{
+            minHeight: "70vh",
+            width: "100%",
+            maxWidth: "1200px",
+            display: "flex",
+            borderRadius: "16px",
+            overflow: "hidden",
+            boxShadow: 4,
+          }}
+        >
+          {/* Left Section */}
+          <Box
+            sx={{
+              // backgroundColor: "#3f51b5",
+              background:
+                "linear-gradient(90deg, rgba(42, 72, 160, 1) 0%, rgba(69, 189, 187, 1) 100%)",
+
+              color: "#fff",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "50%",
+              flexDirection: "column",
+              padding: 6,
+            }}
+          >
+            {/* <Image
+            src="/images/logos/logo-white-png.png"
+            alt="logo"
+            height={70}
+            width={80}
+            priority
+          />
+
+          <Typography variant="h3" fontWeight="bold" mb={3}>
+            EzyAccount
+          </Typography>
+          <Typography variant="h6" textAlign="center">
+            โปรแกรมบัญชีใช้งานง่าย ที่เป็นเสมือนเพื่อนคู่คิดธุรกิจคุณ
+          </Typography> */}
+          </Box>
+
+          {/* Right Section */}
+          <Box
+            sx={{
+              flex: 1,
+              padding: 6,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              variant="h3"
+              fontWeight="bold"
+              textAlign="center"
+              mb={4}
+            >
+              เข้าสู่ระบบ
+            </Typography>
+            {title ? (
+              <Grid2 container justifyContent={"center"}>
+                <Typography fontWeight="700" variant="h2" mb={3}>
+                  {title}
+                </Typography>
               </Grid2>
-              <Grid2 size={{ xs: 12 }}>
-                <Field name="password">
-                  {({ field }: any) => (
-                    <TextField
-                      {...field}
-                      type={showPassword ? "text" : "password"}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                        input: {
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                aria-label={
-                                  showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
-                                }
-                                onClick={handleClickShowPassword}
-                                onMouseDown={handleMouseDownPassword}
-                                onMouseUp={handleMouseUpPassword}
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
-                      name="password"
-                      label="รหัสผ่าน"
-                      value={values.password ? values.password : ""}
-                      onChange={(e) => {
-                        setFieldValue("password", e.target.value);
-                      }}
-                      error={touched.password && Boolean(errors.password)}
-                      helperText={touched.password && errors.password}
-                      fullWidth
-                    />
-                  )}
-                </Field>
-              </Grid2>
-              <Grid2 size={{ xs: 12 }}>
-                <LoadingButton
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  disabled={disableLogin}
-                  loading={disableLogin}
-                >
-                  เข้าสู่ระบบ
-                </LoadingButton>
-              </Grid2>
-              <Grid2 container justifyContent={"flex-end"} size={{ xs: 12 }}>
-                <Button variant="text" onClick={() => router.push(`/${localActive}/auth/forgot-password`)}>ลืมรหัสผ่าน</Button>
-                <Button variant="text" onClick={() => router.push(`/${localActive}/auth/sign-up`)}>สมัครสมาชิก</Button>
-              </Grid2>
-            </Grid2>
-          </Form>
-        )}
-      </Formik>
+            ) : null}
+
+            {subtext}
+
+            <Formik
+              initialValues={credentail} // ใช้ state เป็น initialValues
+              validationSchema={validationSchema}
+              onSubmit={onLoginPress}
+              enableReinitialize // เพื่อให้ Formik อัปเดตค่าจาก useState
+            >
+              {({ errors, touched, values, setFieldValue }) => (
+                <Form>
+                  <Grid2 container spacing={2} sx={{ mb: 1 }}>
+                    <Grid2 size={{ xs: 12 }}>
+                      <Field name="email">
+                        {({ field }: any) => (
+                          <TextField
+                            {...field}
+                            name="email"
+                            label="อีเมลผู้ใช้งาน"
+                            value={values.email ? values.email : ""}
+                            onChange={(e) => {
+                              setFieldValue("email", e.target.value);
+                            }}
+                            slotProps={{
+                              inputLabel: { shrink: true },
+                            }}
+                            error={touched.email && Boolean(errors.email)}
+                            helperText={touched.email && errors.email}
+                            fullWidth
+                          />
+                        )}
+                      </Field>
+                    </Grid2>
+                    <Grid2 size={{ xs: 12 }}>
+                      <Field name="password">
+                        {({ field }: any) => (
+                          <TextField
+                            {...field}
+                            type={showPassword ? "text" : "password"}
+                            slotProps={{
+                              inputLabel: { shrink: true },
+                              input: {
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton
+                                      aria-label={
+                                        showPassword
+                                          ? "ซ่อนรหัสผ่าน"
+                                          : "แสดงรหัสผ่าน"
+                                      }
+                                      onClick={handleClickShowPassword}
+                                      onMouseDown={handleMouseDownPassword}
+                                      onMouseUp={handleMouseUpPassword}
+                                      edge="end"
+                                    >
+                                      {showPassword ? (
+                                        <VisibilityOff />
+                                      ) : (
+                                        <Visibility />
+                                      )}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              },
+                            }}
+                            name="password"
+                            label="รหัสผ่าน"
+                            value={values.password ? values.password : ""}
+                            onChange={(e) => {
+                              setFieldValue("password", e.target.value);
+                            }}
+                            error={touched.password && Boolean(errors.password)}
+                            helperText={touched.password && errors.password}
+                            fullWidth
+                          />
+                        )}
+                      </Field>
+                    </Grid2>
+                    <Grid2 size={{ xs: 12 }}>
+                      <LoadingButton
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        size="large"
+                        disabled={disableLogin}
+                        loading={disableLogin}
+                      >
+                        เข้าสู่ระบบ
+                      </LoadingButton>
+                    </Grid2>
+                    <Grid2
+                      container
+                      justifyContent={"flex-end"}
+                      size={{ xs: 12 }}
+                    >
+                      <Button
+                        variant="text"
+                        onClick={() =>
+                          router.push(`/${localActive}/auth/forgot-password`)
+                        }
+                      >
+                        ลืมรหัสผ่าน
+                      </Button>
+                      <Button
+                        variant="text"
+                        onClick={() =>
+                          router.push(`/${localActive}/auth/sign-up`)
+                        }
+                      >
+                        สมัครสมาชิก
+                      </Button>
+                    </Grid2>
+                  </Grid2>
+                </Form>
+              )}
+            </Formik>
+          </Box>
+        </Card>
+      </Box>
     </>
   );
 };

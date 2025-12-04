@@ -20,22 +20,22 @@ export const useMenuItems = () => {
       id: uniqueId(),
       title: "แผงควบคุม",
       icon: IconHome,
-      href: `/${localActive}/protected/dashboard`,
+      href: `/${localActive}/protected/admin/dashboard`,
       children: [
         {
           id: uniqueId(),
           title: "แผงควบคุม",
-          href: `/${localActive}/protected/dashboard`,
+          href: `/${localActive}/protected/admin/dashboard`,
         },
         {
           id: uniqueId(),
           title: "การจองทั้งหมด",
-          href: `/${localActive}/protected/dashboard/bookings`,
+          href: `/${localActive}/protected/admin/dashboard/bookings`,
         },
         {
           id: uniqueId(),
           title: "รอยืนยันการจอง",
-          href: `/${localActive}/protected/dashboard/waiting-confirm`,
+          href: `/${localActive}/protected/admin/dashboard/waiting-confirm`,
         },
       ],
     },
@@ -43,25 +43,25 @@ export const useMenuItems = () => {
       id: uniqueId(),
       title: "ตั้งค่าร้านค้า",
       icon: Settings,
-      href: `/${localActive}/protected/settings`,
+      href: `/${localActive}/protected/admin/settings`,
     },
     {
       id: uniqueId(),
       title: "จัดการบริการ",
       icon: Shower,
-      href: `/${localActive}/protected/services`,
+      href: `/${localActive}/protected/admin/services`,
     },
     {
       id: uniqueId(),
       title: "จัดการพนักงาน",
       icon: Badge,
-      href: `/${localActive}/protected/employees`,
+      href: `/${localActive}/protected/admin/employees`,
     },
     {
       id: uniqueId(),
       title: "รายงาน",
       icon: Assessment,
-      href: `/${localActive}/protected/reports`,
+      href: `/${localActive}/protected/admin/reports`,
     },
   ];
 };

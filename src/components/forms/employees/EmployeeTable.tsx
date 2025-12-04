@@ -129,7 +129,7 @@ const EmployeeTable: React.FC<EmployeeProps> = ({ recall }) => {
 
   const handleEdit = (employeeId: string) => {
     router.push(
-      `/${localActive}/protected/employees/edit/?employeeId=${employeeId}`
+      `/${localActive}/protected/admin/employees/edit/?employeeId=${employeeId}`
     );
   };
 

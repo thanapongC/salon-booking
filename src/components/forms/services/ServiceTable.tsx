@@ -146,7 +146,7 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
 
   const handleEdit = (serviceId: string) => {
     router.push(
-      `/${localActive}/protected/services/edit/?serviceId=${serviceId}`
+      `/${localActive}/protected/admin/services/edit/?serviceId=${serviceId}`
     );
   };
 
