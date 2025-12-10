@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
+import type React from "react";
+import { useState } from "react";
 import {
   Box,
   Grid2,
@@ -19,13 +19,15 @@ import {
   Paper,
   FormControlLabel,
   Checkbox,
-} from "@mui/material"
-import { DatePicker, TimePicker } from "@mui/x-date-pickers"
-import { LoadingButton } from "@mui/lab"
-import { Formik, Form, Field, type FieldProps } from "formik"
-import * as Yup from "yup"
-import dayjs from "dayjs"
-import { Plus, Timer, Phone, Save, RotateCcw, Smartphone } from "lucide-react"
+} from "@mui/material";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { LoadingButton } from "@mui/lab";
+import { Formik, Form, Field, type FieldProps, FormikHelpers } from "formik";
+import * as Yup from "yup";
+import dayjs from "dayjs";
+import { Plus, Timer, Phone, Save, RotateCcw, Smartphone } from "lucide-react";
+import { useBookingContext } from "@/contexts/BookingContext";
+import { Booking } from "@/interfaces/Booking";
 
 enum CustomerType {
   WALK_IN = "WALK_IN",
@@ -33,26 +35,26 @@ enum CustomerType {
 }
 
 interface ServiceSelect {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface EmployeeSelect {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
-interface Booking {
-  customerType: CustomerType | ""
-  serviceId: string
-  bookingDate: string | null
-  bookingTime: string | null
-  employeeId: string
-  customerName: string
-  customerPhone: string
-  customerEmail: string
-  emailNotification: boolean
-}
+// interface Booking {
+//   customerType: CustomerType | "";
+//   serviceId: string;
+//   bookingDate: string | null;
+//   bookingTime: string | null;
+//   employeeId: string;
+//   customerName: string;
+//   customerPhone: string;
+//   customerEmail: string;
+//   emailNotification: boolean;
+// }
 
 const validationSchema = Yup.object({
   customerType: Yup.string().required("กรุณาเลือกช่องทางการจอง"),
@@ -66,7 +68,7 @@ const validationSchema = Yup.object({
     .matches(/^[0-9]{10}$/, "เบอร์โทรต้องเป็นตัวเลข 10 หลัก"),
   customerEmail: Yup.string().email("รูปแบบอีเมลไม่ถูกต้อง"),
   emailNotification: Yup.boolean(),
-})
+});
 
 const servicesSelect: ServiceSelect[] = [
   { id: "1", name: "ตัดผม" },
@@ -74,39 +76,39 @@ const servicesSelect: ServiceSelect[] = [
   { id: "3", name: "ย้อมสี" },
   { id: "4", name: "ดัดผม" },
   { id: "5", name: "เกล้าผม" },
-]
+];
 
 const employeeSelect: EmployeeSelect[] = [
   { id: "1", name: "ช่างแอน" },
   { id: "2", name: "ช่างเบียร์" },
   { id: "3", name: "ช่างโอ๋" },
   { id: "4", name: "ช่างเอ" },
-]
+];
 
 interface BookingFormProps {
-  onSubmit?: (values: Booking) => void
-  viewOnly?: boolean
+  onSubmit?: (values: Booking) => void;
+  viewOnly?: boolean;
 }
 
-const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false }) => {
-  const [openBackdrop, setOpenBackdrop] = useState(false)
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+const BookingForm: React.FC<BookingFormProps> = ({
+  onSubmit,
+  viewOnly = false,
+}) => {
+  const [openBackdrop, setOpenBackdrop] = useState(false);
+  const { bookingForm } = useBookingContext();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const initialBooking: Booking = {
-    customerType: "",
-    serviceId: "",
-    bookingDate: null,
-    bookingTime: null,
-    employeeId: "",
-    customerName: "",
-    customerPhone: "",
-    customerEmail: "",
-    emailNotification: false,
-  }
-
-  const handleFormSubmit = async (values: Booking, { resetForm }: { resetForm: () => void }) => {
-    setOpenBackdrop(true)
+  const handleFormSubmit = async (
+    values: Booking,
+    {
+      setSubmitting,
+      setErrors,
+      resetForm,
+      validateForm,
+    }: FormikHelpers<Booking> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
+  ) => {
+    setOpenBackdrop(true);
     // try {
     //   await new Promise((resolve) => setTimeout(resolve, 1500))
 
@@ -122,7 +124,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
     // } finally {
     //   setOpenBackdrop(false)
     // }
-  }
+  };
 
   // if (!isMobile) {
   //   return (
@@ -172,12 +174,19 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
 
   return (
     <Formik<Booking>
-      initialValues={initialBooking}
+      initialValues={bookingForm}
       validationSchema={validationSchema}
       onSubmit={handleFormSubmit}
       enableReinitialize
     >
-      {({ values, setFieldValue, errors, touched, isSubmitting, resetForm }) => (
+      {({
+        values,
+        setFieldValue,
+        errors,
+        touched,
+        isSubmitting,
+        resetForm,
+      }) => (
         <Form>
           <Box p={3} border="1px solid #ccc" borderRadius="8px">
             <Grid2 container spacing={3}>
@@ -200,7 +209,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                       options={servicesSelect}
                       getOptionLabel={(option: ServiceSelect) => option.name}
                       onChange={(event, value) => {
-                        setFieldValue("serviceId", value !== null ? value.id : "")
+                        setFieldValue(
+                          "serviceId",
+                          value !== null ? value.id : ""
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -233,15 +245,25 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                     <DatePicker
                       label="วันที่"
                       sx={{ minWidth: "100%" }}
-                      value={values.bookingDate ? dayjs(values.bookingDate) : null}
+                      value={
+                        values.bookingDate ? dayjs(values.bookingDate) : null
+                      }
                       onChange={(newValue) => {
-                        form.setFieldValue("bookingDate", newValue ? newValue.toISOString() : null)
+                        form.setFieldValue(
+                          "bookingDate",
+                          newValue ? newValue.toISOString() : null
+                        );
                       }}
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          error: Boolean(touched.bookingDate && errors.bookingDate),
-                          helperText: touched.bookingDate && errors.bookingDate ? String(errors.bookingDate) : "",
+                          error: Boolean(
+                            touched.bookingDate && errors.bookingDate
+                          ),
+                          helperText:
+                            touched.bookingDate && errors.bookingDate
+                              ? String(errors.bookingDate)
+                              : "",
                         },
                       }}
                     />
@@ -255,15 +277,25 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                     <TimePicker
                       label="เวลา"
                       sx={{ minWidth: "100%" }}
-                      value={values.bookingTime ? dayjs(values.bookingTime) : null}
+                      value={
+                        values.bookingTime ? dayjs(values.bookingTime) : null
+                      }
                       onChange={(newValue) => {
-                        form.setFieldValue("bookingTime", newValue ? newValue.toISOString() : null)
+                        form.setFieldValue(
+                          "bookingTime",
+                          newValue ? newValue.toISOString() : null
+                        );
                       }}
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          error: Boolean(touched.bookingTime && errors.bookingTime),
-                          helperText: touched.bookingTime && errors.bookingTime ? String(errors.bookingTime) : "",
+                          error: Boolean(
+                            touched.bookingTime && errors.bookingTime
+                          ),
+                          helperText:
+                            touched.bookingTime && errors.bookingTime
+                              ? String(errors.bookingTime)
+                              : "",
                         },
                       }}
                     />
@@ -279,14 +311,19 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                       options={employeeSelect}
                       getOptionLabel={(option: EmployeeSelect) => option.name}
                       onChange={(event, value) => {
-                        setFieldValue("employeeId", value !== null ? value.id : "")
+                        setFieldValue(
+                          "employeeId",
+                          value !== null ? value.id : ""
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           label="เลือกพนักงาน (จำเป็น)"
                           name="employeeId"
-                          error={touched.employeeId && Boolean(errors.employeeId)}
+                          error={
+                            touched.employeeId && Boolean(errors.employeeId)
+                          }
                           helperText={touched.employeeId && errors.employeeId}
                         />
                       )}
@@ -315,7 +352,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                       label="ชื่อลูกค้า (จำเป็น)"
                       value={values.customerName || ""}
                       onChange={(e) => {
-                        setFieldValue("customerName", e.target.value)
+                        setFieldValue("customerName", e.target.value);
                       }}
                       slotProps={{
                         inputLabel: { shrink: true },
@@ -323,7 +360,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                           readOnly: viewOnly,
                         },
                       }}
-                      error={touched.customerName && Boolean(errors.customerName)}
+                      error={
+                        touched.customerName && Boolean(errors.customerName)
+                      }
                       helperText={touched.customerName && errors.customerName}
                       fullWidth
                       disabled={openBackdrop || isSubmitting}
@@ -341,7 +380,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                       label="เบอร์โทร (จำเป็น)"
                       value={values.customerPhone || ""}
                       onChange={(e) => {
-                        setFieldValue("customerPhone", e.target.value)
+                        setFieldValue("customerPhone", e.target.value);
                       }}
                       slotProps={{
                         inputLabel: { shrink: true },
@@ -349,7 +388,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                           readOnly: viewOnly,
                         },
                       }}
-                      error={touched.customerPhone && Boolean(errors.customerPhone)}
+                      error={
+                        touched.customerPhone && Boolean(errors.customerPhone)
+                      }
                       helperText={touched.customerPhone && errors.customerPhone}
                       fullWidth
                       disabled={openBackdrop || isSubmitting}
@@ -367,7 +408,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                       label="Email (ถ้ามี)"
                       value={values.customerEmail || ""}
                       onChange={(e) => {
-                        setFieldValue("customerEmail", e.target.value)
+                        setFieldValue("customerEmail", e.target.value);
                       }}
                       slotProps={{
                         inputLabel: { shrink: true },
@@ -375,7 +416,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                           readOnly: viewOnly,
                         },
                       }}
-                      error={touched.customerEmail && Boolean(errors.customerEmail)}
+                      error={
+                        touched.customerEmail && Boolean(errors.customerEmail)
+                      }
                       helperText={touched.customerEmail && errors.customerEmail}
                       fullWidth
                       disabled={openBackdrop || isSubmitting}
@@ -384,7 +427,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                 </Field>
               </Grid2>
 
-              <Grid2 size={{ xs: 12 }}>
+              {/* <Grid2 size={{ xs: 12 }}>
                 <Field name="emailNotification">
                   {({ field }: FieldProps) => (
                     <FormControlLabel
@@ -392,7 +435,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                         <Checkbox
                           checked={values.emailNotification}
                           onChange={(e) => {
-                            setFieldValue("emailNotification", e.target.checked)
+                            setFieldValue(
+                              "emailNotification",
+                              e.target.checked
+                            );
                           }}
                           disabled={openBackdrop || isSubmitting || viewOnly}
                           color="primary"
@@ -406,7 +452,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
                     />
                   )}
                 </Field>
-              </Grid2>
+              </Grid2> */}
             </Grid2>
 
             <Box sx={{ mt: 5, display: "flex", gap: 2 }}>
@@ -434,7 +480,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, viewOnly = false })
         </Form>
       )}
     </Formik>
-  )
-}
+  );
+};
 
-export default BookingForm
+export default BookingForm;
