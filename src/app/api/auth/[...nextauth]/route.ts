@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare, hash } from "bcryptjs";
+import LineProvider from "next-auth/providers/line";
 import { PrismaClient, UserStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -15,6 +16,12 @@ const authOptions: NextAuthOptions = {
   //   signIn: "/sign-in"
   // },
   providers: [
+
+    // 🟢 เพิ่ม LINE Provider
+    LineProvider({
+      clientId: process.env.LINE_CLIENT_ID!,
+      clientSecret: process.env.LINE_CLIENT_SECRET!,
+    }),
 
     CredentialsProvider({
       name: "Credentials",
@@ -91,31 +98,100 @@ const authOptions: NextAuthOptions = {
         }
       },
     }),
+
+
   ],
   callbacks: {
-    async jwt({ token, user }) {
+
+    // 🟢 จัดการข้อมูลเมื่อ Login ผ่าน LINE
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "line" && profile) {
+        try {
+          // ค้นหา User ใน DB ด้วย lineUserId (sub)
+          let dbUser = await prisma.customer.findUnique({
+            where: { lineUserId: profile.sub },
+            select: {
+              id: true,
+              email: true,
+              // role: { select: { name: true, roleId: true } },
+              // store: { select: { storeName: true, id: true } }
+            }
+          });
+
+          // 2.1 ค้นหาหรือสร้าง Role สำหรับผู้ดูแลร้านค้า (STOREADMIN)
+          let customerRole = await prisma.role.findUnique({
+            where: { name: "CUSTOMER" },
+          });
+
+          if (!customerRole) {
+            customerRole = await prisma.role.create({
+              data: {
+                name: "CUSTOMER",
+                description: "Role สำหรับลูกค้า",
+              },
+            });
+          }
+
+          // ถ้าไม่พบ User ให้สร้างใหม่ (หรือจัดการตาม Logic ของคุณ)
+          if (!dbUser) {
+            // ตัวอย่าง: ไม่อนุญาตให้ login ถ้ายังไม่มีในระบบ
+            // return false; 
+            // หรือ สร้าง user ใหม่:
+            if (profile.sub) {
+              dbUser = await prisma.customer.create({
+                data: {
+                  lineUserId: profile.sub,
+                  name: user.name,
+                  email: profile.email,
+                  roleId: customerRole?.roleId,
+                },
+                // include: { role: true, store: true }
+              }) as any;
+            } else {
+              console.error("LINE SignIn Error: profile not found");
+              return false;
+            }
+          }
+
+          // ส่งข้อมูล DB เข้าไปใน object user เพื่อให้ jwt callback นำไปใช้ต่อ
+          (user as any).id = dbUser?.id.toString();
+          (user as any).roleId = dbUser?.role?.roleId;
+          (user as any).roleName = dbUser?.role?.roleId;
+          // (user as any).storeId = dbUser?.store?.id;
+          // (user as any).storeName = dbUser?.store?.storeName;
+        } catch (error) {
+          console.error("LINE SignIn Error:", error);
+          return false;
+        }
+      }
+      return true;
+    },
+
+    async jwt({ token, user, account }) {
+      // เมื่อ Login ครั้งแรก user object จะมีค่า
       if (user) {
         token.id = user.id;
-        token.roleId = user.roleId
-        token.roleName = user.roleName,
-        token.storeName = user.storeName,
-        token.storeId = user.storeId
+        token.roleId = (user as any).roleId;
+        token.roleName = (user as any).roleName;
+        token.storeName = (user as any).storeName;
+        token.storeId = (user as any).storeId;
+        token.provider = account?.provider;
       }
       return token;
     },
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       return {
         ...session,
         user: {
           ...session.user,
           id: token.id,
-          email: token.email,
           roleName: token.roleName,
           roleId: token.roleId,
           storeName: token.storeName,
           storeId: token.storeId,
+          provider: token.provider,
         }
-      }
+      } as any;
     },
   },
 };
