@@ -11,7 +11,10 @@ import {
   useTheme,
   Stack,
 } from "@mui/material";
+import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
+import { useLocale } from "next-intl";
+import { useEffect } from "react";
 
 // LINE logo SVG icon
 const LineIcon = () => (
@@ -33,12 +36,25 @@ const LineIcon = () => (
   </svg>
 );
 
-const LineLogin: React.FC = () => {
-  const theme = useTheme();
+interface LineLoginType {
+  shopId: string | null | undefined;
+}
 
-  const handleLineLogin = () => {
-    // Implement LINE login logic here
-    console.log("LINE login initiated");
+const LineLogin: React.FC<LineLoginType> = ({ shopId }) => {
+  const theme = useTheme();
+  const localActive = useLocale();
+
+  useEffect(() => {
+    console.log(`${localActive}/protected/shop/${shopId}/booking`)
+  }, [])
+
+  const handleLineLogin = async () => {
+
+    await signIn("line", {
+      callbackUrl: `/${localActive}/protected/shop/${shopId}/booking`,
+    });
+
+
   };
 
   return (

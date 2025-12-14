@@ -82,20 +82,32 @@ const authOptions: NextAuthOptions = {
           user.password
         )
 
-        if (user && isPasswordValid) {
-          // return user;
+        if (isPasswordValid) {
           return {
-            email: user.email,
             id: user.userId.toString(),
+            email: user.email,
             roleName: user.role?.name,
             roleId: user.role?.roleId,
             storeName: user.store?.storeName,
             storeId: user.store?.id,
-            url: '/protected/dashboard'
-          }
-        } else {
-          throw new Error("โปรดตรวจสอบชื่อผู้ใช้งานเเละรหัสผ่าน");
+            provider: "credentials" // เพิ่มเพื่อให้แยกแยะได้
+          } as any;
         }
+
+        // if (user && isPasswordValid) {
+        //   // return user;
+        //   return {
+        //     email: user.email,
+        //     id: user.userId.toString(),
+        //     roleName: user.role?.name,
+        //     roleId: user.role?.roleId,
+        //     storeName: user.store?.storeName,
+        //     storeId: user.store?.id,
+        //     url: '/protected/dashboard'
+        //   }
+        // } else {
+        //   throw new Error("โปรดตรวจสอบชื่อผู้ใช้งานเเละรหัสผ่าน");
+        // }
       },
     }),
 
@@ -155,8 +167,8 @@ const authOptions: NextAuthOptions = {
 
           // ส่งข้อมูล DB เข้าไปใน object user เพื่อให้ jwt callback นำไปใช้ต่อ
           (user as any).id = dbUser?.id.toString();
-          (user as any).roleId = dbUser?.role?.roleId;
-          (user as any).roleName = dbUser?.role?.roleId;
+          // (user as any).roleId = dbUser?.role?.;
+          // (user as any).roleName = dbUser?.role?;
           // (user as any).storeId = dbUser?.store?.id;
           // (user as any).storeName = dbUser?.store?.storeName;
         } catch (error) {

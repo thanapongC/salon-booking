@@ -2,19 +2,21 @@
 
 import AuthForm from "@/components/forms/auth/AuthForm";
 import LineLogin from "@/components/forms/auth/LineLogin";
-import { checkShopLoginCallbackUrl } from "@/utils/utils";
+import {
+  checkShopLoginCallbackUrl,
+  parseShopFromCallbackUrl,
+} from "@/utils/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 
 const LoginPage = () => {
-  
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl')
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const isShop = checkShopLoginCallbackUrl(callbackUrl);
 
-  console.log(isShop)
+  const shopInfo = callbackUrl ? parseShopFromCallbackUrl(callbackUrl) : null
 
-  return <>{isShop ? <LineLogin /> : <AuthForm />};</>;
+  return <>{isShop ? <LineLogin shopId={shopInfo} /> : <AuthForm />};</>;
 };
 
 export default LoginPage;

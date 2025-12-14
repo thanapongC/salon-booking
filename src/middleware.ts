@@ -133,7 +133,7 @@ export default async function middleware(req: NextRequest) {
 
     if (!trimmedPath || trimmedPath === "/") {
       return NextResponse.redirect(
-        new URL(`/${locale}/protected/dashboard`, req.url)
+        new URL(`/${locale}/protected/admin/dashboard`, req.url)
       );
     }
   }

@@ -32,10 +32,13 @@ interface loginType {
 }
 
 const AuthForm: React.FC<loginType> = ({ title, subtitle, subtext }) => {
-  const localActive = useLocale();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [credentail, setCredentail] = useState<Login>(initialLogin);
+  const [disableLogin, setDisableLogin] = useState<boolean>(false);
+
+  const localActive = useLocale();
+  const router = useRouter();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -57,9 +60,7 @@ const AuthForm: React.FC<loginType> = ({ title, subtitle, subtext }) => {
     resetForm(); // รีเซ็ตค่าฟอร์ม
   };
 
-  const router = useRouter();
 
-  const [disableLogin, setDisableLogin] = useState<boolean>(false);
   const { setNotify, notify } = useNotifyContext();
 
   const onLogin = async (credential: Login) => {
@@ -73,8 +74,6 @@ const AuthForm: React.FC<loginType> = ({ title, subtitle, subtext }) => {
         redirect: false,
         callbackUrl: "/",
       });
-
-      console.log(result);
 
       if (result?.error) {
         setNotify({
@@ -105,11 +104,6 @@ const AuthForm: React.FC<loginType> = ({ title, subtitle, subtext }) => {
   useEffect(() => {
     return () => {
       setDisableLogin(false);
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
       setCredentail(initialLogin);
     };
   }, []);

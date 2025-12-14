@@ -13,6 +13,28 @@ import { DefaultOperatingHour, OperatingHourRequest } from "@/interfaces/Store"
 // Helper function to convert "HH:MM" string to a valid Date object for Prisma
 // Note: เราใช้ 2000-01-01T...Z เพื่อให้เป็น Time Object ที่อ้างอิง UTC Date
 
+export function parseShopFromCallbackUrl(encodedUrl: string): string | null {
+  try {
+    // decode URL ก่อน
+    const decoded = decodeURIComponent(encodedUrl);
+
+    // แยก path
+    const parts = decoded.split("/").filter(Boolean);
+
+    // โครงสร้างที่คาดไว้: /protected/shop/{shopId}/...
+    const shopIndex = parts.indexOf("shop");
+
+    if (shopIndex === -1 || !parts[shopIndex + 1]) {
+      return null;
+    }
+
+    return parts[shopIndex + 1];
+  } catch (error) {
+    return null;
+  }
+}
+
+
 export function getTimeAsDateTime(timeString: string | null | undefined | Dayjs): null | string {
   if (!timeString) return null;
 
@@ -47,11 +69,12 @@ export function checkShopLoginCallbackUrl(urlString: string | null): boolean {
     // 4. ✅ ตรวจสอบค่าพารามิเตอร์: 
     // เรากำลังตรวจสอบว่าค่าที่ถูกถอดรหัส (Decoded Value) มี '/th/protected/shop/' อยู่หรือไม่
     // (ค่าที่ถูกส่งมาใน URL คือ %2Fth%2Fprotected%2Fshop%2F)
-    const targetPathPattern = '/th/protected/shop/';
+    const targetPathPatternLocal = '/th/protected/shop/';
+    const targetPathPattern = '/protected/shop/';
 
     // เนื่องจาก URL Object จะถอดรหัสค่าพารามิเตอร์ให้เราแล้ว (เช่น %2F เป็น /)
     // เราจึงสามารถตรวจสอบกับสตริงที่ไม่ได้เข้ารหัสได้
-    return urlString.includes(targetPathPattern);
+    return urlString.includes(targetPathPattern || targetPathPatternLocal);
     
   } catch (error) {
     // จัดการข้อผิดพลาดหากสตริงที่ส่งมาไม่ใช่ URL ที่ถูกต้อง
