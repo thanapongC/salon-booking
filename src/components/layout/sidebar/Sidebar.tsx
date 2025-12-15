@@ -37,7 +37,8 @@ const Sidebar = ({
               width: sidebarWidth,
               boxSizing: "border-box",
               border: "0",
-              boxShadow: "rgba(113, 122, 131, 0.11) 0px 7px 30px 0px",
+              bgcolor: "#172E4E",
+              color: "white",
             },
           }}
         >
@@ -78,7 +79,9 @@ const Sidebar = ({
       variant="temporary"
       PaperProps={{
         sx: {
+          bgcolor: "#172E4E",
           width: sidebarWidth,
+          color: "white",
           boxShadow: (theme) => theme.shadows[8],
         },
       }}
@@ -86,9 +89,9 @@ const Sidebar = ({
       {/* ------------------------------------------- */}
       {/* Logo */}
       {/* ------------------------------------------- */}
-      <Box px={2} py={2}>
+      {/* <Box px={2} py={2}>
         <Logo />
-      </Box>
+      </Box> */}
       {/* ------------------------------------------- */}
       {/* Sidebar For Mobile */}
       {/* ------------------------------------------- */}

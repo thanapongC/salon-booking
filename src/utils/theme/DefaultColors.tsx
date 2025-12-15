@@ -14,62 +14,62 @@ const baselightTheme = createTheme({
   direction: "ltr",
   palette: {
     primary: {
-      main: "#45BDBB", // Primary: Teal/Green accent color (Active status/Menu)
-      light: "#50E3C2", // Lighter shade (matching the light end of the gradient)
-      dark: "#2F855A", // Darker shade
+      main: "#172E4E", // Dark Navy Blue - Main brand color
+      light: "#2A4A73", // Lighter navy
+      dark: "#0D1A2D", // Darker navy
       contrastText: "#ffffff",
     },
     secondary: {
-      main: "#4A90E2", // Secondary: Action Blue (Save button color)
-      light: "#6AAEEA", // Lighter shade
-      dark: "#3A7BD5", // Darker shade
+      main: "#58769C", // Soft Blue - Secondary actions
+      light: "#7B92B3", // Lighter soft blue
+      dark: "#3F5775", // Darker soft blue
       contrastText: "#ffffff",
     },
     success: {
-      main: "#38A169", // Kept a robust green for success messages
-      light: "#F0FFF4",
-      dark: "#2F855A",
+      main: "#58769C",
+      light: "#EDF5F0",
+      dark: "#3F5775",
       contrastText: "#ffffff",
     },
     info: {
-      main: "#3182CE", // Kept a robust blue for info messages
-      light: "#EBF8FF",
-      dark: "#2C5282",
+      main: "#58769C",
+      light: "#EBF2F9",
+      dark: "#3F5775",
       contrastText: "#ffffff",
     },
     error: {
-      main: "#E53E3E", // Adjusted red for better harmony
-      light: "#FFF5F5",
-      dark: "#C53030",
+      main: "#C97064",
+      light: "#FCF2F1",
+      dark: "#A35A4F",
       contrastText: "#ffffff",
     },
     warning: {
-      main: "#D69E2E", // Adjusted yellow for better harmony
-      light: "#FFFFF0",
-      dark: "#B7791F",
-      contrastText: "#ffffff",
+      main: "#D6B99B",
+      light: "#FBF7F3",
+      dark: "#B89A7E",
+      contrastText: "#172E4E",
     },
     grey: {
-      100: "#F7FAFC",
-      200: "#EDF2F7",
-      300: "#E2E8F0",
-      400: "#CBD5E0",
-      500: "#A0AEC0",
-      600: "#718096",
+      100: "#EDD5B9", // Warm Cream
+      200: "#E5CFAF",
+      300: "#D3C3B3", // Warm Gray
+      400: "#C0B3A5",
+      500: "#A89988",
+      600: "#8A7D6F",
     },
     text: {
-      primary: "#1A202C",
-      secondary: "#4A5568",
+      primary: "#172E4E", // Dark navy for text
+      secondary: "#58769C", // Soft blue for secondary text
     },
     action: {
-      disabledBackground: "rgba(203, 213, 224, 0.12)",
-      hoverOpacity: 0.04,
-      hover: "#F7FAFC",
+      disabledBackground: "rgba(211, 195, 179, 0.12)",
+      hoverOpacity: 0.08,
+      hover: "#EDD5B9",
     },
-    divider: "#E2E8F0",
+    divider: "#D3C3B3",
     background: {
-      default: "#F7FAFC", // Main background, the blue-green gradient is applied in a higher-level component/CSS
-      paper: "#FFFFFF", // Card/Paper background (white)
+      default: "#EDD5B9", // Warm Cream background
+      paper: "#FFFFFF", // White for cards
     },
   },
 
@@ -122,7 +122,7 @@ const baselightTheme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         ".MuiPaper-elevation9, .MuiPopover-root .MuiPaper-elevation": {
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)",
+          boxShadow: "0px 4px 20px rgba(23, 46, 78, 0.08)",
         },
         a: {
           textDecoration: "none",
@@ -168,7 +168,7 @@ const baselightTheme = createTheme({
         root: {
           borderRadius: "12px",
           padding: "0",
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)",
+          boxShadow: "0px 4px 20px rgba(23, 46, 78, 0.08)",
         },
       },
     },
@@ -182,7 +182,7 @@ const baselightTheme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: "1px solid #E2E8F0",
+          borderBottom: "1px solid #D3C3B3",
         },
       },
     },
@@ -210,36 +210,36 @@ const baselightTheme = createTheme({
           color: "white",
         },
         standardSuccess: {
-          backgroundColor: "#F0FFF4",
-          color: "#38A169",
+          backgroundColor: "#EDF5F0",
+          color: "#58769C",
         },
         standardError: {
-          backgroundColor: "#FFF5F5",
-          color: "#E53E3E",
+          backgroundColor: "#FCF2F1",
+          color: "#C97064",
         },
         standardWarning: {
-          backgroundColor: "#FFFFF0",
-          color: "#D69E2E",
+          backgroundColor: "#FBF7F3",
+          color: "#D6B99B",
         },
         standardInfo: {
-          backgroundColor: "#EBF8FF",
-          color: "#3182CE",
+          backgroundColor: "#EBF2F9",
+          color: "#58769C",
         },
         outlinedSuccess: {
-          borderColor: "#38A169",
-          color: "#38A169",
+          borderColor: "#58769C",
+          color: "#58769C",
         },
         outlinedWarning: {
-          borderColor: "#D69E2E",
-          color: "#D69E2E",
+          borderColor: "#D6B99B",
+          color: "#D6B99B",
         },
         outlinedError: {
-          borderColor: "#E53E3E",
-          color: "#E53E3E",
+          borderColor: "#C97064",
+          color: "#C97064",
         },
         outlinedInfo: {
-          borderColor: "#3182CE",
-          color: "#3182CE",
+          borderColor: "#58769C",
+          color: "#58769C",
         },
       },
     },
