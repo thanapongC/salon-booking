@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import CustomNotification from "@/components/shared/used/CustomNotifications";
+import CustomNotification from "@/components/shared/CustomNotifications";
 
 export default function RootLayout({
   children,

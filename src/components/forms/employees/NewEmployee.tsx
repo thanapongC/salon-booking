@@ -7,7 +7,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
 import { LoadingButton } from "@mui/lab";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
+import ConfirmDelete from "@/components/shared/ConfirmDelete";
 import { ButtonType } from "@/interfaces/ShredType";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import axios from "axios";
@@ -18,7 +18,7 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useLocale } from "next-intl";
-import StatusEmployee from "@/components/shared/used/Status";
+import StatusEmployee from "@/components/shared/Status";
 import dayjs from "dayjs";
 import { Bath, MonitorCog, Plus, Save } from "lucide-react";
 import { AutoFixHigh, Category, Handyman, More } from "@mui/icons-material";

@@ -23,19 +23,19 @@ import {
   Typography,
 } from "@mui/material";
 import BaseCard from "@/components/shared/BaseCard";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
+import ConfirmDelete from "@/components/shared/ConfirmDelete";
 import { Barcode, Baseline, CirclePlus, Edit, Search } from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { CustomNoRowsOverlay } from "@/components/shared/NoData";
 import { fetchData, formatNumber } from "@/utils/utils";
-import StatusEmployee from "@/components/shared/used/Status";
+import StatusEmployee from "@/components/shared/Status";
 import { Clear } from "@mui/icons-material";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import NotFound from "@/components/shared/used/NotFound";
-import FloatingButton from "@/components/shared/used/FloatingButton";
-import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
+import NotFound from "@/components/shared/NotFound";
+import FloatingButton from "@/components/shared/FloatingButton";
+import { CustomToolbar } from "@/components/shared/CustomToolbar";
 import { Employee } from "@/interfaces/Store";
 import { useEmployeeContext } from "@/contexts/EmployeeContext";
 import { employeeService } from "@/utils/services/api-services/EmployeeAPI";

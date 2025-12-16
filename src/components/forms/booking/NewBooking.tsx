@@ -19,7 +19,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
 import { LoadingButton } from "@mui/lab";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
+import ConfirmDelete from "@/components/shared/ConfirmDelete";
 import { ButtonType } from "@/interfaces/ShredType";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import axios from "axios";
@@ -30,7 +30,7 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useLocale } from "next-intl";
-import StatusBooking from "@/components/shared/used/Status";
+import StatusBooking from "@/components/shared/Status";
 import dayjs from "dayjs";
 import { Bath, MonitorCog, Phone, Plus, Save, Timer } from "lucide-react";
 import { bookingService } from "@/utils/services/api-services/BookingAPI";

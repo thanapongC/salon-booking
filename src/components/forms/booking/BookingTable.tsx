@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import BaseCard from "@/components/shared/BaseCard";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
+import ConfirmDelete from "@/components/shared/ConfirmDelete";
 import {
   Barcode,
   Baseline,
@@ -35,12 +35,12 @@ import {
 import axios, { AxiosError } from "axios";
 import { CustomNoRowsOverlay } from "@/components/shared/NoData";
 import { fetchData, formatNumber } from "@/utils/utils";
-import StatusBooking from "@/components/shared/used/Status";
+import StatusBooking from "@/components/shared/Status";
 import { Brush } from "lucide-react";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { CustomToolbar } from "@/components/shared/used/CustomToolbar";
+import { CustomToolbar } from "@/components/shared/CustomToolbar";
 import { Booking } from "@/interfaces/Booking";
 import { useBookingContext } from "@/contexts/BookingContext";
 

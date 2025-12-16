@@ -12,14 +12,14 @@ import {
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useLocale, useTranslations } from "next-intl";
-import Breadcrumb from "@/components/shared/used/BreadcrumbCustom";
+import Breadcrumb from "@/components/shared/BreadcrumbCustom";
 import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
 import ServiceTabs from "@/components/forms/services/ServiceTabs";
 import ServiceTable from "@/components/forms/services/ServiceTable";
-import FloatingButton from "@/components/shared/used/FloatingButton";
+import FloatingButton from "@/components/shared/FloatingButton";
 import { useRouter } from "next/navigation";
 
 const Services = () => {

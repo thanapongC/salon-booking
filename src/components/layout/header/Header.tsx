@@ -9,7 +9,7 @@ import Profile from './Profile';
 import Search from './Search';
 import {IconMenu2 } from '@tabler/icons-react';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
-import BreadcrumbCustom from '@/components/shared/used/BreadcrumbCustom';
+import BreadcrumbCustom from '@/components/shared/BreadcrumbCustom';
 
 interface ItemType {
   toggleMobileSidebar?:  (event: React.MouseEvent<HTMLElement>) => void ;

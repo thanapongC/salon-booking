@@ -13,7 +13,7 @@ import { Field, FieldProps, Form, Formik } from "formik";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import { LoadingButton } from "@mui/lab";
 import axios from "axios";
-import { DeliveryCard } from "@/components/shared/used/DeliveryCard";
+import { DeliveryCard } from "@/components/shared/DeliveryCard";
 import {
   Category,
   DocumentScanner,
@@ -22,9 +22,9 @@ import {
   Report,
 } from "@mui/icons-material";
 import { ButtonType } from "@/interfaces/ShredType";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
+import ConfirmDelete from "@/components/shared/ConfirmDelete";
 import { useReportContext } from "@/contexts/ReportContext";
-import PageTitle from "@/components/shared/used/PageTitle";
+import PageTitle from "@/components/shared/PageTitle";
 import { initialReport, ReportSetting } from "@/interfaces/Report";
 import { uniqueId } from "lodash";
 import { FilePenLine } from "lucide-react";

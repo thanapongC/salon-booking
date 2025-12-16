@@ -4,8 +4,8 @@ import { styled, Container, Box } from "@mui/material";
 import React, { useState } from "react";
 import Header from "@/components/layout/header/Header";
 import Sidebar from "@/components/layout/sidebar/Sidebar";
-import CustomNotifications from "@/components/shared/used/CustomNotifications";
-import LoadingBackdrop from "@/components/shared/used/BackdropLoading";
+import CustomNotifications from "@/components/shared/CustomNotifications";
+import LoadingBackdrop from "@/components/shared/BackdropLoading";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 

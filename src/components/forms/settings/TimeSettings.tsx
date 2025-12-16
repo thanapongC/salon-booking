@@ -19,7 +19,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { uniqueId } from "lodash";
 
 import { LoadingButton } from "@mui/lab";
-import ConfirmDelete from "@/components/shared/used/ConfirmDelete";
+import ConfirmDelete from "@/components/shared/ConfirmDelete";
 import { ButtonType } from "@/interfaces/ShredType";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import axios from "axios";

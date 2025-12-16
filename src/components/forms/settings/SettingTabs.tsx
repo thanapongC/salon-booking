@@ -51,8 +51,10 @@ export default function ServiceTabs() {
         <Tabs value={value} onChange={handleChange} aria-label="">
           <Tab label="ตั้งค่าข้อมูลร้าน" {...a11yProps(0)} />
           <Tab label="กำหนดเวลาเปิด-ปิดร้าน" {...a11yProps(1)} />
-          <Tab label="ตั้งค่า Line Token" {...a11yProps(2)} />
-          <Tab label="เปลี่ยนรหัสผ่าน" {...a11yProps(3)} />
+          <Tab label="กำหนดวัดหยุดพิเศษ" {...a11yProps(2)} />
+          <Tab label="ตั้งค่า Line Token" {...a11yProps(3)} />
+          <Tab label="ตั้งค่าข้อความแจ้งเตือน" {...a11yProps(4)} />
+          <Tab label="เปลี่ยนรหัสผ่าน" {...a11yProps(5)} />
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>

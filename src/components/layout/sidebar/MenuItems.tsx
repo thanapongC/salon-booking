@@ -5,10 +5,14 @@ import {
   Badge,
   Shower,
   Settings,
+  CalendarMonthOutlined,
+  HourglassBottom,
+  Groups2,
 } from "@mui/icons-material";
 import { IconHome } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
+import { Calendar } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
 export const useMenuItems = () => {
@@ -21,29 +25,30 @@ export const useMenuItems = () => {
       title: "แผงควบคุม",
       icon: IconHome,
       href: `/${localActive}/protected/admin/dashboard`,
-      children: [
-        {
-          id: uniqueId(),
-          title: "แผงควบคุม",
-          href: `/${localActive}/protected/admin/dashboard`,
-        },
-        {
-          id: uniqueId(),
-          title: "การจองทั้งหมด",
-          href: `/${localActive}/protected/admin/dashboard/bookings`,
-        },
-        {
-          id: uniqueId(),
-          title: "รอยืนยันการจอง",
-          href: `/${localActive}/protected/admin/dashboard/waiting-confirm`,
-        },
-      ],
     },
     {
       id: uniqueId(),
-      title: "ตั้งค่าร้านค้า",
+      title: "รอยืนยันการจอง",
+      icon: HourglassBottom,
+      href: `/${localActive}/protected/admin/waiting-confirm`,
+    },
+    {
+      id: uniqueId(),
+      title: "รายการจอง",
       icon: Settings,
-      href: `/${localActive}/protected/admin/settings`,
+      href: `/${localActive}/protected/admin/bookings`,
+    },
+    {
+      id: uniqueId(),
+      title: "ปฏิทิน",
+      icon: CalendarMonthOutlined,
+      href: `/${localActive}/protected/admin/calendar`,
+    },
+    {
+      id: uniqueId(),
+      title: "ลูกค้า",
+      icon: Groups2,
+      href: `/${localActive}/protected/admin/customers`,
     },
     {
       id: uniqueId(),
@@ -62,6 +67,12 @@ export const useMenuItems = () => {
       title: "รายงาน",
       icon: Assessment,
       href: `/${localActive}/protected/admin/reports`,
+    },
+    {
+      id: uniqueId(),
+      title: "ตั้งค่าร้านค้า",
+      icon: Settings,
+      href: `/${localActive}/protected/admin/settings`,
     },
   ];
 };

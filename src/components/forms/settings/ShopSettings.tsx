@@ -22,7 +22,7 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useLocale } from "next-intl";
-import StatusService from "@/components/shared/used/Status";
+import StatusService from "@/components/shared/Status";
 import dayjs from "dayjs";
 import { Bath, MonitorCog, Save, Store as StoreIcon, Copy } from "lucide-react";
 import { useServiceContext } from "@/contexts/ServiceContext";

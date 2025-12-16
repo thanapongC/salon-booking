@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import CustomNotification from "@/components/shared/used/CustomNotifications";
+import CustomNotification from "@/components/shared/CustomNotifications";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 

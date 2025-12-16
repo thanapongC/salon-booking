@@ -16,7 +16,7 @@ import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import BookingTabs from "@/components/forms/booking/BookingTabs";
-import FloatingButton from "@/components/shared/used/FloatingButton";
+import FloatingButton from "@/components/shared/FloatingButton";
 import { useRouter } from "next/navigation";
 import BookingTable from "@/components/forms/booking/BookingTable";
 
