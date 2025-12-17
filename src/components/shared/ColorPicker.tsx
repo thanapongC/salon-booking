@@ -4,6 +4,7 @@ import { Box, Typography, Button } from "@mui/material";
 import { FieldProps } from "formik";
 
 import "react-color-palette/css";
+import theme from "@/utils/theme";
 
 interface ColorPickerProps extends FieldProps {
   setFieldValue: (field: string, value: any) => void;
@@ -26,7 +27,17 @@ const ColorPickerCustom: React.FC<ColorPickerProps> = ({
     setColor(color);
   }, []);
 
-  return <ColorPicker color={color} onChange={setColor} />;
+  return (
+    <>
+      <Typography
+        variant="subtitle2"
+        sx={{ mb: 1, color: theme.palette.text.primary }}
+      >
+        สีประจำบริการ
+      </Typography>
+      <ColorPicker color={color} onChange={setColor} hideInput={true} hideAlpha={true}/>
+    </>
+  );
 };
 
 export default ColorPickerCustom;

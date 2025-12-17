@@ -10,6 +10,14 @@ import {
   Paper,
   FormControlLabel,
   Switch,
+  OutlinedInput,
+  Select,
+  InputLabel,
+  FormControl,
+  Chip,
+  MenuItem,
+  Theme,
+  SelectChangeEvent,
 } from "@mui/material";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
@@ -37,6 +45,38 @@ import DragDropImage from "@/components/shared/DragDropImage";
 import ColorPickerCustom from "@/components/shared/ColorPicker";
 import { ColorPicker, useColor } from "react-color-palette";
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+function getStyles(name: string, personName: readonly string[], theme: Theme) {
+  return {
+    fontWeight: personName.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
+
+const names = [
+  'Oliver Hansen',
+  'Van Henry',
+  'April Tucker',
+  'Ralph Hubbard',
+  'Omar Alexander',
+  'Carlos Abbott',
+  'Miriam Wagner',
+  'Bradley Wilkerson',
+  'Virginia Andrews',
+  'Kelly Snyder',
+];
+
 interface ServiceProps {
   viewOnly?: boolean;
 }
@@ -53,7 +93,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const theme = baselightTheme;
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
-    const [color, setColor] = useColor("cyan");
+  const [color, setColor] = useColor("cyan");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [disabledForm, setDisabledForm] = useState<boolean>(false);
@@ -69,6 +109,18 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     // durationMinutes: Yup.number().required("กรุณาใส่เวลาของคอร์ส"),
     // price: Yup.number().required("กรุณาใส่ราคาของคอร์ส"),
   });
+
+  const [personName, setPersonName] = React.useState<string[]>([]);
+
+  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
+    const {
+      target: { value },
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
 
   const handleFormSubmit = async (
     values: Service,
@@ -373,12 +425,148 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                       </Field>
                     </Grid2>
 
+                    <Grid2 container size={{ xs: 6 }} spacing={3}>
+                      <Grid2 size={{ xs: 12 }}>
+                        <Field name="name">
+                          {({ field }: FieldProps) => (
+                            <TextField
+                              {...field}
+                              name="name"
+                              label="เวลาเตรียมอุปกรณ์ (ถ้ามี)"
+                              value={values.name}
+                              onChange={(e) => {
+                                setFieldValue("name", e.target.value);
+                              }}
+                              placeholder=""
+                              slotProps={{
+                                inputLabel: { shrink: true },
+                                input: {
+                                  readOnly: viewOnly ? true : false,
+                                },
+                              }}
+                              error={touched.name && Boolean(errors.name)}
+                              helperText={touched.name && errors.name}
+                              fullWidth
+                              disabled={
+                                openBackdrop || isSubmitting || disabledForm
+                              }
+                            />
+                          )}
+                        </Field>
+                      </Grid2>
+
+                      <Grid2 size={{ xs: 12 }}>
+                        <Field name="name">
+                          {({ field }: FieldProps) => (
+                            <TextField
+                              {...field}
+                              name="name"
+                              label="รายละเอียด (ถ้ามี)"
+                              value={values.name}
+                              rows={4}
+                              multiline={true}
+                              onChange={(e) => {
+                                setFieldValue("name", e.target.value);
+                              }}
+                              placeholder=""
+                              slotProps={{
+                                inputLabel: { shrink: true },
+                                input: {
+                                  readOnly: viewOnly ? true : false,
+                                },
+                              }}
+                              error={touched.name && Boolean(errors.name)}
+                              helperText={touched.name && errors.name}
+                              fullWidth
+                              disabled={
+                                openBackdrop || isSubmitting || disabledForm
+                              }
+                            />
+                          )}
+                        </Field>
+                      </Grid2>
+
+                      <Grid2 size={{ xs: 12 }}>
+                        <Field name="name">
+                          {({ field }: FieldProps) => (
+                            <TextField
+                              {...field}
+                              name="name"
+                              label="ลำดับการแสดงผล (ถ้ามี)"
+                              value={values.name}
+                              onChange={(e) => {
+                                setFieldValue("name", e.target.value);
+                              }}
+                              placeholder=""
+                              slotProps={{
+                                inputLabel: { shrink: true },
+                                input: {
+                                  readOnly: viewOnly ? true : false,
+                                },
+                              }}
+                              error={touched.name && Boolean(errors.name)}
+                              helperText={touched.name && errors.name}
+                              fullWidth
+                              disabled={
+                                openBackdrop || isSubmitting || disabledForm
+                              }
+                            />
+                          )}
+                        </Field>
+                      </Grid2>
+                    </Grid2>
+
                     <Grid2 size={{ xs: 6 }}>
                       <Field
-                        name="productImage"
+                        name="color"
                         component={ColorPickerCustom}
                         setFieldValue={setFieldValue}
                       />
+                    </Grid2>
+
+                    <Grid2 size={{ xs: 6 }}>
+                      <FormControl>
+                        <InputLabel id="demo-multiple-chip-label">
+                          Chip
+                        </InputLabel>
+                        <Select
+                          labelId="demo-multiple-chip-label"
+                          id="demo-multiple-chip"
+                          multiple
+                          value={personName}
+                          onChange={handleChange}
+                          input={
+                            <OutlinedInput
+                              id="select-multiple-chip"
+                              label="Chip"
+                            />
+                          }
+                          renderValue={(selected) => (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                              }}
+                            >
+                              {selected.map((value) => (
+                                <Chip key={value} label={value} />
+                              ))}
+                            </Box>
+                          )}
+                          MenuProps={MenuProps}
+                        >
+                          {names.map((name) => (
+                            <MenuItem
+                              key={name}
+                              value={name}
+                              style={getStyles(name, personName, theme)}
+                            >
+                              {name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Grid2>
 
                     <Grid2 size={{ xs: 6 }}>
