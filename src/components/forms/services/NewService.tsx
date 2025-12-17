@@ -33,6 +33,9 @@ import { Service, initialService } from "@/interfaces/Store";
 import { useSession } from "next-auth/react";
 import { useTheme } from "@emotion/react";
 import { baselightTheme } from "@/utils/theme/DefaultColors";
+import DragDropImage from "@/components/shared/DragDropImage";
+import ColorPickerCustom from "@/components/shared/ColorPicker";
+import { ColorPicker, useColor } from "react-color-palette";
 
 interface ServiceProps {
   viewOnly?: boolean;
@@ -50,6 +53,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const theme = baselightTheme;
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
+    const [color, setColor] = useColor("cyan");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [disabledForm, setDisabledForm] = useState<boolean>(false);
@@ -292,7 +296,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                       </Field>
                     </Grid2>
 
-                    {/* Rental Price */}
+                    {/* Cost Price */}
                     <Grid2 size={{ xs: 6 }}>
                       <Field name="price">
                         {({ field }: any) => (
@@ -302,7 +306,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                               openBackdrop || isSubmitting || disabledForm
                             }
                             name="price"
-                            label="ราคา/คอร์ส (จำเป็น)"
+                            label="ราคาปกติ (จำเป็น)"
                             value={values.price ?? ""}
                             slotProps={{
                               inputLabel: { shrink: true },
@@ -329,6 +333,60 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                           />
                         )}
                       </Field>
+                    </Grid2>
+
+                    <Grid2 size={{ xs: 6 }}>
+                      <Field name="price">
+                        {({ field }: any) => (
+                          <TextField
+                            {...field}
+                            disabled={
+                              openBackdrop || isSubmitting || disabledForm
+                            }
+                            name="price"
+                            label="ราคาโปรโมชั่น (ถ้ามี)"
+                            value={values.price ?? ""}
+                            slotProps={{
+                              inputLabel: { shrink: true },
+                              input: {
+                                readOnly: viewOnly ? true : false,
+                                endAdornment: (
+                                  <InputAdornment position="start">
+                                    บาท
+                                  </InputAdornment>
+                                ),
+                              },
+                            }}
+                            type="number"
+                            onChange={(e) => {
+                              const newValue = e.target.value.replace(
+                                /\D/g,
+                                ""
+                              ); // กรองเฉพาะตัวเลข
+                              setFieldValue("price", newValue || ""); // ป้องกัน NaN
+                            }}
+                            error={touched.price && Boolean(errors.price)}
+                            helperText={touched.price && errors.price}
+                            fullWidth
+                          />
+                        )}
+                      </Field>
+                    </Grid2>
+
+                    <Grid2 size={{ xs: 6 }}>
+                      <Field
+                        name="productImage"
+                        component={ColorPickerCustom}
+                        setFieldValue={setFieldValue}
+                      />
+                    </Grid2>
+
+                    <Grid2 size={{ xs: 6 }}>
+                      <Field
+                        name="productImage"
+                        component={DragDropImage}
+                        setFieldValue={setFieldValue}
+                      />
                     </Grid2>
                   </Grid2>
 
