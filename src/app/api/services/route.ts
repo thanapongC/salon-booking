@@ -21,7 +21,14 @@ export async function POST(request: NextRequest) {
       name,
       durationMinutes,
       price,
-      employeeIds = [] // กำหนดค่าเริ่มต้นเป็น array ว่างหากไม่ได้ส่งมา
+      employeeIds = [], // กำหนดค่าเริ่มต้นเป็น array ว่างหากไม่ได้ส่งมา
+      discount,
+      bufferTime,
+      detail,
+      displayNumber,
+      image,
+      colorOfService,
+      active,
     } = data;
 
     //  ค้นหา Store ID ที่ผูกกับ User ID นี้
@@ -86,12 +93,39 @@ export async function POST(request: NextRequest) {
     // สร้าง Array ของ Employee IDs สำหรับการเชื่อมโยง (connect)
     const employeeConnects = employeeIds.map(id => ({ id }));
 
+    const maxDisplayNumberRow = await prisma.service.findFirst({
+      where: {
+        storeId: storeId,
+        displayNumber: {
+          not: null,
+        },
+      },
+      orderBy: {
+        displayNumber: "desc",
+      },
+      select: {
+        displayNumber: true,
+      },
+    });
+
+    const nextDisplayNumber = maxDisplayNumberRow?.displayNumber
+  ? maxDisplayNumberRow.displayNumber + 1
+  : 1;
+
     const newService = await prisma.service.create({
       data: {
+
         name: name,
         durationMinutes: typeof durationMinutes === 'string' ? parseInt(durationMinutes) : durationMinutes,
         price: typeof price === 'string' ? parseFloat(price) : null, // ถ้า price เป็น undefined ให้ใส่ null
         storeId: storeId,
+        discount,
+        bufferTime,
+        detail,
+        displayNumber: typeof nextDisplayNumber === 'string' ? parseInt(nextDisplayNumber) : nextDisplayNumber,
+        image,
+        colorOfService,
+        active: typeof active === 'string' ? Boolean(active) : active,
 
         // เชื่อมโยงพนักงานที่เกี่ยวข้องทันที
         employees: {
@@ -401,9 +435,9 @@ export async function DELETE(request: NextRequest) {
         message: `ลบบริการชื่อ "${deletedService.name}" สำเร็จแล้ว`,
         serviceId: deletedService.id,
       }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    }
     );
 
   } catch (error) {
@@ -412,26 +446,26 @@ export async function DELETE(request: NextRequest) {
     // จัดการ Unauthorized Error จาก Token
     if (error instanceof Error && error.message === 'Unauthorized') {
       return new NextResponse(
-        JSON.stringify({ message: 'ไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบ' }), 
+        JSON.stringify({ message: 'ไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบ' }),
         { status: 401 }
       );
     }
-    
+
     // จัดการ Error กรณีไม่พบ Record (Record to delete does not exist)
     if (error instanceof Error && error.message.includes('Record to delete not found')) {
-         return new NextResponse(
-            JSON.stringify({ message: 'ไม่พบบริการที่มี ID นี้ในร้านค้าของคุณ' }),
-            { status: 404 } // Not Found
-        );
+      return new NextResponse(
+        JSON.stringify({ message: 'ไม่พบบริการที่มี ID นี้ในร้านค้าของคุณ' }),
+        { status: 404 } // Not Found
+      );
     }
-    
+
     // 6. ตอบกลับเมื่อเกิดข้อผิดพลาดอื่น (500 Internal Server Error)
     return new NextResponse(
       JSON.stringify({
         message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์ในการลบข้อมูลบริการ'
       }), {
-        status: 500
-      }
+      status: 500
+    }
     );
   }
 }

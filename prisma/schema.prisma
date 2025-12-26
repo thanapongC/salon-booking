@@ -178,7 +178,7 @@ model Service {
   discount       Float?
   bufferTime     Int?
   detail         String?
-  displayNumber  String?
+  displayNumber  Int?
   image          String?
   colorOfService String?
   active         Boolean

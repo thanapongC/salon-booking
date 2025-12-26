@@ -113,10 +113,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     validateForm(); // บังคับ validate หลังจากรีเซ็ต
     setSubmitting(true); // เริ่มสถานะ Loading/Submitting
 
-    console.log(values);
-
-    return;
-
     // 2. เรียกใช้ API
     let result;
 
@@ -635,7 +631,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
                     <Grid2 size={{ xs: 6 }}>
                       <Field
-                        name="productImage"
+                        name="image"
                         component={DragDropImage}
                         setFieldValue={setFieldValue}
                       />
