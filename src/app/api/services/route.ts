@@ -108,9 +108,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const nextDisplayNumber = maxDisplayNumberRow?.displayNumber
-  ? maxDisplayNumberRow.displayNumber + 1
-  : 1;
+    let nextDisplayNumber = maxDisplayNumberRow?.displayNumber
+      ? maxDisplayNumberRow.displayNumber + 1
+      : 1;
 
     const newService = await prisma.service.create({
       data: {

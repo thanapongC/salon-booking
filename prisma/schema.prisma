@@ -179,7 +179,8 @@ model Service {
   bufferTime     Int?
   detail         String?
   displayNumber  Int?
-  image          String?
+  imageId        String?
+  imageURL       String?
   colorOfService String?
   active         Boolean
 

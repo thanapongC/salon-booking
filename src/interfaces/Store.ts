@@ -141,6 +141,8 @@ export interface Service {
   detail?: string;
   displayNumber?: number;
   image?: string;
+  imageId?: string;
+  imageURL?: string;
   colorOfService?: string;
   active: boolean | string
 

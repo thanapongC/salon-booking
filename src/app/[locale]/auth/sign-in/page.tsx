@@ -14,7 +14,7 @@ const LoginPage = () => {
 
   const isShop = checkShopLoginCallbackUrl(callbackUrl);
 
-  const shopInfo = callbackUrl ? parseShopFromCallbackUrl(callbackUrl) : null
+  const shopInfo = callbackUrl ? parseShopFromCallbackUrl(callbackUrl) : null;
 
   return <>{isShop ? <LineLogin shopId={shopInfo} /> : <AuthForm />};</>;
 };
