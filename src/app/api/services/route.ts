@@ -41,9 +41,6 @@ export async function POST(request: NextRequest) {
 
     } = data;
 
-    console.log(data)
-
-    return
 
     //  ค้นหา Store ID ที่ผูกกับ User ID นี้
     const store = await prisma.store.findUnique({

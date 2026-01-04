@@ -201,7 +201,7 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
 
   return (
     <>
-      <DataGrid
+      {/* <DataGrid
         getRowId={(row) => row.id}
         initialState={{
           density: "comfortable",
@@ -232,7 +232,7 @@ const ServiceTable: React.FC<ServiceProps> = ({ recall }) => {
           noRowsOverlay: CustomNoRowsOverlay,
           toolbar: CustomToolbar,
         }}
-      />
+      /> */}
     </>
   );
 };

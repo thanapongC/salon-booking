@@ -133,11 +133,11 @@ export interface Service {
   id: string;
   name: string; // เช่น "ตัดผม 30 นาที"
   durationMinutes: number;
-  price?: number;
-  discount?: number;
+  price: number;
+  discount: number;
 
   // new column
-  bufferTime?: number;
+  bufferTime: number;
   detail?: string;
   displayNumber?: number;
   image?: string;
@@ -261,15 +261,16 @@ export const initialStore: Store = {
 export const initialService: Service = {
   id: '',
   name: '', // เช่น "ตัดผม 30 นาที"
-  durationMinutes: 30, // กำหนดค่าเริ่มต้น
-  price: undefined, // หรือ 0.00
+  durationMinutes: 0, // กำหนดค่าเริ่มต้น
+  price: 0.00, // หรือ 0.00
+  discount: 0.00,
     // new column
-  bufferTime: undefined,
+  bufferTime: 0,
   detail: '',
   displayNumber: undefined,
   image: '',
   colorOfService: '',
-  active: false,
+  active: true,
 
   storeId: '',
   store: undefined,
