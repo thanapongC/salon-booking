@@ -26,6 +26,7 @@ class ApiService {
       if (setData) setData(data.data);
       if (setRowCount && data.pagination) {
         setRowCount(data.pagination.totalItems);
+        
       }
       return data.data;
     } catch (error: any) {

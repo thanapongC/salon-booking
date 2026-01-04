@@ -142,7 +142,7 @@ export interface Service {
   displayNumber?: number;
   image?: string;
   imageId?: string;
-  imageURL?: string;
+  imageUrl?: string;
   colorOfService?: string;
   active: boolean | string
 
@@ -268,7 +268,7 @@ export const initialService: Service = {
   bufferTime: 0,
   detail: '',
   displayNumber: undefined,
-  image: '',
+  imageUrl: '',
   colorOfService: '',
   active: true,
 

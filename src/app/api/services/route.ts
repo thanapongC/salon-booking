@@ -33,14 +33,13 @@ export async function POST(request: NextRequest) {
       bufferTime,
       detail,
       displayNumber,
-      image,
       colorOfService,
       active,
       imageId,
-      imageURL,
-
+      imageUrl,
     } = data;
 
+    console.log(data)
 
     //  ค้นหา Store ID ที่ผูกกับ User ID นี้
     const store = await prisma.store.findUnique({
@@ -99,7 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     _image = await handleImageUpload({
-      file: image,          // undefined ถ้าไม่เปลี่ยน
+      file: imageUrl,          // undefined ถ้าไม่เปลี่ยน
       publicId: imageId,  // จาก DB
       folder: "service",
     });
@@ -133,14 +132,14 @@ export async function POST(request: NextRequest) {
       data: {
         name: name,
         durationMinutes: typeof durationMinutes === 'string' ? parseInt(durationMinutes) : durationMinutes,
-        price: typeof price === 'string' ? parseFloat(price) : null, // ถ้า price เป็น undefined ให้ใส่ null
+        price: typeof price === 'string' ? parseFloat(price) : 0, // ถ้า price เป็น undefined ให้ใส่ null
         storeId: storeId,
-        discount: typeof price === 'string' ? parseFloat(price) : null,
-        bufferTime: typeof bufferTime === 'string' ? parseFloat(bufferTime) : null,
+        discount: typeof discount === 'string' ? parseFloat(discount) : 0,
+        bufferTime: typeof bufferTime === 'string' ? parseFloat(bufferTime) : 0,
         detail,
         displayNumber: typeof nextDisplayNumber === 'string' ? parseInt(nextDisplayNumber) : nextDisplayNumber,
-        imageUrl: _image.publicId ?? imageURL,
-        imageId: _image.url ?? imageId,
+        imageUrl: _image.url ?? imageUrl,
+        imageId: _image.publicId ?? imageId,
         colorOfService,
         active: typeof active === 'string' ? Boolean(active) : active,
 
@@ -195,6 +194,8 @@ export async function GET(request: NextRequest) {
     // const currentUserId = await getCurrentUserId(request);
     const { userId, storeId } = await getCurrentUserAndStoreIdsByToken(request);
 
+    console.log('get services is calling')
+
     // 2. ค้นหา Store ID ที่ผูกกับ User ID นี้ (Authorization)
     const store = await prisma.store.findUnique({
       where: {
@@ -216,6 +217,8 @@ export async function GET(request: NextRequest) {
 
     // 3. จัดการ Pagination Params
     const { searchParams } = new URL(request.url);
+
+    console.log(searchParams)
 
     // ดึงค่า page และ pageSize จาก Query Parameter
     const page = parseInt(searchParams.get('page') || '1', 10); // หน้าเริ่มต้นที่ 1
@@ -313,105 +316,109 @@ export async function GET(request: NextRequest) {
  * สำหรับอัปเดตข้อมูลบริการ
  */
 export async function PATCH(request: NextRequest) {
+  let _image: {
+    publicId?: string | null;
+    url?: string | null;
+    action?: string;
+  } | null = null;
+
   try {
-    // 1. ตรวจสอบสิทธิ์และดึง Store ID จาก Token
-    const { storeId } = await getCurrentUserAndStoreIdsByToken(request);
+    const { userId } = await getCurrentUserAndStoreIdsByToken(request);
+    const data: any = await request.json();
 
-    // ดึงข้อมูลอัปเดตจาก Body
-    const updateData: Service = await request.json();
-    const { price, name, durationMinutes, id } = updateData;
-    // const { employeeIds, ...otherUpdateData } = updateData; // แยก employeeIds ออกมาก่อน
+    const {
+      id, // ต้องส่ง ID ของ Service มาเพื่ออัปเดต
+      name,
+      durationMinutes,
+      price,
+      employeeIds = [],
+      discount,
+      bufferTime,
+      detail,
+      displayNumber,
+      colorOfService,
+      active,
+      imageId,  // publicId เดิมที่อยู่ใน DB
+      imageUrl, // อาจเป็น Base64 ใหม่ หรือ URL เดิม
+    } = data;
 
-    // 3. Validation: ตรวจสอบ ID
     if (!id) {
-      return new NextResponse(
-        JSON.stringify({ message: 'กรุณาระบุ ID ของบริการที่ต้องการอัปเดต' }),
-        { status: 400 } // Bad Request
-      );
+      return NextResponse.json({ message: 'Missing Service ID' }, { status: 400 });
     }
 
-    // 4. เตรียมข้อมูลสำหรับอัปเดต
-    // const dataToUpdate: any = {
-    //   ...otherUpdateData
-    // };
-
-    // จัดการการอัปเดตความสัมพันธ์กับพนักงาน (Employees)
-    // if (employeeIds !== undefined) {
-    //   // สร้างรายการสำหรับเชื่อมโยง (connect) ใหม่ทั้งหมด
-    //   const employeeConnects = employeeIds.map(id => ({ id }));
-    //   dataToUpdate.employees = {
-    //     // ใช้ 'set' เพื่อแทนที่รายการพนักงานเดิมทั้งหมดด้วยรายการใหม่ที่ส่งมา
-    //     set: employeeConnects
-    //   };
-    // }
-
-    // ตรวจสอบว่ามีข้อมูลให้อัปเดตหรือไม่
-    // if (Object.keys(dataToUpdate).length === 0) {
-    //   return new NextResponse(
-    //     JSON.stringify({ message: 'ไม่พบข้อมูลที่ต้องการอัปเดต' }),
-    //     { status: 400 }
-    //   );
-    // }
-
-    // 5. อัปเดตข้อมูลบริการพร้อมตรวจสอบขอบเขต (Scope Check)
-    // 💡 เปลี่ยนจาก prisma.employee.update เป็น prisma.service.update
-    const updatedService = await prisma.service.update({
-      where: {
-        id: id,
-        storeId: storeId, // <--- **การตรวจสอบสำคัญ:** ต้องเป็นของร้านนี้เท่านั้น!
-      },
-      data: {
-        name,
-        durationMinutes: typeof durationMinutes === 'string' ? parseInt(durationMinutes) : durationMinutes,
-        price: typeof price === 'string' ? parseFloat(price) : null, // ถ้า price เป็น undefined ให้ใส่ null
-      },
-      // include: {
-      //   employees: { // ดึงข้อมูลพนักงานที่เกี่ยวข้องมาด้วย
-      //     select: { id: true, name: true }
-      //   }
-      // }
+    // 1. ค้นหา Store ของ User นี้
+    const store = await prisma.store.findUnique({
+      where: { userId: userId },
+      select: { id: true }
     });
 
-    // 6. ตอบกลับสำเร็จ (200 OK)
-    return new NextResponse(
-      JSON.stringify({
-        message: 'อัปเดตข้อมูลบริการสำเร็จ',
-        service: updatedService,
-      }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    }
-    );
-
-  } catch (error) {
-    console.error(`Error updating service:`, error);
-
-    // จัดการ Unauthorized Error จาก Token
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return new NextResponse(
-        JSON.stringify({ message: 'ไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบ' }),
-        { status: 401 }
-      );
+    if (!store) {
+      return NextResponse.json({ message: 'ไม่พบร้านค้าหรือคุณไม่มีสิทธิ์' }, { status: 403 });
     }
 
-    // จัดการ Error กรณีไม่พบ Record (RecordNotFound)
-    if (error instanceof Error && error.message.includes('Record to update not found')) {
-      return new NextResponse(
-        // 💡 เปลี่ยนข้อความ
-        JSON.stringify({ message: 'ไม่พบบริการที่มี ID นี้ในร้านค้าของคุณ' }),
-        { status: 404 }
-      );
+    // 2. ตรวจสอบว่า Service นี้เป็นของ Store นี้จริงหรือไม่ (Security Check)
+    const existingService = await prisma.service.findFirst({
+      where: { id: id, storeId: store.id }
+    });
+
+    if (!existingService) {
+      return NextResponse.json({ message: 'ไม่พบข้อมูลบริการนี้ในร้านของคุณ' }, { status: 404 });
     }
 
-    // 7. ตอบกลับเมื่อเกิดข้อผิดพลาดอื่น (500 Internal Server Error)
-    return new NextResponse(
-      JSON.stringify({
-        // 💡 เปลี่ยนข้อความ
-        message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์ในการอัปเดตข้อมูลบริการ'
-      }), {
-      status: 500
+    // 3. จัดการรูปภาพด้วยฟังก์ชัน handleImageUpload ที่เราปรับปรุงแล้ว
+    // - ถ้า imageUrl เป็น Base64 -> จะลบรูปเก่า (imageId) และอัปโหลดใหม่
+    // - ถ้า imageUrl เป็น URL เดิม -> จะส่งค่าเดิมกลับมา (action: NONE)
+    _image = await handleImageUpload({
+      file: imageUrl,
+      publicId: imageId, 
+      folder: "service",
+    });
+
+    // 4. เตรียมข้อมูลสำหรับพนักงาน (ใช้ set เพื่อล้างข้อมูลเก่าและแทนที่ด้วย ID ชุดใหม่)
+    const employeeConnects = employeeIds.map((empId: string) => ({ id: empId }));
+
+    // 5. ทำการอัปเดตข้อมูล
+    const updatedService = await prisma.service.update({
+      where: { id: id },
+      data: {
+        name: name,
+        durationMinutes: typeof durationMinutes === 'string' ? parseInt(durationMinutes) : durationMinutes,
+        price: typeof price === 'string' ? parseFloat(price) : price,
+        discount: typeof discount === 'string' ? parseFloat(discount) : discount,
+        bufferTime: typeof bufferTime === 'string' ? parseFloat(bufferTime) : bufferTime,
+        detail,
+        displayNumber: typeof displayNumber === 'string' ? parseInt(displayNumber) : displayNumber,
+        colorOfService,
+        active: typeof active === 'boolean' ? active : (active === 'true'),
+        
+        // ใช้ข้อมูลรูปจาก handleImageUpload
+        imageUrl: _image?.url ?? existingService.imageUrl,
+        imageId: _image?.publicId ?? existingService.imageId,
+
+        // จัดการความสัมพันธ์พนักงาน
+        employees: {
+          set: employeeConnects, // ลบความเชื่อมโยงเก่าทั้งหมดและใส่ตามที่ส่งมาใหม่
+        },
+      },
+      include: {
+        employees: { select: { id: true, name: true } }
+      }
+    });
+
+    return NextResponse.json({
+      message: 'อัปเดตข้อมูลบริการสำเร็จ',
+      service: updatedService
+    }, { status: 200 });
+
+  } catch (error: any) {
+    console.error('Error updating service:', error);
+
+    // ถ้าเกิด Error และมีการอัปโหลดรูปใหม่ไปแล้ว (ได้ publicId ใหม่มา) ให้ลบออกเพื่อไม่ให้รูปค้างใน Cloudinary
+    if (_image?.action === "UPDATE" || _image?.action === "CREATE") {
+        if(_image.publicId) await deleteImage(_image.publicId);
     }
-    );
+
+    return NextResponse.json({ message: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล' }, { status: 500 });
   }
 }
 

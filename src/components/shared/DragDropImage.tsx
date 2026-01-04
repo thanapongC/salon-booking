@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Box, Typography, Button } from "@mui/material";
 import { FieldProps } from "formik";
@@ -33,6 +33,10 @@ const DragDropImage: React.FC<DragDropImageProps> = ({
     maxFiles: 1,
   });
 
+  useEffect(() => {
+    console.log(field.value)
+  }, [field.value])
+
   return (
     <>
       <Typography
@@ -54,6 +58,7 @@ const DragDropImage: React.FC<DragDropImageProps> = ({
         <input {...getInputProps()} />
         <Typography>ลากและวางไฟล์ที่นี่ หรือคลิกเพื่ออัปโหลด</Typography>
         {field.value && (
+          
           <Box mt={2}>
             <Typography variant="subtitle2">ตัวอย่างรูป:</Typography>
             <img

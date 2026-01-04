@@ -59,25 +59,36 @@ type ImageInput = {
 };
 
 export const handleImageUpload = async ({
-  file,
+  file,      // อาจเป็น Base64, URL เดิม, หรือ undefined
   publicId,
   folder = "uploads",
 }: ImageInput) => {
-  // ❌ ไม่มีไฟล์ใหม่ → ไม่ต้องทำอะไร
-  if (!file) {
+  
+  // 1. ตรวจสอบว่าเป็นไฟล์ใหม่จริงหรือไม่ (เช็คว่าเป็น Base64 หรือไม่)
+  // ปกติ Base64 จากฟังก์ชันอัปโหลดจะขึ้นต้นด้วย "data:image/..."
+  const isBase64 = file && file.startsWith("data:image");
+
+  // ❌ ถ้าไม่ใช่ Base64 (เป็น URL เดิม หรือ undefined) -> ไม่ต้องทำอะไรกับ Cloudinary
+  if (!isBase64) {
     return {
-      publicId,
-      url: null,
+      publicId, // ส่งค่าเดิมกลับไป
+      url: file, 
       action: "NONE",
     };
   }
 
-  // ✏️ แก้ไข (มีรูปเดิม + มีไฟล์ใหม่)
-  if (file && publicId) {
-    await cloudinary.uploader.destroy(publicId);
+  // ✏️ กรณีเป็นไฟล์ใหม่ (isBase64 === true)
+  // ถ้ามี publicId เดิมอยู่ แปลว่าเป็นการเปลี่ยนรูป ให้ลบรูปเก่าออกก่อน
+  if (publicId) {
+    try {
+      await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+      console.error("Cloudinary Destroy Error:", error);
+      // เลือกได้ว่าจะ throw error หรือทำต่อ (กรณีรูปเดิมอาจถูกลบไปแล้วใน Cloudinary)
+    }
   }
 
-  // 📤 Upload ใหม่
+  // 📤 Upload ไฟล์ใหม่ (Base64)
   const result = await cloudinary.uploader.upload(file, {
     folder,
     resource_type: "image",
@@ -89,6 +100,5 @@ export const handleImageUpload = async ({
     action: publicId ? "UPDATE" : "CREATE",
   };
 };
-
 
 

@@ -633,7 +633,7 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
 
                     <Grid2 size={{ xs: 6 }}>
                       <Field
-                        name="image"
+                        name="imageUrl"
                         component={DragDropImage}
                         setFieldValue={setFieldValue}
                       />

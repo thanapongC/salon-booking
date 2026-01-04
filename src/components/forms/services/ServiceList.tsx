@@ -2,18 +2,18 @@
 
 import type React from "react"
 
-import { Box, Grid, Typography, Pagination, CircularProgress } from "@mui/material"
+import { Box, Grid, Typography, Pagination, CircularProgress, Grid2 } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import { ServiceCard } from "./ServiceCard"
-import type { ServiceResponse, PaginationMeta } from "@/types/booking"
 import { Service } from "@/interfaces/Store"
+import { PaginationMeta } from "@/interfaces/Types"
 
 
 interface ServiceListProps {
   services: Service[]
   pagination: PaginationMeta
   onPageChange: (page: number) => void
-  onEdit: (service: ServiceResponse) => void
+  onEdit: (serviceId: string) => void
   onDelete: (serviceId: string) => void
   onToggleStatus?: (serviceId: string, active: boolean) => void
   loading?: boolean
@@ -70,13 +70,13 @@ export function ServiceList({
   return (
     <Box>
       {/* Services Grid */}
-      <Grid container spacing={3}>
+      <Grid2 container spacing={3}>
         {services.map((service) => (
-          <Grid item xs={12} sm={6} md={4} key={service.id}>
+          <Grid2 size={{xs: 12, sm: 6, md:4}} key={service.id}>
             <ServiceCard service={service} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
-          </Grid>
+          </Grid2>
         ))}
-      </Grid>
+      </Grid2>
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (

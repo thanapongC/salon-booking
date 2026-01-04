@@ -26,7 +26,7 @@ import { Service } from "@/interfaces/Store"
 
 interface ServiceCardProps {
   service: Service
-  onEdit: (service: Service) => void
+  onEdit: (serviceId: string) => void
   onDelete: (serviceId: string) => void
   onToggleStatus?: (serviceId: string, active: boolean) => void
 }
@@ -68,7 +68,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
         <CardMedia
           component="img"
           height="200"
-          image={service.imageId || "/customer-service-interaction.png"}
+          image={service.imageUrl || "/customer-service-interaction.png"}
           alt={service.name}
           sx={{
             objectFit: "cover",
@@ -301,7 +301,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
           <Tooltip title="แก้ไข" arrow>
             <IconButton
               size="small"
-              onClick={() => onEdit(service)}
+              onClick={() => onEdit(service.id)}
               sx={{
                 color: theme.palette.primary.main,
                 backgroundColor: `${theme.palette.primary.main}10`,

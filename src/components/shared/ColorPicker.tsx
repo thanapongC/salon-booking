@@ -21,6 +21,8 @@ const ColorPickerCustom: React.FC<ColorPickerProps> = ({
   }, [color]);
 
   useEffect(() => {
+
+    console.log(field.value)
     if (!field?.value) return;
 
     let color: any = useColor(field.value);
