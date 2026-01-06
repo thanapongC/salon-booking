@@ -20,20 +20,20 @@ export async function getStoreByCurrentUserId(userId: string, storeId: string, t
     if (!timeOnly) {
         store = await prisma.store.findUnique({
             where: { id: storeId },
-            select: {
-                id: true,
-                storeName: true,
-                storeUsername: true,
-                lineOALink: true,
-                lineNotifyToken: true,
-                lineChannelId: true,
-                lineChannelSecret: true,
-                newBooking: true,
-                successBooking: true,
-                cancelBooking: true,
-                before24H: true,
-                reSchedule: true,
-            }
+            // select: {
+            //     id: true,
+            //     storeName: true,
+            //     storeUsername: true,
+            //     lineOALink: true,
+            //     lineNotifyToken: true,
+            //     lineChannelId: true,
+            //     lineChannelSecret: true,
+            //     newBooking: true,
+            //     successBooking: true,
+            //     cancelBooking: true,
+            //     before24H: true,
+            //     reSchedule: true,
+            // }
         });
     } else {
         store = await prisma.store.findUnique({

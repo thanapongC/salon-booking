@@ -120,6 +120,8 @@ export async function PATCH(request: NextRequest) {
             folder: "store/covers",
         });
 
+        console.log(id)
+
         // 5. อัปเดตข้อมูลในฐานข้อมูล
         const updatedStore = await prisma.store.update({
             where: { id: id },
@@ -129,7 +131,7 @@ export async function PATCH(request: NextRequest) {
                 lineOALink: data.lineOALink,
                 
                 // ฟิลด์ที่เพิ่มใหม่
-                storeNameThai: data.storeNameTH,
+                storeNameTH: data.storeNameTH,
                 tel: data.tel,
                 addressCustom: data.addressCustom,
                 mapUrl: data.mapUrl,

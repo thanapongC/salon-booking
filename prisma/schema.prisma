@@ -292,7 +292,7 @@ model Store {
   address   String?
   placeId   String?
 
-  storeNameTH   String
+  storeNameTH   String?
   tel           String?
   addressCustom String?
   mapUrl        String?
