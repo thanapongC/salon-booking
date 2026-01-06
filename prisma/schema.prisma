@@ -172,10 +172,10 @@ enum CustomerType {
 model Service {
   id              String  @id @default(auto()) @map("_id") @db.ObjectId
   name            String // "ตัดผม 30 นาที", "นวดตัว 1 ชม."
-  durationMinutes Int @default(0)// ระยะเวลาเป็นนาที เช่น 30, 60
-  price           Float @default(0)
-  discount        Float @default(0)
-  bufferTime      Int @default(0)
+  durationMinutes Int     @default(0) // ระยะเวลาเป็นนาที เช่น 30, 60
+  price           Float   @default(0)
+  discount        Float   @default(0)
+  bufferTime      Int     @default(0)
   detail          String?
   displayNumber   Int?
   imageId         String?
@@ -286,12 +286,22 @@ model Store {
   storeName     String
   storeUsername String @unique
   lineOALink    String
-  // bookingLink      String            @unique // 3.2 ลิงก์ร้านค้า
-  // 2.1 กำหนดวันหยุด (วันหยุดประจำสัปดาห์ เช่น [1, 7] = จันทร์, อาทิตย์)
-  // weeklyHolidays   Int[]
-  // // 2.1 เวลาเปิด-ปิดต่อวัน (สำหรับวันทำงาน)
-  // defaultOpenTime  String            // "09:00"
-  // defaultCloseTime String            // "18:00"
+
+  latitude  Float?
+  longitude Float?
+  address   String?
+  placeId   String?
+
+  storeNameTH   String
+  tel           String?
+  addressCustom String?
+  mapUrl        String?
+  detail     String?
+
+  logoUrl  String?
+  logoId   String?
+  coverUrl String?
+  coverId  String?
 
   lineNotifyToken   String? // 2.6 สำหรับการแจ้งเตือนเจ้าของร้าน
   lineChannelId     String? // สำหรับ LINE Messaging API (ถ้าใช้)

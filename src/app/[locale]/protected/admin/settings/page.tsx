@@ -32,7 +32,10 @@ import {
   Store as StoreIcon,
   Link as LinkIcon,
   People as PeopleIcon,
+  Shop,
+  Password,
 } from "@mui/icons-material";
+import { Store } from "lucide-react";
 
 const Services = () => {
   const [value, setValue] = React.useState(0);
@@ -69,12 +72,12 @@ const Services = () => {
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={value} onChange={handleChange} aria-label="">
               <Tab
-                icon={<EventBusyIcon />}
+                icon={<Store />}
                 label="ข้อมูลร้าน"
                 {...a11yProps(0)}
               />
               <Tab
-                icon={<EventBusyIcon />}
+                icon={<Password />}
                 label="เปลี่ยนรหัสผ่าน"
                 {...a11yProps(1)}
               />
@@ -85,7 +88,7 @@ const Services = () => {
               <ShopSettings />
             </Grid2>
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={3}>
+          <CustomTabPanel value={value} index={1}>
             <Grid2 container justifyContent="center">
               <ResetPasswordForm />
             </Grid2>

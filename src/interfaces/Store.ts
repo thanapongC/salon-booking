@@ -6,6 +6,7 @@ import { Dayjs } from "dayjs";
 
 export interface StoreRegister {
   storeName: string;
+  storeNameTH: string;
   storeUsername: string;
   email: string;
   password: string;
@@ -15,6 +16,7 @@ export interface StoreRegister {
 
 export const initialStoreRegister: StoreRegister = {
   storeName: '',
+  storeNameTH: '',
   storeUsername: '',
   email: '',
   password: '',
@@ -53,8 +55,18 @@ export interface Employee {
 export interface Store {
   id: string;
   storeName: string;
+  storeNameTH: string;
   storeUsername: string;
-  lineOALink?: string
+  lineOALink?: string;
+  detail?: string;
+  tel?: string;
+  mapUrl?: string;
+
+  location: {
+    latitude?: number | null
+    longitude?: number | null
+  }
+  addressCustom?: string;
 
   lineNotifyToken?: string;
   lineChannelId?: string;
@@ -175,19 +187,19 @@ export const initialEmployee: Employee = {
 
 // Interface mirroring the expected body structure (ใช้โครงสร้างแบบ Nested เพื่อความยืดหยุ่น)
 interface DayHours {
-    isOpen?: boolean;
-    openTime?: string | null; // "HH:MM"
-    closeTime?: string | null; // "HH:MM"
+  isOpen?: boolean;
+  openTime?: string | null; // "HH:MM"
+  closeTime?: string | null; // "HH:MM"
 }
 
 export interface OperatingHourRequest {
-    MON?: DayHours;
-    TUE?: DayHours;
-    WED?: DayHours;
-    THU?: DayHours;
-    FRI?: DayHours;
-    SAT?: DayHours;
-    SUN?: DayHours;
+  MON?: DayHours;
+  TUE?: DayHours;
+  WED?: DayHours;
+  THU?: DayHours;
+  FRI?: DayHours;
+  SAT?: DayHours;
+  SUN?: DayHours;
 }
 
 export const initialOperatingHour: DefaultOperatingHour = {
@@ -232,8 +244,23 @@ export const initialOperatingHour: DefaultOperatingHour = {
 export const initialStore: Store = {
   id: '',
   storeName: '',
+  storeNameTH: '',
   storeUsername: '',
   lineOALink: '',
+  detail: '',
+  tel: '',
+  addressCustom: '',
+  mapUrl: '',
+
+  location: {
+    latitude: null,
+    longitude: null,
+  },
+
+  // latitude: null,
+  // longitude: null,
+  // address: '',
+  // placeId: '',
 
   lineNotifyToken: undefined,
   lineChannelId: undefined,
@@ -264,7 +291,7 @@ export const initialService: Service = {
   durationMinutes: 0, // กำหนดค่าเริ่มต้น
   price: 0.00, // หรือ 0.00
   discount: 0.00,
-    // new column
+  // new column
   bufferTime: 0,
   detail: '',
   displayNumber: undefined,
