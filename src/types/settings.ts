@@ -1,12 +1,12 @@
-export interface Holiday {
-  id: string
-  date: Date
-  name: string
-  type: "annual" | "special"
-  fullDay: boolean
-  startTime?: string
-  endTime?: string
-}
+// export interface Holiday {
+//   id: string
+//   date: Date
+//   name: string
+//   type: "annual" | "special"
+//   fullDay: boolean
+//   startTime?: string
+//   endTime?: string
+// }
 
 export interface BlockedTimeSlot {
   id: string

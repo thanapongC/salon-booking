@@ -192,6 +192,22 @@ export interface Service {
   updatedAt: string;
 }
 
+export const initialHoliday: Holiday = {
+  id: '',
+  date: '',
+  startTime: null,
+  fullDay: true,
+  endTime: null,
+  holidayName: '',
+  holidayType: HolidayType.ANNUAL,
+
+  storeId: '',
+  store: undefined,
+
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+}
+
 
 export const initialEmployee: Employee = {
   id: '',

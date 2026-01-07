@@ -1,23 +1,13 @@
 "use client";
 
 import {
-  Box,
-  TextField,
-  Button,
   Typography,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useLocale, useTranslations } from "next-intl";
-import Breadcrumb from "@/components/shared/BreadcrumbCustom";
 import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
-import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
-import ServiceTabs from "@/components/forms/services/ServiceTabs";
-import ServiceTable from "@/components/forms/services/ServiceTable";
 import FloatingButton from "@/components/shared/FloatingButton";
 import { useRouter } from "next/navigation";
 import { ServiceList } from "@/components/forms/services/ServiceList";
@@ -91,8 +81,6 @@ const Services = () => {
         id: serviceId,
         active: active, // ส่งค่าที่ต้องการเปลี่ยนไป
       });
-      // setPagination((prev) => ({ ...prev, totalItems: data.totalItems }));
-      // setServices(data.data);
     } catch (error: any) {
       setNotify({
         open: true,
@@ -101,7 +89,6 @@ const Services = () => {
       });
     } finally {
       getServices()
-      // setLoading(false);
     }
   };
 

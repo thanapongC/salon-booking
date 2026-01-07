@@ -4,10 +4,12 @@
 
 import {
   DefaultOperatingHour,
+  Holiday,
   Service,
-  ServiceSelect,
+  ServiceList,
   Store,
   StoreRegister,
+  initialHoliday,
   initialOperatingHour,
   initialStore,
   initialStoreRegister,
@@ -32,12 +34,16 @@ interface StoreContextProps {
   setStoreForm: Dispatch<React.SetStateAction<Store>>;
   StoreEdit: boolean;
   setStoreEdit: Dispatch<React.SetStateAction<boolean>>;
-  setServicesSelect: Dispatch<React.SetStateAction<ServiceSelect[]>>;
-  servicesSelect: ServiceSelect[];
+  setServicesSelect: Dispatch<React.SetStateAction<ServiceList[]>>;
+  servicesSelect: ServiceList[];
   setStoreRegister: Dispatch<React.SetStateAction<StoreRegister>>;
   storeRegister: StoreRegister;
   setStoreTime: Dispatch<React.SetStateAction<DefaultOperatingHour>>;
   storeTime: DefaultOperatingHour;
+  setHolidays: Dispatch<React.SetStateAction<Holiday>>;
+  holidays: Holiday;
+  setHolidaysList: Dispatch<React.SetStateAction<Holiday[]>>;
+  holidaysList: Holiday[];
 }
 
 // สร้าง Context
@@ -49,9 +55,11 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     useState<StoreRegister>(initialStoreRegister);
   const [storeTime, setStoreTime] =
     useState<DefaultOperatingHour>(initialOperatingHour);
-  const [servicesSelect, setServicesSelect] = useState<ServiceSelect[]>([]);
+  const [servicesSelect, setServicesSelect] = useState<ServiceList[]>([]);
   const [StoreForm, setStoreForm] = useState<Store>(initialStore);
   const [StoreEdit, setStoreEdit] = useState<boolean>(false);
+  const [holidaysList, setHolidaysList] = useState<Holiday[]>([]);
+  const [holidays, setHolidays] = useState<Holiday>(initialHoliday);
 
   useEffect(() => {
     // setStoreForm({
@@ -84,7 +92,11 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         setStoreRegister,
         storeRegister,
         setStoreTime,
-        storeTime
+        storeTime,
+        setHolidays,
+        holidays,
+        setHolidaysList,
+        holidaysList
       }}
     >
       {children}

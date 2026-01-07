@@ -5,7 +5,6 @@ import {
   Box,
   Typography,
   Grid2,
-  TextField,
   Avatar,
   InputLabel,
   FormControl,
@@ -17,7 +16,6 @@ import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 
 import { LoadingButton } from "@mui/lab";
 import { useNotifyContext } from "@/contexts/NotifyContext";
-import axios from "axios";
 import {
   useParams,
   usePathname,
@@ -29,14 +27,11 @@ import dayjs from "dayjs";
 import { Save, Timer } from "lucide-react";
 import {
   DefaultOperatingHour,
-  Store,
   initialOperatingHour,
-  initialStore,
 } from "@/interfaces/Store";
 import { storeService } from "@/utils/services/api-services/StoreAPI";
 import { useStoreContext } from "@/contexts/StoreContext";
 import { TimePicker } from "@mui/x-date-pickers";
-// import { Select } from "formik-mui";
 
 interface ServiceProps {
   viewOnly?: boolean;
