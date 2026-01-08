@@ -273,7 +273,7 @@ model Holiday {
   holidayType HolidayType @default(ANNUAL)
 
     // 3. ความสัมพันธ์กับร้านค้า
-  storeId String @unique @db.ObjectId
+  storeId String @db.ObjectId
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())

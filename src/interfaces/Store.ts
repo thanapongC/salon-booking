@@ -54,7 +54,7 @@ export interface Employee {
 
 export interface Holiday {
   id: string;
-  date: string; // "พี่แอน"
+  date: string | null | string; // "พี่แอน"
   startTime?: Dayjs | null | string; // "ช่างทำผม"
   fullDay: boolean; // สถานะพร้อมให้บริการ
   endTime?: Dayjs | null | string;

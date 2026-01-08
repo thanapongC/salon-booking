@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -21,6 +21,8 @@ import {
   Chip,
   useTheme,
   Grid2,
+  Typography,
+  Autocomplete,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import {
@@ -37,18 +39,25 @@ import { useStoreContext } from "@/contexts/StoreContext";
 import { HolidayType } from "@prisma/client";
 import { Holiday } from "@/interfaces/Store";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { storeService } from "@/utils/services/api-services/StoreAPI";
+import { useNotifyContext } from "@/contexts/NotifyContext";
 
 const validationSchema = Yup.object({});
 
 export default function HolidaysSettings() {
-
   const theme = useTheme();
   // const { submitForm, isSubmitting, isValid } = useFormikContext();
+    const { setNotify, notify, setOpenBackdrop, openBackdrop } =
+      useNotifyContext();
   const { holidays, setHolidays, setHolidaysList, holidaysList } =
     useStoreContext();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
+
+  useEffect(() => {
+    console.log(holidays);
+  }, [holidays]);
 
   const handleFormSubmit = async (
     values: Holiday,
@@ -59,19 +68,21 @@ export default function HolidaysSettings() {
       validateForm,
     }: FormikHelpers<Holiday> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
   ) => {
-    console.log("values");
+    console.log(values);
 
-    // validateForm(); // บังคับ validate หลังจากรีเซ็ต
-    // setSubmitting(true); // เริ่มสถานะ Loading/Submittings
+    validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    setSubmitting(true); // เริ่มสถานะ Loading/Submittings
 
-    // const result = await storeService.updateTimeSettingStore(values);
+    const result = await storeService.createHoliday(values);
 
     // // // // // // 3. จัดการเมื่อสำเร็จ
-    // setNotify({
-    //   open: true,
-    //   message: result.message,
-    //   color: result.success ? "success" : "error",
-    // });
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
+
+    handleCloseDialog();
   };
 
   const handleOpenDialog = (holiday?: Holiday) => {
@@ -314,7 +325,7 @@ export default function HolidaysSettings() {
             touched,
             isSubmitting,
             resetForm,
-            submitForm
+            submitForm,
           }) => (
             <Form>
               <Dialog
@@ -331,28 +342,82 @@ export default function HolidaysSettings() {
                     sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
                     mt={3}
                   >
-                    <DatePicker
-                      label="เลือกวันที่"
-                      // value={formData.date}
-                      // onChange={(newValue) => setFormData({ ...formData, date: newValue ? newValue : new Date() })}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                        },
-                      }}
-                    />
+                    <Field name="date">
+                      {({ field, form }: FieldProps) => (
+                        <DatePicker
+                          // disabled={
+                          //   isSubmitting
+                          //   values.MON_isOpen.toString() === "false"
+                          // }
+                          label="เลือกวันที่"
+                          sx={{ minWidth: "100%" }}
+                          // ✔ เวลา (dayjs) หรือ null
+                          value={values.date ? dayjs(values.date) : null}
+                          // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                          onChange={(newValue) => {
+                            form.setFieldValue(
+                              "date",
+                              newValue ? newValue.toISOString() : null
+                            );
+                          }}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              error: Boolean(touched.date && errors.date),
+                              helperText:
+                                touched.date && errors.date
+                                  ? String(errors.date)
+                                  : "",
+                            },
+                          }}
+                        />
+                      )}
+                    </Field>
 
-                    <TextField
-                      label="ชื่อวันหยุด"
-                      // value={formData.name}
-                      // onChange={(e) =>
-                      //   setFormData({ ...formData, name: e.target.value })
-                      // }
-                      placeholder="เช่น วันปีใหม่, ปิดซ่อมร้าน"
-                      fullWidth
-                    />
+                    <Field name="holidayName">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          name="holidayName"
+                          label="ชื่อวันหยุด"
+                          placeholder="เช่น วันปีใหม่, ปิดซ่อมร้าน"
+                          // sx={{ textTransform: "uppercase" }}
+                          value={values.holidayName ? values.holidayName : ""}
+                          onChange={(e) => {
+                            setFieldValue("holidayName", e.target.value);
+                          }}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                          error={
+                            touched.holidayName && Boolean(errors.holidayName)
+                          }
+                          helperText={touched.holidayName && errors.holidayName}
+                          fullWidth
+                          disabled={isSubmitting}
+                        />
+                      )}
+                    </Field>
 
-                    <FormControl fullWidth>
+                    <Field name="holidayType">
+                      {({ field }: FieldProps) => (
+                        <FormControl fullWidth>
+                          <InputLabel>ประเภทวันหยุด</InputLabel>
+                          <Select
+                            value={values.holidayType}
+                            label="ประเภทวันหยุด"
+                            onChange={(e) =>
+                               setFieldValue("holidayType", e.target.value)
+                            }
+                          >
+                            <MenuItem value={HolidayType.ANNUAL}>วันหยุดประจำปี</MenuItem>
+                            <MenuItem value={HolidayType.SPECIAL}>วันหยุดพิเศษ</MenuItem>
+                          </Select>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    {/* <FormControl fullWidth>
                       <InputLabel>ประเภทวันหยุด</InputLabel>
                       <Select
                         // value={formData.type}
@@ -372,54 +437,123 @@ export default function HolidaysSettings() {
                     <FormControlLabel
                       control={
                         <Switch
-                        checked={holidays.fullDay}
-                        // onChange={(e) =>
-                        //   setFormData({
-                        //     ...formData,
-                        //     fullDay: e.target.checked,
-                        //   })
-                        // }
+                          checked={holidays.fullDay}
+                          // onChange={(e) =>
+                          //   setFormData({
+                          //     ...formData,
+                          //     fullDay: e.target.checked,
+                          //   })
+                          // }
                         />
                       }
                       label="ปิดทั้งวัน"
-                    />
+                    /> */}
 
-                    {!holidays.fullDay && (
+                    <FormControl fullWidth disabled={isSubmitting}>
+                      <Field name="fullDay">
+                        {({ field, form }: any) => (
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={Boolean(values.fullDay)}
+                                onChange={(e) => {
+                                  setFieldValue("fullDay", e.target.checked);
+                                }}
+                                color="primary"
+                              />
+                            }
+                            label={
+                              <Typography
+                                sx={{
+                                  color: theme.palette.text.secondary,
+                                }}
+                              >
+                                ปิดทั้งวัน
+                              </Typography>
+                            }
+                          />
+                        )}
+                      </Field>
+                    </FormControl>
+
+                    {!values.fullDay && (
                       <Box sx={{ display: "flex", gap: 2 }}>
-                        <TimePicker
-                          label="เวลาเริ่มต้น"
-                          // value={formData.startTime ? new Date(`2000-01-01T${formData.startTime}`) : null}
-                          // onChange={(newValue) => {
-                          //   if (newValue) {
-                          //     setFormData({
-                          //       ...formData,
-                          //       startTime: newValue.toTimeString().slice(0, 5),
-                          //     })
-                          //   }
-                          // }}
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                            },
-                          }}
-                        />
-                        <TimePicker
-                          label="เวลาสิ้นสุด"
-                          // value={formData.endTime ? new Date(`2000-01-01T${formData.endTime}`) : null}
-                          // onChange={(newValue) => {
-                          //   if (newValue) {
-                          //     setFormData({
-                          //       ...formData,
-                          //       endTime: newValue.toTimeString().slice(0, 5),
-                          //     })
-                          //   }
-                          // }}
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                            },
-                          }}
-                        />
+                        <Box>
+                          <Field name="startTime">
+                            {({ field, form }: FieldProps) => (
+                              <TimePicker
+                                disabled={
+                                  isSubmitting ||
+                                  values.startTime?.toString() === "false"
+                                }
+                                label="เวลาเริ่มต้น"
+                                sx={{ minWidth: "100%" }}
+                                // ✔ เวลา (dayjs) หรือ null
+                                value={
+                                  values.startTime
+                                    ? dayjs(values.startTime)
+                                    : null
+                                }
+                                // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                                onChange={(newValue) => {
+                                  form.setFieldValue(
+                                    "startTime",
+                                    newValue ? newValue.toISOString() : null
+                                  );
+                                }}
+                                slotProps={{
+                                  textField: {
+                                    fullWidth: true,
+                                    error: Boolean(
+                                      touched.startTime && errors.startTime
+                                    ),
+                                    helperText:
+                                      touched.startTime && errors.startTime
+                                        ? String(errors.startTime)
+                                        : "",
+                                  },
+                                }}
+                              />
+                            )}
+                          </Field>
+                        </Box>
+                        <Box>
+                          <Field name="endTime">
+                            {({ field, form }: FieldProps) => (
+                              <TimePicker
+                                disabled={
+                                  isSubmitting ||
+                                  values.endTime?.toString() === "false"
+                                }
+                                label="เวลาสิ้นสุด"
+                                sx={{ minWidth: "100%" }}
+                                // ✔ เวลา (dayjs) หรือ null
+                                value={
+                                  values.endTime ? dayjs(values.endTime) : null
+                                }
+                                // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                                onChange={(newValue) => {
+                                  form.setFieldValue(
+                                    "endTime",
+                                    newValue ? newValue.toISOString() : null
+                                  );
+                                }}
+                                slotProps={{
+                                  textField: {
+                                    fullWidth: true,
+                                    error: Boolean(
+                                      touched.endTime && errors.endTime
+                                    ),
+                                    helperText:
+                                      touched.endTime && errors.endTime
+                                        ? String(errors.endTime)
+                                        : "",
+                                  },
+                                }}
+                              />
+                            )}
+                          </Field>
+                        </Box>
                       </Box>
                     )}
                   </Box>
