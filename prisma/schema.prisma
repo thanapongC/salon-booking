@@ -26,15 +26,6 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-}
-
-enum TokenPurpose {
-  EMAIL_VERIFICATION
-  PASSWORD_RESET
-}
 
 model VerificationToken {
   id        String       @id @default(auto()) @map("_id") @db.ObjectId
@@ -62,25 +53,18 @@ model Role {
   @@unique([name])
 }
 
-enum RoleName {
-  ADMIN
-  STOREADMIN
-  CUSTOMER
-}
 
 model Customer {
   id   String  @id @default(auto()) @map("_id") @db.ObjectId
   name String?
 
-  // 2. LINE Login Data
-  // lineUserId คือ ID หลักที่ได้จาก LINE ใช้สำหรับส่ง Push Message และต้องไม่ซ้ำกัน
-  lineUserId    String  @unique
+  lineUserId    String  @unique 
   displayName   String? // ชื่อที่ LINE ตั้งไว้ (Nullable)
   pictureUrl    String? // URL รูปโปรไฟล์ (Nullable)
   statusMessage String? // สถานะข้อความ (Nullable)
   isLineLinked  Boolean @default(true) // ยืนยันว่าผูก LINE แล้ว
 
-  // 3. Contact Data - ข้อมูลติดต่อที่ได้จากการจอง
+  // Contact Data - ข้อมูลติดต่อที่ได้จากการจอง
   phone String? // เบอร์โทรศัพท์ (Nullable)
   email String? // อีเมล (Nullable) @unique
 
@@ -92,35 +76,6 @@ model Customer {
   // 4. Metadata
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt // อัปเดตวันที่เองเมื่อมีการแก้ไข Record
-
-  // (Optional) หากมีตารางจอง (Booking) ให้เพิ่มความสัมพันธ์
-  // bookings      Booking[] // ตัวอย่างความสัมพันธ์ 1:N 
-
-  // @@map("customers") // กำหนดชื่อตารางใน Database
-}
-
-// model Report {
-
-//   id         String     @id @default(auto()) @map("_id") @db.ObjectId
-//   reportDate DateTime   @db.Date             // วันที่ของรายงาน
-//   reportType String     // เช่น "Daily", "Monthly"
-//   totalBookings Int
-//   totalRevenue  Float
-//   details      Json     // ข้อมูลละเอียด เช่น { "serviceA": 10, "serviceB": 5 }
-//   generatedAt  DateTime   @default(now())
-
-//   storeId    String     @db.ObjectId
-//   store      Store      @relation(fields: [storeId], references: [id])
-
-//   @@unique([storeId, reportDate, reportType])
-// }
-
-enum BookingStatus {
-  PENDING // รอลูกค้ายืนยัน (ถ้ามี), หรือรอยืนยันจากร้าน (ถ้าตั้งค่าไว้)
-  CONFIRMED // ยืนยันแล้ว (จองสำเร็จ)
-  RESCHEDULED // เลื่อนนัด
-  CANCELLED // ยกเลิก
-  COMPLETED // เสร็จสิ้นบริการ
 }
 
 model Booking {
@@ -155,18 +110,6 @@ model Booking {
 
   createdAt DateTime @default(now()) // วันที่สร้าง
   updatedAt DateTime @updatedAt // อัปเดตล่าสุด
-
-  // 2.12 ระบบกันคิวซ้ำ: ต้องใช้ Logic ใน Application หรือใช้ Unique Index แบบ Compound 
-  // (แต่ MongoDB/Prisma ไม่รองรับ unique index บน DateTime ในรูปแบบที่ซับซ้อนสำหรับการจองซ้อน) 
-  // จึงควรจัดการที่ Application Logic เมื่อสร้าง/แก้ไข Booking
-  // อย่างไรก็ตาม การรวม employeeId, startTime เป็น unique index อาจช่วยได้ในระดับหนึ่ง
-  // @@index([employeeId]) // ช่วยในการตรวจสอบคิวซ้ำ/ค้นหาคิว
-}
-
-enum CustomerType {
-  LINE
-  WALK_IN
-  OTHER_CONTACT
 }
 
 model Service {
@@ -257,39 +200,15 @@ model DefaultOperatingHour {
   @@map("defaultOperatingHours")
 }
 
-enum HolidayType {
-  ANNUAL
-  SPECIAL
-}
-
 model Holiday {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  date DateTime
-  startTime DateTime? 
-  fullDay Boolean @default(true)
-  endTime DateTime? 
+  date        DateTime
+  startTime   DateTime?
+  fullDay     Boolean     @default(true)
+  endTime     DateTime?
   holidayName String
   holidayType HolidayType @default(ANNUAL)
-
-    // 3. ความสัมพันธ์กับร้านค้า
-  storeId String @db.ObjectId
-  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ExceptionDate {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  // 1. วันที่เฉพาะเจาะจง (Calendar Date)
-  date DateTime @db.Date // วันที่ของวันหยุดพิเศษ (เช่น 2025-12-31)
-
-  // 2. สถานะและเวลาทำการพิเศษ
-  isOpen    Boolean @default(true) // true = เปิด, false = ปิด (วันหยุดพิเศษ)
-  openTime  String? // "10:00" ถ้ามีการปรับเวลาทำการในวันนั้น
-  closeTime String? // "17:00" ถ้ามีการปรับเวลาทำการในวันนั้น
 
   // 3. ความสัมพันธ์กับร้านค้า
   storeId String @db.ObjectId
@@ -297,12 +216,8 @@ model ExceptionDate {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // 4. Index และ Constraint
-  // บังคับว่า storeId หนึ่งต้องมีข้อมูล ExceptionDate ในวันที่นั้นได้เพียงครั้งเดียว
-  @@unique([storeId, date])
-  @@map("exceptionDates")
 }
+
 
 model Store {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
@@ -336,6 +251,10 @@ model Store {
   before24H      String? //ข้อความเเจ้งเตือนลูกค้าเมื่อใกล้ถึงเวลานัด 24 ชั่วโมง
   reSchedule     String? //ข้อความเเจ้งเตือนลูกค้าเมื่อถูกเลื่อนการจอง
 
+  employeeSetting EmployeeSetting
+  bookingRule     BookingRule
+  cancelRule      CancelRule
+
   userId String @unique @db.ObjectId
   user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
@@ -344,33 +263,14 @@ model Store {
   services       Service[]
   bookings       Booking[]
   operatingHours DefaultOperatingHour? // เวลาเปิด-ปิดวันปกติ
-  exceptionDates ExceptionDate[] //วันหยุดพิเศษ
   notifications  Notification[] // เชื่อมกับ Notification
-  holiday Holiday[]
+  holiday        Holiday[]
   // reports          Report[]
 
   createdAt DateTime @default(now()) // วันที่สร้าง
   updatedAt DateTime @updatedAt // อัปเดตล่าสุด
 }
 
-enum NotificationType {
-  // สำหรับร้านค้า (Store)
-  STORE_NEW_BOOKING // 2.7 มีการจองใหม่
-  STORE_CANCELED_BY_CUSTOMER
-  STORE_BOOKING_MODIFIED
-
-  // สำหรับลูกค้า (Customer)
-  CUSTOMER_BOOKING_SUCCESS // 3.7 จองสำเร็จ
-  CUSTOMER_CONFIRMED // 2.9 ร้านยืนยันคิว
-  CUSTOMER_RESCHEDULED // 2.8, 2.9 ร้านเลื่อน
-  CUSTOMER_CANCELED // 2.8, 2.9 ร้านยกเลิก
-}
-
-enum SendMethod {
-  LINE_NOTIFY // สำหรับแจ้งเตือนร้านค้า (ใช้ Store.lineNotifyToken)
-  LINE_MESSAGING_API // สำหรับแจ้งเตือนลูกค้า (ต้องมี User's LINE ID)
-  EMAIL // 2.10 แจ้งเตือนในอีเมล
-}
 
 model Notification {
   id String @id @default(auto()) @map("_id") @db.ObjectId
@@ -396,4 +296,78 @@ model Notification {
   // เพิ่มเติม: สำหรับลูกค้าที่ใช้ LINE Messaging API 
   // (ถ้ามีการเชื่อมต่อ LINE OA และเก็บ User ID)
   lineUserId String?
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum RoleName {
+  ADMIN
+  STOREADMIN
+  CUSTOMER
+}
+
+enum BookingStatus {
+  PENDING // รอลูกค้ายืนยัน (ถ้ามี), หรือรอยืนยันจากร้าน (ถ้าตั้งค่าไว้)
+  CONFIRMED // ยืนยันแล้ว (จองสำเร็จ)
+  RESCHEDULED // เลื่อนนัด
+  CANCELLED // ยกเลิก
+  COMPLETED // เสร็จสิ้นบริการ
+}
+
+enum HolidayType {
+  ANNUAL
+  SPECIAL
+}
+
+enum NotificationType {
+  // สำหรับร้านค้า (Store)
+  STORE_NEW_BOOKING // 2.7 มีการจองใหม่
+  STORE_CANCELED_BY_CUSTOMER
+  STORE_BOOKING_MODIFIED
+
+  // สำหรับลูกค้า (Customer)
+  CUSTOMER_BOOKING_SUCCESS // 3.7 จองสำเร็จ
+  CUSTOMER_CONFIRMED // 2.9 ร้านยืนยันคิว
+  CUSTOMER_RESCHEDULED // 2.8, 2.9 ร้านเลื่อน
+  CUSTOMER_CANCELED // 2.8, 2.9 ร้านยกเลิก
+}
+
+enum CustomerType {
+  LINE
+  WALK_IN
+  OTHER_CONTACT
+}
+
+
+enum SendMethod {
+  LINE_NOTIFY // สำหรับแจ้งเตือนร้านค้า (ใช้ Store.lineNotifyToken)
+  LINE_MESSAGING_API // สำหรับแจ้งเตือนลูกค้า (ต้องมี User's LINE ID)
+  EMAIL // 2.10 แจ้งเตือนในอีเมล
+}
+
+type EmployeeSetting {
+  allowCustomerSelectEmployee Boolean @default(true)
+  autoAssignEmployee          Boolean @default(false)
+
+  maxQueuePerEmployeePerDay Int? // null หรือ 0 = ไม่จำกัด
+}
+
+type BookingRule {
+  minAdvanceBookingHours Int // จองล่วงหน้าขั้นต่ำ (ชั่วโมง)
+  maxAdvanceBookingDays  Int // จองล่วงหน้าสูงสุด (วัน)
+
+  maxQueuePerService Int // จำนวนคิวสูงสุดต่อบริการ
+}
+
+type CancelRule {
+  minCancelBeforeHours Int // ต้องยกเลิกล่วงหน้ากี่ชั่วโมง
+  allowCustomerCancel  Boolean @default(true)
 }

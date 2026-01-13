@@ -68,59 +68,42 @@ export async function GET(request: NextRequest) {
  */
 
 export async function PATCH(request: NextRequest) {
-    // เก็บสถานะรูปภาพที่อัปโหลดใหม่ไว้ เพื่อใช้ Rollback หาก DB พัง
     let _logo: any = null;
     let _cover: any = null;
 
     try {
         const { userId, storeId: tokenStoreId } = await getCurrentUserAndStoreIdsByToken(request);
-        const data: Store = await request.json();
+        const data: any = await request.json(); // เปลี่ยนเป็น any เพื่อให้เข้าถึงฟิลด์ใหม่ได้ง่าย
 
-        console.log(data)
-
-        // 1. ดึงข้อมูลและกำหนด ID ที่จะอัปเดต
         const id = data.id || tokenStoreId;
-
         if (!id) {
-            return NextResponse.json({ message: 'ไม่พบ Store ID ที่ต้องการอัปเดต' }, { status: 400 });
+            return NextResponse.json({ message: 'ไม่พบ Store ID' }, { status: 400 });
         }
 
-        // 2. ตรวจสอบสิทธิ์ความเป็นเจ้าของ (Ownership Check)
-        const currentStore = await prisma.store.findUnique({
-            where: { id: id }
-        });
-
+        const currentStore = await prisma.store.findUnique({ where: { id: id } });
         if (!currentStore || currentStore.userId !== userId) {
-            return NextResponse.json({ message: 'คุณไม่มีสิทธิ์แก้ไขข้อมูลร้านค้าค้านี้' }, { status: 403 });
+            return NextResponse.json({ message: 'คุณไม่มีสิทธิ์แก้ไขข้อมูลร้านค้านี้' }, { status: 403 });
         }
 
-        // 3. ตรวจสอบความซ้ำซ้อนของ storeUsername (ถ้ามีการขอเปลี่ยน)
+        // ตรวจสอบ storeUsername ซ้ำ... (เหมือนเดิม)
         if (data.storeUsername && data.storeUsername !== currentStore.storeUsername) {
-            const existingUsername = await prisma.store.findUnique({
-                where: { storeUsername: data.storeUsername }
-            });
-
+            const existingUsername = await prisma.store.findUnique({ where: { storeUsername: data.storeUsername } });
             if (existingUsername) {
-                return NextResponse.json({ message: 'ชื่อผู้ใช้งานร้านค้า (Store Username) นี้ถูกใช้ไปแล้ว' }, { status: 409 });
+                return NextResponse.json({ message: 'ชื่อผู้ใช้งานนี้ถูกใช้ไปแล้ว' }, { status: 409 });
             }
         }
 
-        // 4. จัดการรูปภาพ (Logo & Cover)
-        // จัดการ Logo
+        // จัดการรูปภาพ... (เหมือนเดิม)
         _logo = await handleImageUpload({
-            file: data.logoUrl,     // ส่ง Base64 หรือ URL เดิมเข้ามา
-            publicId: data.logoId,  // ส่ง Public ID เดิมจาก DB
+            file: data.logoUrl,
+            publicId: data.logoId,
             folder: "store/logos",
         });
-
-        // จัดการ Cover
         _cover = await handleImageUpload({
-            file: data.coverUrl,    // ส่ง Base64 หรือ URL เดิมเข้ามา
-            publicId: data.coverId, // ส่ง Public ID เดิมจาก DB
+            file: data.coverUrl,
+            publicId: data.coverId,
             folder: "store/covers",
         });
-
-        console.log(id)
 
         // 5. อัปเดตข้อมูลในฐานข้อมูล
         const updatedStore = await prisma.store.update({
@@ -129,15 +112,36 @@ export async function PATCH(request: NextRequest) {
                 storeName: data.storeName,
                 storeUsername: data.storeUsername,
                 lineOALink: data.lineOALink,
-                
-                // ฟิลด์ที่เพิ่มใหม่
                 storeNameTH: data.storeNameTH,
                 tel: data.tel,
                 addressCustom: data.addressCustom,
                 mapUrl: data.mapUrl,
                 detail: data.detail,
 
-                // ข้อมูลรูปภาพ (ถ้า action=NONE จะใช้ค่าเดิม ถ้ามีการอัปโหลดใหม่จะใช้ค่าจาก Cloudinary)
+                // --- ฟิลด์ที่เพิ่มใหม่ ---
+                
+                // 1. Employee Setting
+                employeeSetting: data.employeeSetting ? {
+                    allowCustomerSelectEmployee: data.employeeSetting.allowCustomerSelectEmployee,
+                    autoAssignEmployee: data.employeeSetting.autoAssignEmployee,
+                    // ถ้าส่งมาเป็น 0 หรือ null ให้เก็บเป็น null (ไม่จำกัด)
+                    maxQueuePerEmployeePerDay: data.employeeSetting.maxQueuePerEmployeePerDay || null,
+                } : undefined,
+
+                // 2. Booking Rule
+                bookingRule: data.bookingRule ? {
+                    minAdvanceBookingHours: Number(data.bookingRule.minAdvanceBookingHours),
+                    maxAdvanceBookingDays: Number(data.bookingRule.maxAdvanceBookingDays),
+                    maxQueuePerService: Number(data.bookingRule.maxQueuePerService),
+                } : undefined,
+
+                // 3. Cancel Rule
+                cancelRule: data.cancelRule ? {
+                    minCancelBeforeHours: Number(data.cancelRule.minCancelBeforeHours),
+                    allowCustomerCancel: data.cancelRule.allowCustomerCancel,
+                } : undefined,
+
+                // ข้อมูลรูปภาพ
                 logoUrl: _logo.url ?? data.logoUrl,
                 logoId: _logo.publicId ?? data.logoId,
                 coverUrl: _cover.url ?? data.coverUrl,
@@ -151,19 +155,13 @@ export async function PATCH(request: NextRequest) {
         }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Error updating store:', error);
-
-        // --- Rollback Logic ---
-        // หากอัปโหลดรูปขึ้น Cloudinary ไปแล้วแต่ DB พัง ให้ลบรูปที่เพิ่งอัปโหลดทิ้ง
+        // --- Rollback Logic --- (เหมือนเดิม)
         if (_logo?.action === "UPDATE" || _logo?.action === "CREATE") {
             if (_logo.publicId) await deleteImage(_logo.publicId);
         }
         if (_cover?.action === "UPDATE" || _cover?.action === "CREATE") {
             if (_cover.publicId) await deleteImage(_cover.publicId);
         }
-
-        return NextResponse.json({ 
-            message: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูลร้านค้า' 
-        }, { status: 500 });
+        return NextResponse.json({ message: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล' }, { status: 500 });
     }
 }
