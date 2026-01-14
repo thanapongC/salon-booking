@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -14,23 +14,85 @@ import {
   Alert,
   Grid,
   InputAdornment,
-} from "@mui/material"
-import { Save as SaveIcon } from "@mui/icons-material"
-import type { BookingRule } from "@/types/settings"
+  CircularProgress,
+} from "@mui/material";
+import { Save as SaveIcon } from "@mui/icons-material";
+import type { BookingRule } from "@/types/settings";
+import { useStoreContext } from "@/contexts/StoreContext";
+import { useNotifyContext } from "@/contexts/NotifyContext";
+import { FormikHelpers } from "formik";
+import { initialStore, Store } from "@/interfaces/Store";
+import { storeService } from "@/utils/services/api-services/StoreAPI";
 
 export default function BookingRulesSettings() {
-  const theme = useTheme()
-  const [snackbar, setSnackbar] = useState({ open: false, message: "" })
+  const theme = useTheme();
+  const { setStoreForm, StoreForm } = useStoreContext();
+  const { setNotify, notify, setOpenBackdrop, openBackdrop } =
+    useNotifyContext();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rules, setRules] = useState<BookingRule>({
     minAdvanceHours: 2,
     maxAdvanceDays: 30,
     minCancelHours: 24,
     allowCustomerCancel: true,
     maxBookingsPerPhone: 3,
-  })
+  });
 
-  const handleSave = () => {
-    setSnackbar({ open: true, message: "บันทึกกฎการจองสำเร็จ" })
+  const handleFormSubmit = async (
+    values: Store,
+    { setSubmitting, setErrors, resetForm, validateForm }: FormikHelpers<Store> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
+  ) => {
+    validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    setSubmitting(true); // เริ่มสถานะ Loading/Submittings
+
+    // 2. เรียกใช้ API
+    let result;
+
+    result = await storeService.updateStore(values);
+
+    // // // 3. จัดการเมื่อสำเร็จ
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
+  };
+
+  const getStore = async () => {
+    let result = await storeService.getStore();
+
+    if (result.success) {
+      setStoreForm(result.data);
+    } else {
+      setNotify({
+        open: true,
+        message: result.message,
+        color: result.success ? "success" : "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    getStore();
+    return () => {
+      setStoreForm(initialStore);
+    };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 400,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
@@ -78,9 +140,16 @@ export default function BookingRulesSettings() {
                   label="จองล่วงหน้าขั้นต่ำ"
                   type="number"
                   value={rules.minAdvanceHours}
-                  onChange={(e) => setRules({ ...rules, minAdvanceHours: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setRules({
+                      ...rules,
+                      minAdvanceHours: Number(e.target.value),
+                    })
+                  }
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">ชั่วโมง</InputAdornment>,
+                    endAdornment: (
+                      <InputAdornment position="end">ชั่วโมง</InputAdornment>
+                    ),
                   }}
                   fullWidth
                   helperText="ลูกค้าต้องจองล่วงหน้าอย่างน้อยกี่ชั่วโมง"
@@ -90,9 +159,16 @@ export default function BookingRulesSettings() {
                   label="จองล่วงหน้าสูงสุด"
                   type="number"
                   value={rules.maxAdvanceDays}
-                  onChange={(e) => setRules({ ...rules, maxAdvanceDays: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setRules({
+                      ...rules,
+                      maxAdvanceDays: Number(e.target.value),
+                    })
+                  }
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">วัน</InputAdornment>,
+                    endAdornment: (
+                      <InputAdornment position="end">วัน</InputAdornment>
+                    ),
                   }}
                   fullWidth
                   helperText="จำกัดการจองล่วงหน้าสูงสุดกี่วัน"
@@ -121,9 +197,16 @@ export default function BookingRulesSettings() {
                   label="ยกเลิกล่วงหน้าขั้นต่ำ"
                   type="number"
                   value={rules.minCancelHours}
-                  onChange={(e) => setRules({ ...rules, minCancelHours: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setRules({
+                      ...rules,
+                      minCancelHours: Number(e.target.value),
+                    })
+                  }
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">ชั่วโมง</InputAdornment>,
+                    endAdornment: (
+                      <InputAdornment position="end">ชั่วโมง</InputAdornment>
+                    ),
                   }}
                   fullWidth
                   helperText="ลูกค้าต้องยกเลิกล่วงหน้าอย่างน้อยกี่ชั่วโมง"
@@ -133,7 +216,12 @@ export default function BookingRulesSettings() {
                   control={
                     <Switch
                       checked={rules.allowCustomerCancel}
-                      onChange={(e) => setRules({ ...rules, allowCustomerCancel: e.target.checked })}
+                      onChange={(e) =>
+                        setRules({
+                          ...rules,
+                          allowCustomerCancel: e.target.checked,
+                        })
+                      }
                     />
                   }
                   label="อนุญาตให้ลูกค้ายกเลิกคิวเอง"
@@ -166,9 +254,16 @@ export default function BookingRulesSettings() {
                 label="จำนวนคิวสูงสุดต่อเบอร์โทร"
                 type="number"
                 value={rules.maxBookingsPerPhone}
-                onChange={(e) => setRules({ ...rules, maxBookingsPerPhone: Number(e.target.value) })}
+                onChange={(e) =>
+                  setRules({
+                    ...rules,
+                    maxBookingsPerPhone: Number(e.target.value),
+                  })
+                }
                 InputProps={{
-                  endAdornment: <InputAdornment position="end">คิว</InputAdornment>,
+                  endAdornment: (
+                    <InputAdornment position="end">คิว</InputAdornment>
+                  ),
                 }}
                 fullWidth
                 helperText="จำกัดจำนวนคิวที่จองได้ต่อหนึ่งเบอร์โทร"
@@ -182,7 +277,8 @@ export default function BookingRulesSettings() {
         <Button
           variant="contained"
           startIcon={<SaveIcon />}
-          onClick={handleSave}
+          
+          // onClick={handleSave}
           sx={{
             bgcolor: theme.palette.primary.main,
             "&:hover": {
@@ -195,16 +291,6 @@ export default function BookingRulesSettings() {
         </Button>
       </Box>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert severity="success" sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
-  )
+  );
 }
