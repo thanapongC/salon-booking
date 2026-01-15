@@ -31,4 +31,17 @@ export const authService = {
         }
     },
 
+        async sendForgotPassword(email: string) {
+        try {
+            let data: any = await APIServices.post(`/api/forgot-password`, email );
+            return { success: true, message: data.message, data: data.data };
+        } catch (error: any) {
+            console.log(error.response.data)
+            if (error.name === "AbortError") {
+                console.log("Request cancelled");
+            }
+            return { success: false, message: error.response.data?.message || "เกิดข้อผิดพลาด" };
+        }
+    },
+
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FC, useState } from "react";
 import {
   Grid,
   TextField,
@@ -9,49 +9,44 @@ import {
   Typography,
   Grid2,
 } from "@mui/material";
-import { Field, Form, Formik } from "formik";
+import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-// import { useSnackbarContext } from "@/contexts/SnackbarContext";
+import { useNotifyContext } from "@/contexts/NotifyContext";
+import { authService } from "@/utils/services/api-services/AuthAPI";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required("กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
 });
 
-const ForgetPasswordForm = () => {
+export default function ForgetPasswordForm() {
+  const { setNotify, notify, setOpenBackdrop, openBackdrop } =
+    useNotifyContext();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   // const { setSnackbar } = useSnackbarContext();
 
-  const handleSubmit = async (values: any, { setSubmitting }: any) => {
-    setIsSubmitting(true);
-    // try {
-    //   const response = await fetch("/api/forget-password", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email: values.email }),
-    //   });
+  const handleFormSubmit = async (
+    values: { email: string },
+    {
+      setSubmitting,
+      setErrors,
+      resetForm,
+      validateForm,
+    }: FormikHelpers<{ email: string }> // ใช้ FormikHelpers เพื่อให้ Type ถูกต้อง
+  ) => {
+    validateForm(); // บังคับ validate หลังจากรีเซ็ต
+    setSubmitting(true); // เริ่มสถานะ Loading/Submittings
 
-    //   const data = await response.json();
+    // let result;
 
-    //   if (response.ok) {
-    //     setSnackbar({
-    //       message: "ลิงก์สำหรับรีเซ็ตรหัสผ่านถูกส่งไปยังอีเมลของคุณ!",
-    //       notiColor: "success",
-    //     });
-    //   } else {
-    //     setSnackbar({
-    //       message: data.error || "เกิดข้อผิดพลาดในการส่งอีเมล",
-    //       notiColor: "error",
-    //     });
-    //   }
-    // } catch (error) {
-    //   setSnackbar({
-    //     message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์",
-    //     notiColor: "error",
-    //   });
-    // } finally {
-    //   setIsSubmitting(false);
-    //   setSubmitting(false);
-    // }
+    // if (editingHoliday)
+    const result = await authService.sendForgotPassword(values.email);
+
+    setNotify({
+      open: true,
+      message: result.message,
+      color: result.success ? "success" : "error",
+    });
   };
 
   return (
@@ -60,12 +55,12 @@ const ForgetPasswordForm = () => {
         email: "",
       }}
       validationSchema={validationSchema}
-      onSubmit={handleSubmit}
+      onSubmit={handleFormSubmit}
     >
       {({ errors, touched }) => (
         <Form>
           <Grid2 container spacing={2}>
-            <Grid2 size={{ xs: 12 }} >
+            <Grid2 size={{ xs: 12 }}>
               <Field name="email">
                 {({ field }: any) => (
                   <TextField
@@ -79,7 +74,7 @@ const ForgetPasswordForm = () => {
                 )}
               </Field>
             </Grid2>
-            <Grid2 size={{ xs: 12 }} >
+            <Grid2 size={{ xs: 12 }}>
               {isSubmitting ? (
                 <CircularProgress />
               ) : (
@@ -93,6 +88,4 @@ const ForgetPasswordForm = () => {
       )}
     </Formik>
   );
-};
-
-export default ForgetPasswordForm;
+}

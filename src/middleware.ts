@@ -1,4 +1,4 @@
-// # # # # START OLD MIDDLEWAERE # # # #
+
 
 // import { NextResponse } from "next/server";
 // import createMiddleware from "next-intl/middleware";
@@ -23,7 +23,7 @@
 //       authorized: async ({ token }) => {
 //         if (!token) return false;
 //         const currentTime = Math.floor(Date.now() / 1000);
-//         return typeof token.exp === "number" && token.exp > currentTime; // ตรวจสอบ token expiry
+//         return typeof token.exp === "number" && token.exp > currentTime;
 //       },
 //     },
 //     pages: {
@@ -34,32 +34,53 @@
 
 // export default async function middleware(req: NextRequest) {
 //   const { pathname } = req.nextUrl;
-//   const excludePattern = "^(/(" + locales.join("|") + "))?/protected/?.*?$";
-//   const publicPathnameRegex = RegExp(excludePattern, "i");
-//   const isPublicPage = !publicPathnameRegex.test(pathname);
 
-//   // ตรวจสอบ Locale ใน URL
+//   // --------------------------------------------------------
+//   // ⭐ 1) อนุญาตหน้า booking ของ customer โดยไม่ต้องล็อคอิน
+//   // /protected/shop/[shop_id]/booking
+//   // --------------------------------------------------------
+//   const bookingPublic = new RegExp(
+//     `^/(${locales.join("|")})/protected/shop/([^/]+)/booking(\\/.*)?$`,
+//     "i"
+//   );
+//   if (bookingPublic.test(pathname)) {
+//     return intlMiddleware(req);
+//   }
+
+//   // -----------------------------
+//   // Locale detection
+//   // -----------------------------
 //   const locale = locales.find((loc) => pathname.startsWith(`/${loc}`));
 
 //   if (locale) {
 //     const trimmedPath = pathname.replace(`/${locale}`, "");
-//     const isValidPath = pathname.startsWith("/_next") || pathname.includes(".");
+//     const isValidPath =
+//       pathname.startsWith("/_next") || pathname.includes(".");
 
-//     // Redirect ไป `/protected/dashboard` ถ้า path ไม่ถูกต้อง
 //     if (!trimmedPath || trimmedPath === "/") {
-//       return NextResponse.redirect(new URL(`/${locale}/protected/dashboard`, req.url));
+//       return NextResponse.redirect(
+//         new URL(`/${locale}/protected/admin/dashboard`, req.url)
+//       );
 //     }
 //   }
 
-//   // ตรวจสอบ token และ session expiration
+//   // -----------------------------
+//   // Token expiry check
+//   // -----------------------------
 //   const token = await getToken({ req });
 //   if (token) {
 //     const currentTime = Math.floor(Date.now() / 1000);
 //     if (typeof token.exp === "number" && token.exp < currentTime) {
-//       // Token หมดอายุ
 //       return NextResponse.redirect(new URL("/auth/sign-in", req.url));
 //     }
 //   }
+
+//   // -----------------------------
+//   // Public vs Protected
+//   // -----------------------------
+//   const excludePattern = "^(/(" + locales.join("|") + "))?/protected/?.*?$";
+//   const publicPathnameRegex = RegExp(excludePattern, "i");
+//   const isPublicPage = !publicPathnameRegex.test(pathname);
 
 //   if (isPublicPage) {
 //     return intlMiddleware(req);
@@ -72,7 +93,6 @@
 //   matcher: ["/((?!api|_next|.*\\..*).*)"],
 // };
 
-// # # # # END OLD MIDDLEWAERE # # # #
 
 import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
@@ -108,10 +128,16 @@ const authMiddleware = withAuth(
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const locale = locales.find((loc) => pathname.startsWith(`/${loc}`)) || "th";
+
+  // 1. ตรวจสอบว่าหน้าปัจจุบันเป็น Auth Page หรือไม่ (Guest Only)
+  const authPages = ["/auth/sign-in", "/auth/sign-up", "/auth/reset-password", "/auth/forgot-password"];
+  const isAuthPage = authPages.some(page => 
+    pathname === page || pathname === `/${locale}${page}`
+  );
 
   // --------------------------------------------------------
   // ⭐ 1) อนุญาตหน้า booking ของ customer โดยไม่ต้องล็อคอิน
-  // /protected/shop/[shop_id]/booking
   // --------------------------------------------------------
   const bookingPublic = new RegExp(
     `^/(${locales.join("|")})/protected/shop/([^/]+)/booking(\\/.*)?$`,
@@ -122,31 +148,31 @@ export default async function middleware(req: NextRequest) {
   }
 
   // -----------------------------
-  // Locale detection
+  // Token Logic & Redirection
   // -----------------------------
-  const locale = locales.find((loc) => pathname.startsWith(`/${loc}`));
+  const token = await getToken({ req });
+  const currentTime = Math.floor(Date.now() / 1000);
+  const isTokenValid = token && typeof token.exp === "number" && token.exp > currentTime;
 
-  if (locale) {
-    const trimmedPath = pathname.replace(`/${locale}`, "");
-    const isValidPath =
-      pathname.startsWith("/_next") || pathname.includes(".");
+  // ⭐ เพิ่ม Logic: ถ้ามี Token ที่ยังไม่หมดอายุ และพยายามเข้าหน้า Auth (Sign-in, Sign-up, etc.)
+  if (isTokenValid && isAuthPage) {
+    return NextResponse.redirect(
+      new URL(`/${locale}/protected/admin/dashboard`, req.url)
+    );
+  }
 
-    if (!trimmedPath || trimmedPath === "/") {
-      return NextResponse.redirect(
-        new URL(`/${locale}/protected/admin/dashboard`, req.url)
-      );
-    }
+  // กรณี Token หมดอายุ (Redirect ไป sign-in)
+  if (token && !isTokenValid) {
+    return NextResponse.redirect(new URL(`/${locale}/auth/sign-in`, req.url));
   }
 
   // -----------------------------
-  // Token expiry check
+  // Locale detection & Root Redirect
   // -----------------------------
-  const token = await getToken({ req });
-  if (token) {
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (typeof token.exp === "number" && token.exp < currentTime) {
-      return NextResponse.redirect(new URL("/auth/sign-in", req.url));
-    }
+  if (locales.some((loc) => pathname === `/${loc}`)) {
+      return NextResponse.redirect(
+        new URL(`/${locale}/protected/admin/dashboard`, req.url)
+      );
   }
 
   // -----------------------------
@@ -154,11 +180,12 @@ export default async function middleware(req: NextRequest) {
   // -----------------------------
   const excludePattern = "^(/(" + locales.join("|") + "))?/protected/?.*?$";
   const publicPathnameRegex = RegExp(excludePattern, "i");
-  const isPublicPage = !publicPathnameRegex.test(pathname);
+  const isProtectedPage = publicPathnameRegex.test(pathname);
 
-  if (isPublicPage) {
+  if (!isProtectedPage) {
     return intlMiddleware(req);
   } else {
+    // ใช้ authMiddleware สำหรับหน้าที่ต้องใช้ Token เท่านั้น
     return (authMiddleware as any)(req);
   }
 }
