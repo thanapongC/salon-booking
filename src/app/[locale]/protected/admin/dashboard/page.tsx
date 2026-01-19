@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Grid,
+  Grid2,
   Box,
   TextField,
   Button,
@@ -9,7 +9,8 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Grid2,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useTranslations } from "next-intl";
@@ -18,17 +19,20 @@ import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import BookingTable from "@/components/forms/booking/BookingTable";
 import IncomeChart from "@/components/forms/dashboard/IncomeChart";
-import CustomerChart from "@/components/forms/dashboard/CustomerChart";
 import Appointment from "@/components/forms/dashboard/Appointment";
+import StaffAvailabilityList from "@/components/forms/dashboard/StaffAvailability";
+import RevenueChart from "@/components/forms/dashboard/RevenueChart";
+import UpcomingAppointments from "@/components/forms/dashboard/UpcomingAppointments";
+import TodayAppointments from "@/components/forms/dashboard/TodayAppointments";
+import StatsCards from "@/components/forms/dashboard/StatsCards";
+import { mockCustomerData, mockDashboardStats, mockRevenueData, mockStaffAvailability } from "@/components/lib/dashboard-data";
+import { mockAppointments } from "@/components/lib/calendar-data";
+import CustomerChart from "@/components/forms/dashboard/CustomerChart";
 
 const Booking = () => {
+  const theme = useTheme()
   const t = useTranslations("HomePage");
-
-  const [issueDate, setIssueDate] = useState("");
-  const [repairLocation, setRepairLocation] = useState<string>("");
-  const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRepairLocation(event.target.value);
-  };
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"))
 
   const { setBreadcrumbs } = useBreadcrumbContext();
 
@@ -44,45 +48,77 @@ const Booking = () => {
 
   return (
     <PageContainer title="" description="">
-      <Typography variant="h1" mt={2} >
-        แผงควบคุมระบบ
-      </Typography>
 
-      <Grid2 container spacing={2}>
-        <Grid2 size={{ xs: 6 }}>
-          <BaseCard title="">
-            <>
-              <Typography
-                variant="h4"
-                sx={{ marginBottom: 3, fontWeight: 700 }}
-              >
-                รายได้สัปดาห์นี้
-              </Typography>
-              <IncomeChart />
-            </>
-          </BaseCard>
+<Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        backgroundColor: theme.palette.background.default,
+      }}
+    >
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 2, md: 4 },
+          // ml: { xs: 0, md: "280px" },
+          minHeight: "100vh",
+        }}
+      >
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: theme.palette.text.primary,
+              mb: 1,
+            }}
+          >
+            แผงควบคุม
+          </Typography>
+          <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
+            ยินดีต้อนรับกลับมา! นี่คือภาพรวมของวันนี้
+          </Typography>
+        </Box>
+
+        {/* Stats Cards */}
+        <Box sx={{ mb: 4 }}>
+          <StatsCards stats={mockDashboardStats} />
+        </Box>
+
+        {/* Main Section */}
+        <Grid2 container spacing={3} sx={{ mb: 4 }}>
+          {/* Today's Appointments */}
+          <Grid2 size={{ xs: 12, lg: 4}} >
+            <TodayAppointments appointments={mockAppointments} />
+          </Grid2>
+
+          {/* Upcoming Appointments */}
+          <Grid2 size={{ xs: 12, lg: 4}}>
+            <UpcomingAppointments appointments={mockAppointments} />
+          </Grid2>
+
+          {/* Staff Availability */}
+          <Grid2 size={{ xs: 12, lg: 4}}>
+            <StaffAvailabilityList staffList={mockStaffAvailability} />
+          </Grid2>
         </Grid2>
 
-        <Grid2 size={{ xs: 6 }}>
-          <BaseCard title="">
-            <>
-              <Typography
-                variant="h4"
-                sx={{ marginBottom: 3, fontWeight: 700 }}
-              >
-                ลูกค้าสัปดาห์นี้
-              </Typography>
-              <CustomerChart />
-            </>
-          </BaseCard>
-        </Grid2>
+        {/* Charts Section */}
+        <Grid2 container spacing={3}>
+          {/* Revenue Chart */}
+          <Grid2 size={{ xs: 12, lg: 6}}>
+            <RevenueChart data={mockRevenueData} />
+          </Grid2>
 
-        <Grid2 size={{ xs: 12 }}>
-          <BaseCard title="">
-            <Appointment />
-          </BaseCard>
+          {/* Customer Chart */}
+          <Grid2 size={{ xs: 12, lg: 6}}>
+            <CustomerChart data={mockCustomerData} />
+          </Grid2>
         </Grid2>
-      </Grid2>
+      </Box>
+    </Box>
     </PageContainer>
   );
 };

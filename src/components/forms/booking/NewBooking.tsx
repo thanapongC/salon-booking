@@ -37,7 +37,7 @@ import { bookingService } from "@/utils/services/api-services/BookingAPI";
 import { useBookingContext } from "@/contexts/BookingContext";
 import { Booking, initialBooking } from "@/interfaces/Booking";
 import { useStoreContext } from "@/contexts/StoreContext";
-import { EmployeeSelect, ServiceSelect } from "@/interfaces/Store";
+import { EmployeeList, ServiceList } from "@/interfaces/Store";
 import { TimePicker } from "@mui/x-date-pickers";
 import { CustomerType } from "@prisma/client";
 import { useEmployeeContext } from "@/contexts/EmployeeContext";
@@ -50,7 +50,7 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
   const { setBookingForm, bookingEdit, setBookingEdit, setBookings, bookings } =
     useBookingContext();
   const { servicesSelect } = useStoreContext();
-  const { employeeSelect } = useEmployeeContext();
+  const { employeeList } = useEmployeeContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
@@ -260,7 +260,7 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
                         <Autocomplete
                           id="serviceId"
                           options={servicesSelect}
-                          getOptionLabel={(option: ServiceSelect) =>
+                          getOptionLabel={(option: ServiceList) =>
                             option.name
                           }
                           loading
@@ -385,8 +385,8 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
                       {({ field }: FieldProps) => (
                         <Autocomplete
                           id="employeeId"
-                          options={employeeSelect}
-                          getOptionLabel={(option: EmployeeSelect) =>
+                          options={employeeList}
+                          getOptionLabel={(option: EmployeeList) =>
                             option.name
                           }
                           loading
@@ -394,7 +394,7 @@ const BookingForm: FC<BookingProps> = ({ viewOnly = false }) => {
                             // Handle typed value when no matching option
                             if (
                               value &&
-                              !employeeSelect.some((opt) => opt.id === value)
+                              !employeeList.some((opt) => opt.id === value)
                             ) {
                               setFieldValue("employeeId", value);
                             }

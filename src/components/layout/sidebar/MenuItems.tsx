@@ -26,12 +26,12 @@ export const useMenuItems = () => {
       icon: IconHome,
       href: `/${localActive}/protected/admin/dashboard`,
     },
-    {
-      id: uniqueId(),
-      title: "รอยืนยันการจอง",
-      icon: HourglassBottom,
-      href: `/${localActive}/protected/admin/waiting-confirm`,
-    },
+    // {
+    //   id: uniqueId(),
+    //   title: "รอยืนยันการจอง",
+    //   icon: HourglassBottom,
+    //   href: `/${localActive}/protected/admin/waiting-confirm`,
+    // },
     {
       id: uniqueId(),
       title: "รายการจอง",

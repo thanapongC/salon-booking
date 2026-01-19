@@ -9,18 +9,31 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  useTheme,
+  Grid2,
 } from "@mui/material";
 import PageContainer from "@/components/container/PageContainer";
 import { useLocale, useTranslations } from "next-intl";
 import Breadcrumb from "@/components/shared/BreadcrumbCustom";
 import BaseCard from "@/components/shared/BaseCard";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 import EmployeeTabs from "@/components/forms/employees/EmployeeTabs";
 import ServiceTabs from "@/components/forms/services/ServiceTabs";
 import ServiceTable from "@/components/forms/services/ServiceTable";
 import FloatingButton from "@/components/shared/FloatingButton";
 import { useRouter } from "next/navigation";
+import { CustomerData, CustomerType, mockCustomers } from "@/components/lib/customer";
+import { CustomerDetailDialog } from "@/components/forms/customer/CustomerDetailDialog";
+import { CustomerFilters } from "@/components/forms/customer/CustomerFilters";
+import { CustomerTable } from "@/components/forms/customer/CustomerTable";
+import { StatCard } from "@/components/shared/StatCard";
+
+import PersonIcon from "@mui/icons-material/Person";
+import StarIcon from "@mui/icons-material/Star";
+import FiberNewIcon from "@mui/icons-material/FiberNew";
+import BlockIcon from "@mui/icons-material/Block";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 const Services = () => {
   const t = useTranslations("HomePage");
@@ -28,6 +41,53 @@ const Services = () => {
   const localActive = useLocale();
 
   const { setBreadcrumbs } = useBreadcrumbContext();
+
+   const theme = useTheme();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<CustomerType>("all");
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerData | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const filteredCustomers = useMemo(() => {
+    return mockCustomers.filter((customer) => {
+      // Search filter
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch =
+        searchQuery === "" ||
+        customer.firstName.toLowerCase().includes(searchLower) ||
+        customer.lastName.toLowerCase().includes(searchLower) ||
+        customer.phone.includes(searchQuery) ||
+        customer.lineId?.toLowerCase().includes(searchLower) ||
+        customer.nickname?.toLowerCase().includes(searchLower);
+
+      // Type filter
+      let matchesType = true;
+      if (filterType === "regular") {
+        matchesType = customer.isRegular;
+      } else if (filterType === "new") {
+        matchesType = !customer.isRegular && customer.totalBookings <= 2;
+      } else if (filterType === "blacklisted") {
+        matchesType = customer.isBlacklisted;
+      }
+
+      return matchesSearch && matchesType;
+    });
+  }, [searchQuery, filterType]);
+
+  const stats = useMemo(() => {
+    const total = mockCustomers.length;
+    const regular = mockCustomers.filter((c) => c.isRegular).length;
+    const newCustomers = mockCustomers.filter(
+      (c) => !c.isRegular && c.totalBookings <= 2
+    ).length;
+    const blacklisted = mockCustomers.filter((c) => c.isBlacklisted).length;
+    return { total, regular, newCustomers, blacklisted };
+  }, []);
+
+  const handleViewCustomer = (customer: CustomerData) => {
+    setSelectedCustomer(customer);
+    setDialogOpen(true);
+  };
 
   useEffect(() => {
     setBreadcrumbs([
@@ -41,15 +101,101 @@ const Services = () => {
 
   return (
     <PageContainer title="" description="">
-      <FloatingButton
-        onClick={() => router.push(`/${localActive}/protected/admin/services/new`)}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: theme.palette.grey[50],
+        p: { xs: 2, md: 4 },
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" fontWeight="bold" color="primary">
+            จัดการลูกค้า
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            ดูข้อมูลและประวัติการใช้บริการของลูกค้า
+          </Typography>
+        </Box>
+        {/* <Button
+          variant="contained"
+          startIcon={<PersonAddIcon />}
+          sx={{ borderRadius: 2 }}
+        >
+          เพิ่มลูกค้าใหม่
+        </Button> */}
+      </Box>
+
+      {/* Stats Overview */}
+      <Grid2 container spacing={2} sx={{ mb: 4 }}>
+        <Grid2 size={{ xs: 6, sm: 3 }}>
+          <StatCard
+            title="ลูกค้าทั้งหมด"
+            value={stats.total}
+            icon={<PersonIcon />}
+            color={theme.palette.primary.main}
+          />
+        </Grid2>
+        <Grid2 size={{ xs: 6, sm: 3 }}>
+          <StatCard
+            title="ลูกค้าประจำ"
+            value={stats.regular}
+            icon={<StarIcon />}
+            color="#FFD700"
+          />
+        </Grid2>
+        <Grid2 size={{ xs: 6, sm: 3 }}>
+          <StatCard
+            title="ลูกค้าใหม่"
+            value={stats.newCustomers}
+            icon={<FiberNewIcon />}
+            color={theme.palette.success.main}
+          />
+        </Grid2>
+        <Grid2 size={{ xs: 6, sm: 3 }}>
+          <StatCard
+            title="Blacklist"
+            value={stats.blacklisted}
+            icon={<BlockIcon />}
+            color={theme.palette.error.main}
+          />
+        </Grid2>
+      </Grid2>
+
+      {/* Filters */}
+      <CustomerFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        // filterType={filterType}
+        // onFilterTypeChange={setFilterType}
+        filteredCount={filteredCustomers.length}
+        totalCount={mockCustomers.length}
       />
-      <Typography variant="h1" mt={2} >
-        ลูกค้า
-      </Typography>
-      <BaseCard title="">
-        <ServiceTable />
-      </BaseCard>
+
+      {/* Customer Table */}
+      <CustomerTable
+        customers={filteredCustomers}
+        onViewCustomer={handleViewCustomer}
+      />
+
+      {/* Customer Detail Dialog */}
+      <CustomerDetailDialog
+        customer={selectedCustomer}
+        open={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setSelectedCustomer(null);
+        }}
+      />
+    </Box>
     </PageContainer>
   );
 };
