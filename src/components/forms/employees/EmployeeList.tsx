@@ -4,33 +4,34 @@ import type React from "react"
 
 import { Box, Button, Typography, Pagination, CircularProgress, Grid2 } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
-import { ServiceCard } from "./ServiceCard"
-import { Service } from "@/interfaces/Store"
+import { EmployeeCard } from "./EmployeeCard"
+import { Employee } from "@/interfaces/Store"
 import { PaginationMeta } from "@/interfaces/Types"
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Add } from "@mui/icons-material";
+import NotFound from "@/components/shared/NotFound"
 
 
-interface ServiceListProps {
-  services: Service[]
+interface EmployeeListProps {
+  employees: Employee[]
   pagination: PaginationMeta
   onPageChange: (page: number) => void
-  onEdit: (serviceId: string) => void
-  onDelete: (serviceId: string) => void
-  onToggleStatus?: (serviceId: string, active: boolean) => void
+  onEdit: (employeeId: string) => void
+  onDelete: (employeeId: string) => void
+  onToggleStatus?: (employeeId: string, active: boolean) => void
   loading?: boolean
 }
 
-export function ServiceList({
-  services,
+export function EmployeeList({
+  employees,
   pagination,
   onPageChange,
   onEdit,
   onDelete,
   onToggleStatus,
   loading,
-}: ServiceListProps) {
+}: EmployeeListProps) {
   const theme = useTheme()
     const router = useRouter();
     const localActive = useLocale();
@@ -54,7 +55,7 @@ export function ServiceList({
     )
   }
 
-  if (!services || services.length === 0) {
+  if (!employees || employees.length === 0) {
     return (
       <Box
         sx={{
@@ -63,16 +64,21 @@ export function ServiceList({
         }}
       >
         <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
-          ไม่พบรายการบริการ
+          ไม่พบรายการพนักงาน
         </Typography>
-        <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mt: 1 }}>
-          คลิกปุ่ม "เพิ่มบริการใหม่" เพื่อเริ่มต้น
+        <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mt: 1, mb: 5 }}>
+          คลิกปุ่ม "เพิ่มพนักงานใหม่" เพื่อเริ่มต้น
         </Typography>
+
+        {/* <NotFound/> */}
+
+        
+
             <Button
               variant="contained"
               color="warning"
               onClick={() =>
-          router.push(`/${localActive}/protected/admin/services/new`)
+          router.push(`/${localActive}/protected/admin/employees/new`)
         }
               style={{
                 // background: '#fff',
@@ -92,11 +98,11 @@ export function ServiceList({
 
   return (
     <Box>
-      {/* Services Grid */}
+      {/* Employees Grid */}
       <Grid2 container spacing={3}>
-        {services.map((service) => (
-          <Grid2 size={{xs: 12, sm: 6, md:4}} key={service.id}>
-            <ServiceCard service={service} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+        {employees.map((employee) => (
+          <Grid2 size={{xs: 12, sm: 6, md:4}} key={employee.id}>
+            <EmployeeCard employee={employee} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
           </Grid2>
         ))}
       </Grid2>
@@ -113,7 +119,7 @@ export function ServiceList({
           }}
         >
           <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-            แสดง {services.length} จาก {pagination.totalItems} รายการ
+            แสดง {employees.length} จาก {pagination.totalItems} รายการ
           </Typography>
           <Pagination
             count={pagination.totalPages}

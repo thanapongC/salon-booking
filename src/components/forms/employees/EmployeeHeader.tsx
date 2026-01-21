@@ -34,7 +34,7 @@ import {
   ExpandLess as ExpandLessIcon,
 } from "@mui/icons-material"
 
-interface ServiceFilters {
+interface EmployeeFilters {
   search: string
   category: string
   status: string
@@ -42,12 +42,12 @@ interface ServiceFilters {
   duration: string
 }
 
-interface ServicesHeaderProps {
-  onAddService: () => void
-  onFiltersChange: (filters: ServiceFilters) => void
+interface EmployeesHeaderProps {
+  onAddEmployee: () => void
+  onFiltersChange: (filters: EmployeeFilters) => void
   onExport: (format: "xlsx" | "csv") => void
   onImport: (file: File, format: "xlsx" | "csv") => void
-  totalServices?: number
+  totalEmployees?: number
 }
 
 const categories = [
@@ -73,17 +73,17 @@ const durations = [
   { id: "120", name: "2 ชั่วโมง+" },
 ]
 
-export function ServicesHeader({
-  onAddService,
+export function EmployeeHeader({
+  onAddEmployee,
   onFiltersChange,
   onExport,
   onImport,
-  totalServices = 0,
-}: ServicesHeaderProps) {
+  totalEmployees = 0,
+}: EmployeesHeaderProps) {
   const theme = useTheme()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [filters, setFilters] = useState<ServiceFilters>({
+  const [filters, setFilters] = useState<EmployeeFilters>({
     search: "",
     category: "all",
     status: "all",
@@ -103,14 +103,14 @@ export function ServicesHeader({
     filters.duration !== "all",
   ].filter(Boolean).length
 
-  const handleFilterChange = (key: keyof ServiceFilters, value: unknown) => {
+  const handleFilterChange = (key: keyof EmployeeFilters, value: unknown) => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
     onFiltersChange(newFilters)
   }
 
   const handleClearFilters = () => {
-    const defaultFilters: ServiceFilters = {
+    const defaultFilters: EmployeeFilters = {
       search: "",
       category: "all",
       status: "all",
@@ -179,7 +179,7 @@ export function ServicesHeader({
               fontWeight: 700,
             }}
           >
-            จัดการบริการ
+            จัดการพนักงาน
           </Typography>
           <Typography
             variant="body2"
@@ -188,7 +188,7 @@ export function ServicesHeader({
               mt: 0.5,
             }}
           >
-            ทั้งหมด {totalServices} บริการ
+            ทั้งหมด {totalEmployees} พนักงาน
           </Typography>
         </Box>
 
@@ -204,7 +204,7 @@ export function ServicesHeader({
           {/* Search */}
           <TextField
             size="small"
-            placeholder="ค้นหาบริการ..."
+            placeholder="ค้นหาพนักงาน..."
             value={filters.search}
             onChange={(e) => handleFilterChange("search", e.target.value)}
             InputProps={{
@@ -317,7 +317,7 @@ export function ServicesHeader({
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={onAddService}
+            onClick={onAddEmployee}
             sx={{
               borderRadius: 2,
               backgroundColor: theme.palette.primary.main,
@@ -331,7 +331,7 @@ export function ServicesHeader({
               },
             }}
           >
-            เพิ่มบริการ
+            เพิ่มพนักงาน
           </Button>
         </Box>
       </Box>

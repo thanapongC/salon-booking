@@ -24,25 +24,25 @@ import {
   LocalOffer as OfferIcon,
 } from "@mui/icons-material"
 
-import { Service } from "@/interfaces/Store"
+import { Employee } from "@/interfaces/Store"
 
-interface ServiceCardProps {
-  service: Service
-  onEdit: (serviceId: string) => void
-  onDelete: (serviceId: string) => void
-  onToggleStatus?: (serviceId: string, active: boolean) => void
+interface EmployeeCardProps {
+  employee: Employee
+  onEdit: (employeeId: string) => void
+  onDelete: (employeeId: string) => void
+  onToggleStatus?: (employeeId: string, isActive: boolean) => void
 }
 
-export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: ServiceCardProps) {
+export function EmployeeCard({ employee, onEdit, onDelete, onToggleStatus }: EmployeeCardProps) {
   const theme = useTheme()
 
-  const hasDiscount = service.discount > 0 && service.discount < service.price
-  const finalPrice = hasDiscount ? service.discount : service.price
-  const discountPercent = hasDiscount ? Math.round(((service.price - service.discount) / service.price) * 100) : 0
+  // const hasDiscount = employee.discount > 0 && employee.discount < employee.price
+  // const finalPrice = hasDiscount ? employee.discount : employee.price
+  // const discountPercent = hasDiscount ? Math.round(((employee.price - employee.discount) / employee.price) * 100) : 0
 
   const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (onToggleStatus) {
-      onToggleStatus(service.id, event.target.checked)
+      onToggleStatus(employee.id, event.target.checked)
     }
   }
 
@@ -58,7 +58,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
         border: `1px solid ${theme.palette.divider}`,
         transition: "all 0.3s ease",
         position: "relative",
-        opacity: service.active ? 1 : 0.65,
+        opacity: employee.isActive ? 1 : 0.65,
         "&:hover": {
           transform: "translateY(-4px)",
           boxShadow: `0 8px 24px ${theme.palette.primary.main}20`,
@@ -66,20 +66,20 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
         },
       }}
     >
-      {/* Service Image */}
+      {/* Employee Image */}
       <Box sx={{ position: "relative" }}>
         <CardMedia
           component="img"
           height="200"
-          image={service.imageUrl || "/customer-service-interaction.png"}
-          alt={service.name}
+          image={employee.imageUrl || "/customer-employee-interaction.png"}
+          alt={employee.name}
           sx={{
             objectFit: "cover",
             backgroundColor: theme.palette.grey[100],
           }}
         />
 
-        {/* {service.displayNumber > 0 && (
+        {/* {employee.displayNumber > 0 && (
           <Box
             sx={{
               position: "absolute",
@@ -98,11 +98,11 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
             }}
           >
-            {service.displayNumber}
+            {employee.displayNumber}
           </Box>
         )} */}
 
-        {hasDiscount && (
+        {/* {hasDiscount && (
           <Chip
             label={`-${discountPercent}%`}
             size="small"
@@ -118,9 +118,9 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
             }}
           />
-        )}
+        )} */}
 
-        {service.colorOfService && (
+        {/* {employee.colorOfEmployee && (
           <Box
             sx={{
               position: "absolute",
@@ -128,11 +128,11 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               left: 0,
               right: 0,
               height: 8,
-              backgroundColor: service.colorOfService,
-              boxShadow: `0 -2px 8px ${service.colorOfService}40`,
+              backgroundColor: employee.colorOfEmployee,
+              boxShadow: `0 -2px 8px ${employee.colorOfEmployee}40`,
             }}
           />
-        )}
+        )} */}
       </Box>
 
       {/* Card Content */}
@@ -166,7 +166,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               flexGrow: 1,
             }}
           >
-            {service.name}
+            {employee.name}
           </Typography>
 
           <Box
@@ -179,7 +179,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
             }}
           >
             <Switch
-              checked={typeof service.active === 'string' ? Boolean(service.active) : service.active}
+              checked={typeof employee.isActive === 'string' ? Boolean(employee.isActive) : employee.isActive}
               onChange={handleToggleChange}
               size="small"
               sx={{
@@ -196,15 +196,15 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               sx={{
                 fontWeight: 600,
                 fontSize: "0.65rem",
-                color: service.active ? theme.palette.success.main : theme.palette.text.secondary,
+                color: employee.isActive ? theme.palette.success.main : theme.palette.text.secondary,
               }}
             >
-              {service.active ? "เปิด" : "ปิด"}
+              {employee.isActive ? "เปิด" : "ปิด"}
             </Typography>
           </Box>
         </Box>
 
-        {service.colorOfService && (
+        {/* {employee.colorOfEmployee && (
           <Box
             sx={{
               display: "flex",
@@ -218,7 +218,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
                 width: 16,
                 height: 16,
                 borderRadius: "50%",
-                backgroundColor: service.colorOfService,
+                backgroundColor: employee.colorOfEmployee,
                 border: `2px solid ${theme.palette.background.paper}`,
                 boxShadow: `0 0 0 1px ${theme.palette.divider}`,
               }}
@@ -227,9 +227,9 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               สีประจำบริการ
             </Typography>
           </Box>
-        )}
+        )} */}
 
-        {/* Service Description */}
+        {/* Employee Description */}
         <Typography
           variant="body2"
           sx={{
@@ -244,26 +244,26 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
             flexGrow: 1,
           }}
         >
-          {service.detail || "ไม่มีคำอธิบาย"}
+          {employee.note || "ไม่มีคำอธิบาย"}
         </Typography>
 
-        {/* Service Details */}
+        {/* Employee Details */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2 }}>
           {/* Duration */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <ScheduleIcon sx={{ fontSize: 18, color: theme.palette.secondary.main }} />
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-              {service.durationMinutes} นาที
-              {service.bufferTime > 0 && (
+              {/* {employee.durationMinutes} นาที
+              {employee.bufferTime > 0 && (
                 <Typography component="span" variant="caption" sx={{ ml: 0.5, color: theme.palette.text.secondary }}>
-                  (+ {service.bufferTime} นาที บัฟเฟอร์)
+                  (+ {employee.bufferTime} นาที บัฟเฟอร์)
                 </Typography>
-              )}
+              )} */}
             </Typography>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {hasDiscount ? (
+            {/* {hasDiscount ? (
               <>
                 <OfferIcon sx={{ fontSize: 18, color: theme.palette.error.main }} />
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
@@ -284,7 +284,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
                         color: theme.palette.text.disabled,
                       }}
                     >
-                      ฿{service.price.toLocaleString()}
+                      ฿{employee.price.toLocaleString()}
                     </Typography>
                   </Box>
                   <Chip
@@ -310,15 +310,15 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
                     fontWeight: 700,
                   }}
                 >
-                  ฿{service.price.toLocaleString()}
+                  ฿{employee.price.toLocaleString()}
                 </Typography>
               </>
-            )}
+            )} */}
           </Box>
         </Box>
 
         {/* Staff Members */}
-        {service.employees && service.employees.length > 0 && (
+        {employee.services && employee.services.length > 0 && (
           <Box sx={{ mb: 2 }}>
             <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: "block", mb: 1 }}>
               พนักงาน:
@@ -334,14 +334,14 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
                 },
               }}
             >
-              {service.employees.map((employee) => (
-                <Tooltip key={employee.userId} title={employee.name} arrow>
+              {employee.services.map((services) => (
+                <Tooltip key={services.id} title={services.colorOfService} arrow>
                   <Avatar
                     sx={{
                       bgcolor: theme.palette.secondary.main,
                     }}
                   >
-                    {employee.name[0]}
+                    {services.name[0]}
                   </Avatar>
                 </Tooltip>
               ))}
@@ -363,7 +363,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
           <Tooltip title="แก้ไข" arrow>
             <IconButton
               size="small"
-              onClick={() => onEdit(service.id)}
+              onClick={() => onEdit(employee.id)}
               sx={{
                 color: theme.palette.primary.main,
                 backgroundColor: `${theme.palette.primary.main}10`,
@@ -379,7 +379,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
           <Tooltip title="ลบ" arrow>
             <IconButton
               size="small"
-              onClick={() => onDelete(service.id)}
+              onClick={() => onDelete(employee.id)}
               sx={{
                 color: theme.palette.error.main,
                 backgroundColor: `${theme.palette.error.main}10`,

@@ -1,4 +1,4 @@
-import { HolidayType, RoleName } from "@prisma/client";
+import { DayOfWeek, HolidayType, LeaveType, RoleName } from "@prisma/client";
 import { User } from "./User";
 import { Booking } from "./Booking";
 import { Dayjs } from "dayjs";
@@ -33,11 +33,60 @@ export interface Role {
   updatedAt: Date;
 }
 
+export interface EmployeeWorkingTime {
+  id?: string;
+
+  startTime: string; // "09:00"
+  endTime: string;   // "18:00"
+}
+
+export interface EmployeeBreakTime {
+  id?: string;
+
+  dayOfWeek: DayOfWeek;
+  startTime: string; // "12:00"
+  endTime: string;   // "13:00"
+}
+
+export interface EmployeeLeave {
+  id?: string;
+
+  startDate: Date | null;
+  endDate: Date | null;
+
+  leaveType: LeaveType;
+  note?: string;
+}
+
+export interface EmployeeWorkingDay {
+  id?: string;
+
+  dayOfWeek: DayOfWeek;
+  isWorking: boolean;
+
+  timeSlots: EmployeeWorkingTime[];
+}
+
 export interface Employee {
   id: string;
   name: string; // "พี่แอน"
-  role: string; // "ช่างทำผม"
   isActive: boolean; // สถานะพร้อมให้บริการ
+
+  surname: string;
+  nickname?: string
+  image?: string;
+  imageId?: string;
+  imageUrl?: string;
+  position?: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone?: string;
+  note?: string;
+  startDate?: Dayjs | null | string;
+
+  roleId: undefined,
+  role: undefined,
 
   storeId: string;
   store?: Store;
@@ -46,7 +95,9 @@ export interface Employee {
   services?: Service[];
   serviceIds: string[];
 
-  userId: string;
+  workingDays: EmployeeWorkingDay[];
+  breakTimes: EmployeeBreakTime[];
+  leaves: EmployeeLeave[];
 
   createdAt: string; // ISO Date
   updatedAt: string; // ISO Date
@@ -230,18 +281,83 @@ export const initialHoliday: Holiday = {
   updatedAt: new Date().toISOString(),
 }
 
+export const initialEmployeeLeave: EmployeeLeave = {
+  startDate: null,
+  endDate: null,
+  leaveType: "VACATION",
+  note: "",
+};
+
+export const DAYS_OF_WEEK: DayOfWeek[] = [
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+  "SUN",
+];
+
+export const createInitialBreakTimes = (): EmployeeBreakTime[] =>
+  DAYS_OF_WEEK.filter((day) => !["SAT", "SUN"].includes(day)).map(
+    (day) => ({
+      dayOfWeek: day,
+      startTime: "12:00",
+      endTime: "13:00",
+    })
+  );
+
+export const createInitialWorkingDay = (
+  day: DayOfWeek
+): EmployeeWorkingDay => {
+  const isWorking = !["SAT", "SUN"].includes(day);
+
+  return {
+    dayOfWeek: day,
+    isWorking,
+    timeSlots: isWorking
+      ? [
+        {
+          startTime: "09:00",
+          endTime: "18:00",
+        },
+      ]
+      : [],
+  };
+};
+
 
 export const initialEmployee: Employee = {
   id: '',
   name: '', // หรือ "พี่แอน"
-  role: '', // หรือ "ช่างทำผม"
   isActive: true, // เริ่มต้นให้พร้อมให้บริการ
+
+  surname: '',
+  nickname: '',
+  image: '',
+  imageId: '',
+  imageUrl: '',
+  position: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  phone: '',
+  note: '',
+  startDate: null,
+
+  roleId: undefined,
+  role: undefined,
+
   storeId: '',
   store: undefined,
   bookings: undefined,
   services: undefined,
   serviceIds: [],
-  userId: '',
+
+  workingDays: DAYS_OF_WEEK.map(createInitialWorkingDay),
+  breakTimes: createInitialBreakTimes(),
+  leaves: [],
+
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };

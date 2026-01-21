@@ -335,7 +335,7 @@ export function ServiceCard({ service, onEdit, onDelete, onToggleStatus }: Servi
               }}
             >
               {service.employees.map((employee) => (
-                <Tooltip key={employee.userId} title={employee.name} arrow>
+                <Tooltip key={employee.id} title={employee.name} arrow>
                   <Avatar
                     sx={{
                       bgcolor: theme.palette.secondary.main,

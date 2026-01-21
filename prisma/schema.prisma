@@ -26,7 +26,6 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-
 model VerificationToken {
   id        String       @id @default(auto()) @map("_id") @db.ObjectId
   userId    String       @db.ObjectId
@@ -43,6 +42,8 @@ model Role {
   roleId      String     @id @default(auto()) @map("_id") @db.ObjectId
   name        RoleName
   description String?
+  employees   Employee[]
+  employeeIds String[]   @db.ObjectId
   users       User[]
   userIds     String[]   @db.ObjectId
   customers   Customer[]
@@ -53,12 +54,11 @@ model Role {
   @@unique([name])
 }
 
-
 model Customer {
   id   String  @id @default(auto()) @map("_id") @db.ObjectId
   name String?
 
-  lineUserId    String  @unique 
+  lineUserId    String  @unique
   displayName   String? // ชื่อที่ LINE ตั้งไว้ (Nullable)
   pictureUrl    String? // URL รูปโปรไฟล์ (Nullable)
   statusMessage String? // สถานะข้อความ (Nullable)
@@ -139,21 +139,97 @@ model Service {
 
 model Employee {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  name     String // "พี่แอน"
-  role     String // "ช่างทำผม"
-  isActive Boolean @default(true) // สถานะพร้อมให้บริการ
+  name     String
+  surname  String
+  nickname String?
+  email    String
+  password String
+  phone    String?
+  note     String?
 
-  // ความสัมพันธ์
-  storeId    String    @db.ObjectId
-  store      Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  bookings   Booking[] // คิวที่พนักงานคนนี้รับผิดชอบ
-  services   Service[] @relation(references: [id], fields: [serviceIds]) // บริการที่พนักงานคนนี้ทำได้
-  serviceIds String[]  @db.ObjectId // Reference IDs
+  isActive Boolean @default(true)
 
-  userId String @db.ObjectId
+  imageId  String?
+  imageUrl String?
+  position String?
+  startDate DateTime?
 
-  createdAt DateTime @default(now()) // วันที่สร้าง
-  updatedAt DateTime @updatedAt // อัปเดตล่าสุด
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  bookings   Booking[]
+  services   Service[] @relation(references: [id], fields: [serviceIds])
+  serviceIds String[]  @db.ObjectId
+
+  roleId String? @db.ObjectId
+  role   Role?   @relation(fields: [roleId], references: [roleId])
+
+  // 🔥 ตารางเวลาพนักงาน
+  workingDays EmployeeWorkingDay[]
+  breakTimes  EmployeeBreakTime[]
+  leaves      EmployeeLeave[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ตารางวันทำงานพนักงาน (Working Day)
+model EmployeeWorkingDay {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId String @db.ObjectId
+
+  dayOfWeek DayOfWeek
+  isWorking Boolean   @default(false)
+
+  timeSlots EmployeeWorkingTime[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  employee  Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, dayOfWeek])
+}
+
+// เวลาทำงานต่อวัน
+model EmployeeWorkingTime {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  workingDayId String @db.ObjectId
+
+  startTime String // "09:00"
+  endTime   String // "18:00"
+
+  workingDay EmployeeWorkingDay @relation(fields: [workingDayId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// เวลาพักพนักงาน
+model EmployeeBreakTime {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId String @db.ObjectId
+
+  dayOfWeek DayOfWeek
+
+  startTime String // "12:00"
+  endTime   String // "13:00"
+
+  createdAt DateTime @default(now())
+  employee  Employee @relation(fields: [employeeId], references: [id])
+}
+
+// วันลาหยุดพนักงาน
+model EmployeeLeave {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId String @db.ObjectId
+
+  startDate DateTime
+  endDate   DateTime
+
+  leaveType LeaveType
+  note      String?
+
+  createdAt DateTime @default(now())
+  employee  Employee @relation(fields: [employeeId], references: [id])
 }
 
 model DefaultOperatingHour {
@@ -218,7 +294,6 @@ model Holiday {
   updatedAt DateTime @updatedAt
 }
 
-
 model Store {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
   storeName     String
@@ -270,7 +345,6 @@ model Store {
   createdAt DateTime @default(now()) // วันที่สร้าง
   updatedAt DateTime @updatedAt // อัปเดตล่าสุด
 }
-
 
 model Notification {
   id String @id @default(auto()) @map("_id") @db.ObjectId
@@ -346,7 +420,6 @@ enum CustomerType {
   OTHER_CONTACT
 }
 
-
 enum SendMethod {
   LINE_NOTIFY // สำหรับแจ้งเตือนร้านค้า (ใช้ Store.lineNotifyToken)
   LINE_MESSAGING_API // สำหรับแจ้งเตือนลูกค้า (ต้องมี User's LINE ID)
@@ -363,10 +436,28 @@ type EmployeeSetting {
 type BookingRule {
   minAdvanceBookingHours Int @default(3) // จองล่วงหน้าขั้นต่ำ (ชั่วโมง) 
   maxAdvanceBookingDays  Int @default(1) // จองล่วงหน้าสูงสุด (วัน)
-  maxQueuePerPhone Int @default(3)// จำนวนคิวสูงสุดต่อบริการ
+  maxQueuePerPhone       Int @default(3) // จำนวนคิวสูงสุดต่อบริการ
 }
 
 type CancelRule {
-  minCancelBeforeHours Int @default(3)// ต้องยกเลิกล่วงหน้ากี่ชั่วโมง
+  minCancelBeforeHours Int     @default(3) // ต้องยกเลิกล่วงหน้ากี่ชั่วโมง
   allowCustomerCancel  Boolean @default(true)
+}
+
+// Enum วันในสัปดาห์
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum LeaveType {
+  SICK
+  VACATION
+  PERSONAL
+  OTHER
 }

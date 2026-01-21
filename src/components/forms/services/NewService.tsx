@@ -18,6 +18,7 @@ import {
   MenuItem,
   Theme,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
@@ -62,7 +63,14 @@ interface ServiceProps {
   viewOnly?: boolean;
 }
 
+  const validationSchema = Yup.object().shape({
+    // name: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
+    // durationMinutes: Yup.number().required("กรุณาใส่เวลาของคอร์ส"),
+    // price: Yup.number().required("กรุณาใส่ราคาของคอร์ส"),
+  });
+
 const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
+  const theme = useTheme()
   const {
     setServiceForm,
     serviceForm,
@@ -72,7 +80,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
     serviceList,
   } = useServiceContext();
   const { employeeList, setEmployeeList } = useEmployeeContext();
-  const theme = baselightTheme;
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
   const [color, setColor] = useColor("cyan");
@@ -86,11 +93,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const params = useSearchParams();
   const localActive = useLocale();
 
-  const validationSchema = Yup.object().shape({
-    // name: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    // durationMinutes: Yup.number().required("กรุณาใส่เวลาของคอร์ส"),
-    // price: Yup.number().required("กรุณาใส่ราคาของคอร์ส"),
-  });
 
   function getStyles(name: string, employeeList: string[], theme: Theme) {
     return {
