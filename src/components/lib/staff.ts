@@ -7,14 +7,7 @@ export interface WorkingHours {
   end: string;
 }
 
-export interface BlockedTime {
-  id: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  reason: string;
-  type: 'leave' | 'block';
-}
+
 
 export interface StaffFormData {
   id?: string;
@@ -29,7 +22,7 @@ export interface StaffFormData {
   workingDays: DayOfWeek[];
   workingHours: WorkingHours;
   serviceIds: string[];
-  blockedTimes: BlockedTime[];
+  // blockedTimes: BlockedTime[];
   isActive: boolean;
   notes?: string;
   hireDate?: Date | null;

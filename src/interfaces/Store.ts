@@ -51,8 +51,8 @@ export interface EmployeeBreakTime {
 export interface EmployeeLeave {
   id?: string;
 
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: Dayjs | null | string;
+  endDate: Dayjs | null | string;
 
   leaveType: LeaveType;
   note?: string;
@@ -211,6 +211,8 @@ export interface DefaultOperatingHour {
 export interface ServiceList {
   id: string;
   name: string; // เช่น "ตัดผม 30 นาที"
+  durationMinutes: number;
+  price: number
 }
 
 export interface EmployeeList {
@@ -284,9 +286,18 @@ export const initialHoliday: Holiday = {
 export const initialEmployeeLeave: EmployeeLeave = {
   startDate: null,
   endDate: null,
-  leaveType: "VACATION",
+  leaveType: LeaveType.VACATION,
   note: "",
 };
+
+export interface BlockedTime {
+  id: string;
+  date: Dayjs | null | string;
+  startTime: string;
+  endTime: string;
+  reason: string;
+  type: LeaveType;
+}
 
 export const DAYS_OF_WEEK: DayOfWeek[] = [
   "MON",
@@ -352,6 +363,7 @@ export const initialEmployee: Employee = {
   store: undefined,
   bookings: undefined,
   services: undefined,
+
   serviceIds: [],
 
   workingDays: DAYS_OF_WEEK.map(createInitialWorkingDay),

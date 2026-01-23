@@ -31,7 +31,7 @@ export const serviceService = {
 
     async getServiceList() {
         try {
-            let data: any = await APIServices.get(`${API_BASE_URL}/`);
+            let data: any = await APIServices.get(`${API_BASE_URL}/simple`);
             return { success: true, message: data.message, data: data.data };
         } catch (error: any) {
             if (error.name === "AbortError") {

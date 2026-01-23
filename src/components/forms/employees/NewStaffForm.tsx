@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useState, useRef } from "react";
 import {
@@ -49,7 +49,6 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import {
   StaffFormData,
-  BlockedTime,
   DayOfWeek,
   StaffRole,
   STAFF_ROLES,
@@ -57,7 +56,12 @@ import {
 } from "@/components/lib/staff";
 import { services } from "@/utils/lib/booking-data";
 import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
-import { Employee } from "@/interfaces/Store";
+import {
+  BlockedTime,
+  Employee,
+  EmployeeLeave,
+  initialService,
+} from "@/interfaces/Store";
 import { useServiceContext } from "@/contexts/ServiceContext";
 import { useEmployeeContext } from "@/contexts/EmployeeContext";
 import * as Yup from "yup";
@@ -70,6 +74,33 @@ import { useLocale } from "next-intl";
 import DragDropImage from "@/components/shared/DragDropImage";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { serviceService } from "@/utils/services/api-services/ServiceAPI";
+import { LeaveType } from "@prisma/client";
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+export const LEAVE_TYPE_OPTIONS = [
+  { value: "SICK", label: "ลาป่วย" },
+  { value: "VACATION", label: "ลาพักร้อน" },
+  { value: "PERSONAL", label: "ลากิจ" },
+  { value: "OTHER", label: "อื่น ๆ" },
+];
+
+ const LEAVE_TYPE_MAP: Record<LeaveType, string> = {
+  SICK: "ลาป่วย",
+  VACATION: "ลาพักร้อน",
+  PERSONAL: "ลากิจ",
+  OTHER: "อื่น ๆ",
+}
 
 interface StaffFormProps {
   initialData?: StaffFormData;
@@ -77,23 +108,23 @@ interface StaffFormProps {
   onCancel: () => void;
 }
 
-const defaultFormData: StaffFormData = {
-  firstName: "",
-  lastName: "",
-  nickname: "",
-  phone: "",
-  email: "",
-  password: "",
-  avatar: "",
-  role: "staff",
-  workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
-  workingHours: { start: "09:00", end: "18:00" },
-  serviceIds: [],
-  blockedTimes: [],
-  isActive: true,
-  notes: "",
-  hireDate: null,
-};
+// const defaultFormData: StaffFormData = {
+//   firstName: "",
+//   lastName: "",
+//   nickname: "",
+//   phone: "",
+//   email: "",
+//   password: "",
+//   avatar: "",
+//   role: "staff",
+//   workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+//   workingHours: { start: "09:00", end: "18:00" },
+//   serviceIds: [],
+//   blockedTimes: [],
+//   isActive: true,
+//   notes: "",
+//   hireDate: null,
+// };
 
 const validationSchema = Yup.object().shape({
   // name: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
@@ -116,8 +147,13 @@ export default function StaffForm({
     setServiceList,
     serviceList,
   } = useServiceContext();
-  const { employeeList, setEmployeeList, employeeForm, employeeEdit } =
-    useEmployeeContext();
+  const {
+    employeeList,
+    setEmployeeList,
+    employeeForm,
+    employeeEdit,
+    setEmployeeForm,
+  } = useEmployeeContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
     useNotifyContext();
 
@@ -131,69 +167,50 @@ export default function StaffForm({
   const localActive = useLocale();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [formData, setFormData] = useState<StaffFormData>(
-    initialData || defaultFormData
-  );
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // const [formData, setFormData] = useState<StaffFormData>(
+  //   initialData || defaultFormData
+  // );
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showBlockedTimeForm, setShowBlockedTimeForm] = useState(false);
-  const [newBlockedTime, setNewBlockedTime] = useState<Omit<BlockedTime, "id">>(
-    {
-      date: new Date(),
-      startTime: "09:00",
-      endTime: "18:00",
-      reason: "",
-      type: "leave",
-    }
-  );
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, avatar: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const [newBlockedTime, setNewBlockedTime] = useState<
+    Omit<EmployeeLeave, "id">
+  >({
+    startDate: "",
+    endDate: "",
+    note: "",
+    leaveType: LeaveType.VACATION,
+  });
 
   const handleWorkingDayToggle = (day: DayOfWeek) => {
-    const newDays = formData.workingDays.includes(day)
-      ? formData.workingDays.filter((d) => d !== day)
-      : [...formData.workingDays, day];
-    setFormData({ ...formData, workingDays: newDays });
+    // const newDays = formData.workingDays.includes(day)
+    //   ? formData.workingDays.filter((d) => d !== day)
+    //   : [...formData.workingDays, day];
+    // setFormData({ ...formData, workingDays: newDays });
   };
 
   const handleAddBlockedTime = () => {
-    if (newBlockedTime.reason.trim()) {
-      const blockedTime: BlockedTime = {
-        ...newBlockedTime,
-        id: Date.now().toString(),
-      };
-      setFormData({
-        ...formData,
-        blockedTimes: [...formData.blockedTimes, blockedTime],
+    if (newBlockedTime.note?.trim()) {
+      setEmployeeForm({
+        ...employeeForm,
+        leaves: [...employeeForm.leaves, newBlockedTime],
       });
       setNewBlockedTime({
-        date: new Date(),
-        startTime: "09:00",
-        endTime: "18:00",
-        reason: "",
-        type: "leave",
+        startDate: "",
+        endDate: "",
+        note: "",
+        leaveType: LeaveType.VACATION,
       });
       setShowBlockedTimeForm(false);
     }
   };
 
-  const handleRemoveBlockedTime = (id: string) => {
-    setFormData({
-      ...formData,
-      blockedTimes: formData.blockedTimes.filter((bt) => bt.id !== id),
-    });
-  };
+  // const handleRemoveBlockedTime = (id: string) => {
+  //   setFormData({
+  //     ...formData,
+  //     blockedTimes: formData.blockedTimes.filter((bt) => bt.id !== id),
+  //   });
+  // };
 
   const handleTogglePassword = () => setShowPassword(!showPassword);
 
@@ -240,6 +257,44 @@ export default function StaffForm({
     //   });
     // }
   };
+
+  const getServiceList = async () => {
+    setIsLoading(true);
+
+    try {
+      let result = await serviceService.getServiceList();
+
+      setServiceList(result?.data);
+    } catch (error: any) {
+      setNotify({
+        open: true,
+        message: error.code,
+        color: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // getEmployeeList();
+
+    if (pathname.includes("new")) {
+      getServiceList();
+      setServiceForm(initialService);
+      setServiceEdit(false);
+      setDisabledForm(false);
+    } else {
+      // getService();
+      setServiceEdit(true);
+    }
+
+    return () => {
+      setServiceForm(initialService);
+      setServiceEdit(false);
+      setDisabledForm(false);
+    };
+  }, []);
 
   return (
     <>
@@ -423,7 +478,7 @@ export default function StaffForm({
                         <BadgeIcon /> สิทธิ์การใช้งาน
                       </Typography>
 
-                      <FormControl fullWidth>
+                      {/* <FormControl fullWidth>
                         <InputLabel>ตำแหน่ง / Role</InputLabel>
                         <Select
                           value={formData.role}
@@ -451,7 +506,7 @@ export default function StaffForm({
                             </MenuItem>
                           ))}
                         </Select>
-                      </FormControl>
+                      </FormControl> */}
                     </CardContent>
                   </Card>
                 </Grid2>
@@ -499,19 +554,6 @@ export default function StaffForm({
                               />
                             )}
                           </Field>
-                          {/* <TextField
-                            label="ชื่อ *"
-                            fullWidth
-                            value={formData.firstName}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                firstName: e.target.value,
-                              })
-                            }
-                            error={!!errors.firstName}
-                            helperText={errors.firstName}
-                          /> */}
                         </Grid2>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
                           <Field name="surname">
@@ -539,19 +581,6 @@ export default function StaffForm({
                               />
                             )}
                           </Field>
-                          {/* <TextField
-                            label="นามสกุล *"
-                            fullWidth
-                            value={formData.lastName}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                lastName: e.target.value,
-                              })
-                            }
-                            error={!!errors.lastName}
-                            helperText={errors.lastName}
-                          /> */}
                         </Grid2>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
                           <Field name="nickname">
@@ -579,17 +608,6 @@ export default function StaffForm({
                               />
                             )}
                           </Field>
-                          {/* <TextField
-                            label="ชื่อเล่น"
-                            fullWidth
-                            value={formData.nickname}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                nickname: e.target.value,
-                              })
-                            }
-                          /> */}
                         </Grid2>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
                           <Field name="date">
@@ -625,29 +643,6 @@ export default function StaffForm({
                               />
                             )}
                           </Field>
-                          {/* <TextField
-                            label="วันที่เริ่มงาน"
-                            type="date"
-                            fullWidth
-                            value={
-                              formData.hireDate
-                                ? new Date(formData.hireDate)
-                                    .toISOString()
-                                    .split("T")[0]
-                                : ""
-                            }
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                hireDate: e.target.value
-                                  ? new Date(e.target.value)
-                                  : null,
-                              })
-                            }
-                            slotProps={{
-                              inputLabel: { shrink: true },
-                            }}
-                          /> */}
                         </Grid2>
                       </Grid2>
 
@@ -668,31 +663,6 @@ export default function StaffForm({
 
                       <Grid2 container spacing={2}>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
-                          {/* <TextField
-                            label="เบอร์โทร *"
-                            fullWidth
-                            value={formData.phone}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                phone: e.target.value,
-                              })
-                            }
-                            error={!!errors.phone}
-                            helperText={errors.phone}
-                            slotProps={{
-                              input: {
-                                startAdornment: (
-                                  <PhoneIcon
-                                    sx={{
-                                      mr: 1,
-                                      color: theme.palette.grey[400],
-                                    }}
-                                  />
-                                ),
-                              },
-                            }}
-                          /> */}
                           <Field name="phone">
                             {({ field }: FieldProps) => (
                               <TextField
@@ -728,32 +698,31 @@ export default function StaffForm({
                           </Field>
                         </Grid2>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
-                          <TextField
-                            label="อีเมล"
-                            type="email"
-                            fullWidth
-                            value={formData.email}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                email: e.target.value,
-                              })
-                            }
-                            error={!!errors.email}
-                            helperText={errors.email}
-                            slotProps={{
-                              input: {
-                                startAdornment: (
-                                  <EmailIcon
-                                    sx={{
-                                      mr: 1,
-                                      color: theme.palette.grey[400],
-                                    }}
-                                  />
-                                ),
-                              },
-                            }}
-                          />
+                          <Field name="email">
+                            {({ field }: any) => (
+                              <TextField
+                                {...field}
+                                label="อีเมล"
+                                type="email"
+                                fullWidth
+                                slotProps={{
+                                  input: {
+                                    startAdornment: (
+                                      <EmailIcon
+                                        sx={{
+                                          mr: 1,
+                                          color: theme.palette.grey[400],
+                                        }}
+                                      />
+                                    ),
+                                  },
+                                  inputLabel: { shrink: true },
+                                }}
+                                error={touched.email && Boolean(errors.email)}
+                                helperText={touched.email && errors.email}
+                              />
+                            )}
+                          </Field>
                         </Grid2>
                       </Grid2>
 
@@ -780,50 +749,47 @@ export default function StaffForm({
 
                       <Grid2 container spacing={2}>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
-                          <TextField
-                            label={initialData ? "รหัสผ่านใหม่" : "รหัสผ่าน *"}
-                            type={showPassword ? "text" : "password"}
-                            fullWidth
-                            value={formData.password}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                password: e.target.value,
-                              })
-                            }
-                            error={!!errors.password}
-                            helperText={
-                              errors.password || "อย่างน้อย 6 ตัวอักษร"
-                            }
-                            slotProps={{
-                              input: {
-                                startAdornment: (
-                                  <InputAdornment position="start">
-                                    <LockIcon
-                                      sx={{ color: theme.palette.grey[400] }}
-                                    />
-                                  </InputAdornment>
-                                ),
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <IconButton
-                                      onClick={() =>
-                                        setShowPassword(!showPassword)
-                                      }
-                                      edge="end"
-                                      size="small"
-                                    >
-                                      {showPassword ? (
-                                        <VisibilityOff />
-                                      ) : (
-                                        <Visibility />
-                                      )}
-                                    </IconButton>
-                                  </InputAdornment>
-                                ),
-                              },
-                            }}
-                          />
+                          <Field name="password">
+                            {({ field }: any) => (
+                              <TextField
+                                {...field}
+                                label="รหัสผ่าน"
+                                type={showPassword ? "text" : "password"}
+                                fullWidth
+                                error={
+                                  touched.password && Boolean(errors.password)
+                                }
+                                helperText={touched.password && errors.password}
+                                slotProps={{
+                                  inputLabel: { shrink: true },
+                                  input: {
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <LockIcon
+                                          sx={{
+                                            color: theme.palette.grey[400],
+                                          }}
+                                        />
+                                      </InputAdornment>
+                                    ),
+                                    endAdornment: (
+                                      <InputAdornment position="end">
+                                        <IconButton
+                                          onClick={handleTogglePassword}
+                                        >
+                                          {showPassword ? (
+                                            <VisibilityOff />
+                                          ) : (
+                                            <Visibility />
+                                          )}
+                                        </IconButton>
+                                      </InputAdornment>
+                                    ),
+                                  },
+                                }}
+                              />
+                            )}
+                          </Field>
                         </Grid2>
                         <Grid2 size={{ xs: 12, sm: 6 }}>
                           <Field name="confirmPassword">
@@ -844,6 +810,15 @@ export default function StaffForm({
                                 slotProps={{
                                   inputLabel: { shrink: true },
                                   input: {
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <LockIcon
+                                          sx={{
+                                            color: theme.palette.grey[400],
+                                          }}
+                                        />
+                                      </InputAdornment>
+                                    ),
                                     endAdornment: (
                                       <InputAdornment position="end">
                                         <IconButton
@@ -862,55 +837,113 @@ export default function StaffForm({
                               />
                             )}
                           </Field>
-                          {/* <TextField
-                            label={
-                              initialData
-                                ? "ยืนยันรหัสผ่านใหม่"
-                                : "ยืนยันรหัสผ่าน *"
-                            }
-                            type={showConfirmPassword ? "text" : "password"}
-                            fullWidth
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            error={!!errors.confirmPassword}
-                            helperText={errors.confirmPassword}
-                            slotProps={{
-                              input: {
-                                startAdornment: (
-                                  <InputAdornment position="start">
-                                    <LockIcon
-                                      sx={{ color: theme.palette.grey[400] }}
-                                    />
-                                  </InputAdornment>
-                                ),
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <IconButton
-                                      onClick={() =>
-                                        setShowConfirmPassword(
-                                          !showConfirmPassword
-                                        )
-                                      }
-                                      edge="end"
-                                      size="small"
-                                    >
-                                      {showConfirmPassword ? (
-                                        <VisibilityOff />
-                                      ) : (
-                                        <Visibility />
-                                      )}
-                                    </IconButton>
-                                  </InputAdornment>
-                                ),
-                              },
-                            }}
-                          /> */}
                         </Grid2>
                       </Grid2>
                     </CardContent>
                   </Card>
 
                   {/* Working Schedule */}
+                  <Card sx={{ mb: 3 }}>
+                    <CardContent>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          mb: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <AccessTimeIcon /> ตารางการทำงาน
+                      </Typography>
+
+                      <Box sx={{ mb: 3 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ mb: 1, color: theme.palette.text.secondary }}
+                        >
+                          วันทำงานประจำ *
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {/* {DAYS_OF_WEEK.map((day) => (
+                            <Chip
+                              key={day.value}
+                              label={day.label}
+                              onClick={() => handleWorkingDayToggle(day.value)}
+                              sx={{
+                                cursor: "pointer",
+                                backgroundColor: formData.workingDays.includes(
+                                  day.value
+                                )
+                                  ? theme.palette.primary.main
+                                  : theme.palette.grey[100],
+                                color: formData.workingDays.includes(day.value)
+                                  ? "white"
+                                  : theme.palette.text.primary,
+                                "&:hover": {
+                                  backgroundColor:
+                                    formData.workingDays.includes(day.value)
+                                      ? theme.palette.primary.dark
+                                      : theme.palette.grey[200],
+                                },
+                              }}
+                            />
+                          ))} */}
+                        </Box>
+                        {/* {errors.workingDays && (
+                          <FormHelperText error>
+                            {errors.workingDays}
+                          </FormHelperText>
+                        )} */}
+                      </Box>
+
+                      <Grid2 container spacing={2}>
+                        <Grid2 size={{ xs: 6 }}>
+                          <TextField
+                            label="เวลาเข้างาน"
+                            type="time"
+                            fullWidth
+                            // value={formData.workingHours.start}
+                            // onChange={(e) =>
+                            //   setFormData({
+                            //     ...formData,
+                            //     workingHours: {
+                            //       ...formData.workingHours,
+                            //       start: e.target.value,
+                            //     },
+                            //   })
+                            // }
+                            slotProps={{
+                              inputLabel: { shrink: true },
+                            }}
+                          />
+                        </Grid2>
+                        <Grid2 size={{ xs: 6 }}>
+                          <TextField
+                            label="เวลาเลิกงาน"
+                            type="time"
+                            fullWidth
+                            // value={formData.workingHours.end}
+                            // onChange={(e) =>
+                            //   setFormData({
+                            //     ...formData,
+                            //     workingHours: {
+                            //       ...formData.workingHours,
+                            //       end: e.target.value,
+                            //     },
+                            //   })
+                            // }
+                            slotProps={{
+                              inputLabel: { shrink: true },
+                            }}
+                          />
+                        </Grid2>
+                      </Grid2>
+                    </CardContent>
+                  </Card>
+
+                  {/* Working Brake */}
                   <Card sx={{ mb: 3 }}>
                     <CardContent>
                       <Typography
@@ -941,7 +974,7 @@ export default function StaffForm({
                               onClick={() => handleWorkingDayToggle(day.value)}
                               sx={{
                                 cursor: "pointer",
-                                backgroundColor: formData.workingDays.includes(
+                                backgroundColor: employeeForm.workingDays.includes(
                                   day.value
                                 )
                                   ? theme.palette.primary.main
@@ -959,11 +992,11 @@ export default function StaffForm({
                             />
                           ))}
                         </Box>
-                        {errors.workingDays && (
+                        {/* {errors.workingDays && (
                           <FormHelperText error>
                             {errors.workingDays}
                           </FormHelperText>
-                        )}
+                        )} */}
                       </Box>
 
                       <Grid2 container spacing={2}>
@@ -972,16 +1005,16 @@ export default function StaffForm({
                             label="เวลาเข้างาน"
                             type="time"
                             fullWidth
-                            value={formData.workingHours.start}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                workingHours: {
-                                  ...formData.workingHours,
-                                  start: e.target.value,
-                                },
-                              })
-                            }
+                            // value={formData.workingHours.start}
+                            // onChange={(e) =>
+                            //   setFormData({
+                            //     ...formData,
+                            //     workingHours: {
+                            //       ...formData.workingHours,
+                            //       start: e.target.value,
+                            //     },
+                            //   })
+                            // }
                             slotProps={{
                               inputLabel: { shrink: true },
                             }}
@@ -992,16 +1025,16 @@ export default function StaffForm({
                             label="เวลาเลิกงาน"
                             type="time"
                             fullWidth
-                            value={formData.workingHours.end}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                workingHours: {
-                                  ...formData.workingHours,
-                                  end: e.target.value,
-                                },
-                              })
-                            }
+                            // value={formData.workingHours.end}
+                            // onChange={(e) =>
+                            //   setFormData({
+                            //     ...formData,
+                            //     workingHours: {
+                            //       ...formData.workingHours,
+                            //       end: e.target.value,
+                            //     },
+                            //   })
+                            // }
                             slotProps={{
                               inputLabel: { shrink: true },
                             }}
@@ -1056,78 +1089,91 @@ export default function StaffForm({
                         >
                           <Grid2 container spacing={2}>
                             <Grid2 size={{ xs: 12, sm: 4 }}>
-                              <TextField
-                                label="วันที่"
-                                type="date"
-                                fullWidth
-                                size="small"
+                              <DatePicker
+                                label="เริ่มวันที่"
+                                sx={{ minWidth: "100%" }}
+                                // ✔ เวลา (dayjs) หรือ null
                                 value={
-                                  new Date(newBlockedTime.date)
-                                    .toISOString()
-                                    .split("T")[0]
+                                  newBlockedTime.startDate
+                                    ? dayjs(newBlockedTime.startDate)
+                                    : null
                                 }
-                                onChange={(e) =>
+                                // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                                onChange={(newValue) => {
                                   setNewBlockedTime({
                                     ...newBlockedTime,
-                                    date: new Date(e.target.value),
-                                  })
-                                }
-                                slotProps={{
-                                  inputLabel: { shrink: true },
+                                    startDate: newValue
+                                      ? newValue.toISOString()
+                                      : null,
+                                  });
                                 }}
-                              />
-                            </Grid2>
-                            <Grid2 size={{ xs: 6, sm: 2 }}>
-                              <TextField
-                                label="เริ่ม"
-                                type="time"
-                                fullWidth
-                                size="small"
-                                value={newBlockedTime.startTime}
-                                onChange={(e) =>
-                                  setNewBlockedTime({
-                                    ...newBlockedTime,
-                                    startTime: e.target.value,
-                                  })
-                                }
-                                slotProps={{
-                                  inputLabel: { shrink: true },
-                                }}
-                              />
-                            </Grid2>
-                            <Grid2 size={{ xs: 6, sm: 2 }}>
-                              <TextField
-                                label="สิ้นสุด"
-                                type="time"
-                                fullWidth
-                                size="small"
-                                value={newBlockedTime.endTime}
-                                onChange={(e) =>
-                                  setNewBlockedTime({
-                                    ...newBlockedTime,
-                                    endTime: e.target.value,
-                                  })
-                                }
-                                slotProps={{
-                                  inputLabel: { shrink: true },
-                                }}
+                                // slotProps={{
+                                //   textField: {
+                                //     fullWidth: true,
+                                //     error: Boolean(touched.date && errors.date),
+                                //     helperText:
+                                //       touched.date && errors.date
+                                //         ? String(errors.date)
+                                //         : "",
+                                //   },
+                                // }}
                               />
                             </Grid2>
                             <Grid2 size={{ xs: 12, sm: 4 }}>
-                              <FormControl fullWidth size="small">
-                                <InputLabel>ประเภท</InputLabel>
+                              <DatePicker
+                                label="สิ้นสุดวันที่"
+                                sx={{ minWidth: "100%" }}
+                                // ✔ เวลา (dayjs) หรือ null
+                                value={
+                                  newBlockedTime.endDate
+                                    ? dayjs(newBlockedTime.endDate)
+                                    : null
+                                }
+                                // ✔ อัปเดตค่าเวลาใน Formik อย่างถูกต้อง
+                                onChange={(newValue) => {
+                                  setNewBlockedTime({
+                                    ...newBlockedTime,
+                                    endDate: newValue
+                                      ? newValue.toISOString()
+                                      : null,
+                                  });
+                                }}
+                                // slotProps={{
+                                //   textField: {
+                                //     fullWidth: true,
+                                //     error: Boolean(touched.date && errors.date),
+                                //     helperText:
+                                //       touched.date && errors.date
+                                //         ? String(errors.date)
+                                //         : "",
+                                //   },
+                                // }}
+                              />
+                            </Grid2>
+                            <Grid2 size={{ xs: 12, sm: 4 }}>
+                              <FormControl fullWidth>
+                                <InputLabel id="open-status-label">
+                                  ประเภท
+                                </InputLabel>
                                 <Select
-                                  value={newBlockedTime.type}
-                                  onChange={(e) =>
+                                  labelId="open-status-label"
+                                  label="ประเภท (จำเป็น)"
+                                  value={newBlockedTime.leaveType}
+                                  onChange={(e) => {
                                     setNewBlockedTime({
                                       ...newBlockedTime,
-                                      type: e.target.value as "leave" | "block",
-                                    })
-                                  }
-                                  label="ประเภท"
+                                      leaveType: e.target.value as LeaveType,
+                                    });
+                                  }}
                                 >
-                                  <MenuItem value="leave">ลางาน</MenuItem>
-                                  <MenuItem value="block">ไม่ว่าง</MenuItem>
+                                  {LEAVE_TYPE_OPTIONS.map((option) => (
+                                    <MenuItem
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </MenuItem>
+                                  ))}
                                 </Select>
                               </FormControl>
                             </Grid2>
@@ -1136,11 +1182,11 @@ export default function StaffForm({
                                 label="เหตุผล"
                                 fullWidth
                                 size="small"
-                                value={newBlockedTime.reason}
+                                value={newBlockedTime.note}
                                 onChange={(e) =>
                                   setNewBlockedTime({
                                     ...newBlockedTime,
-                                    reason: e.target.value,
+                                    note: e.target.value,
                                   })
                                 }
                               />
@@ -1180,7 +1226,7 @@ export default function StaffForm({
                         </Paper>
                       )}
 
-                      {formData.blockedTimes.length === 0 ? (
+                      {employeeForm.leaves.length === 0 ? (
                         <Alert
                           severity="info"
                           sx={{
@@ -1198,7 +1244,7 @@ export default function StaffForm({
                             gap: 1,
                           }}
                         >
-                          {formData.blockedTimes.map((bt) => (
+                          {employeeForm.leaves.map((bt) => (
                             <Paper
                               key={bt.id}
                               sx={{
@@ -1207,7 +1253,7 @@ export default function StaffForm({
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 backgroundColor:
-                                  bt.type === "leave"
+                                  bt.leaveType === LeaveType.VACATION
                                     ? theme.palette.warning.light
                                     : theme.palette.error.light,
                                 borderRadius: 2,
@@ -1223,36 +1269,32 @@ export default function StaffForm({
                                 >
                                   <Chip
                                     label={
-                                      bt.type === "leave" ? "ลางาน" : "ไม่ว่าง"
+                                      LEAVE_TYPE_MAP[bt.leaveType]
+                                      // bt.leaveType === LeaveType. ? "ป่วย" : "ไม่ว่าง"
                                     }
                                     size="small"
                                     sx={{
                                       backgroundColor:
-                                        bt.type === "leave"
+                                        bt.leaveType === LeaveType.SICK
                                           ? theme.palette.warning.main
                                           : theme.palette.error.main,
                                       color: "white",
                                     }}
                                   />
-                                  <Typography variant="body2" fontWeight={500}>
-                                    {new Date(bt.date).toLocaleDateString(
-                                      "th-TH"
-                                    )}
-                                  </Typography>
                                   <Typography
                                     variant="body2"
                                     color="text.secondary"
                                   >
-                                    {bt.startTime} - {bt.endTime}
+                                    {`วันที่${dayjs(bt.startDate).format("DD MMMM YYYY")}-วันที่${dayjs(bt.endDate).format("DD MMMM YYYY")}`} `
                                   </Typography>
                                 </Box>
-                                <Typography variant="body2" sx={{ mt: 0.5 }}>
-                                  {bt.reason}
+                                <Typography variant="body2" sx={{ mt: 1, ml: 0.5 }}>
+                                  {bt.note}
                                 </Typography>
                               </Box>
                               <IconButton
                                 size="small"
-                                onClick={() => handleRemoveBlockedTime(bt.id)}
+                                // onClick={() => handleRemoveBlockedTime(bt.id)}
                                 sx={{ color: theme.palette.error.main }}
                               >
                                 <DeleteIcon fontSize="small" />
@@ -1279,8 +1321,101 @@ export default function StaffForm({
                       >
                         <WorkIcon /> บริการที่ทำได้
                       </Typography>
+                      <FormControl fullWidth>
+                        <InputLabel id="select-employee-label">
+                          เลือกได้หลายรายการ
+                        </InputLabel>
 
-                      <FormControl fullWidth error={!!errors.serviceIds}>
+                        <Field name="serviceIds">
+                          {({ field }: FieldProps) => (
+                            <Select
+                              {...field}
+                              fullWidth
+                              labelId="select-serviceIds-label"
+                              id="select-serviceIds-label"
+                              multiple
+                              value={values.serviceIds}
+                              onChange={(e) => {
+                                let value = e.target.value;
+                                setFieldValue(
+                                  "serviceIds",
+                                  // On autofill we get a stringified value.
+                                  typeof value === "string"
+                                    ? value.split(",")
+                                    : value
+                                );
+                              }}
+                              input={
+                                <OutlinedInput
+                                  id="select-serviceIds-label"
+                                  label="เลือกได้หลายรายการ"
+                                />
+                              }
+                              renderValue={(selected) => (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 0.5,
+                                  }}
+                                >
+                                  {selected.map((value) => {
+                                    const service = serviceList.find(
+                                      (serv) => serv.id === value
+                                    );
+
+                                    return (
+                                      // <Chip
+                                      //   key={value}
+                                      //   label={employee ? employee.name : value}
+                                      // />
+                                      <Chip
+                                        key={value}
+                                        label={service?.name}
+                                        size="small"
+                                        sx={{
+                                          backgroundColor:
+                                            theme.palette.primary.main,
+                                          color: "white",
+                                        }}
+                                      />
+                                    );
+                                  })}
+                                </Box>
+                              )}
+                              MenuProps={MenuProps}
+                            >
+                              {serviceList &&
+                                serviceList.map(
+                                  ({ name, id, durationMinutes, price }) => (
+                                    // <MenuItem
+                                    //   key={id}
+                                    //   value={id}
+                                    //   style={getStyles(
+                                    //     id,
+                                    //     values.employeeIds,
+                                    //     theme
+                                    //   )}
+                                    // >
+                                    //   {name}
+                                    // </MenuItem>
+                                    <MenuItem key={id} value={id}>
+                                      <Checkbox
+                                        checked={values.serviceIds.includes(id)}
+                                      />
+                                      <ListItemText
+                                        primary={name}
+                                        secondary={`${durationMinutes} นาที | ${price.toLocaleString()} บาท`}
+                                      />
+                                    </MenuItem>
+                                  )
+                                )}
+                            </Select>
+                          )}
+                        </Field>
+                      </FormControl>
+
+                      {/* <FormControl fullWidth error={!!errors.serviceIds}>
                         <InputLabel>เลือกบริการ *</InputLabel>
                         <Select
                           multiple
@@ -1339,7 +1474,7 @@ export default function StaffForm({
                         {errors.serviceIds && (
                           <FormHelperText>{errors.serviceIds}</FormHelperText>
                         )}
-                      </FormControl>
+                      </FormControl> */}
                     </CardContent>
                   </Card>
 
@@ -1359,17 +1494,31 @@ export default function StaffForm({
                         <NotesIcon /> หมายเหตุ
                       </Typography>
 
-                      <TextField
-                        label="บันทึกเพิ่มเติม"
-                        fullWidth
-                        multiline
-                        rows={3}
-                        value={formData.notes}
-                        onChange={(e) =>
-                          setFormData({ ...formData, notes: e.target.value })
-                        }
-                        placeholder="ข้อมูลเพิ่มเติมเกี่ยวกับพนักงาน เช่น ทักษะพิเศษ ข้อควรระวัง ฯลฯ"
-                      />
+                      <Field name="note">
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            name="note"
+                            label="บันทึกเพิ่มเติม (ถ้ามี)"
+                            placeholder="ข้อมูลเพิ่มเติมเกี่ยวกับพนักงาน เช่น ทักษะพิเศษ ข้อควรระวัง ฯลฯ"
+                            value={values.note}
+                            rows={3}
+                            multiline={true}
+                            onChange={(e) => {
+                              setFieldValue("note", e.target.value);
+                            }}
+                            slotProps={{
+                              inputLabel: { shrink: true },
+                            }}
+                            error={touched.note && Boolean(errors.note)}
+                            helperText={touched.note && errors.note}
+                            fullWidth
+                            disabled={
+                              openBackdrop || isSubmitting || disabledForm
+                            }
+                          />
+                        )}
+                      </Field>
                     </CardContent>
                   </Card>
 

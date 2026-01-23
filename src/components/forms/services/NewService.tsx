@@ -19,6 +19,8 @@ import {
   Theme,
   CircularProgress,
   useTheme,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 import * as Yup from "yup";
 import { Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
@@ -63,14 +65,14 @@ interface ServiceProps {
   viewOnly?: boolean;
 }
 
-  const validationSchema = Yup.object().shape({
-    // name: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
-    // durationMinutes: Yup.number().required("กรุณาใส่เวลาของคอร์ส"),
-    // price: Yup.number().required("กรุณาใส่ราคาของคอร์ส"),
-  });
+const validationSchema = Yup.object().shape({
+  // name: Yup.string().required("กรุณากรอกรหัสอุปกรณ์"),
+  // durationMinutes: Yup.number().required("กรุณาใส่เวลาของคอร์ส"),
+  // price: Yup.number().required("กรุณาใส่ราคาของคอร์ส"),
+});
 
 const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
-  const theme = useTheme()
+  const theme = useTheme();
   const {
     setServiceForm,
     serviceForm,
@@ -92,7 +94,6 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
   const pathname = usePathname();
   const params = useSearchParams();
   const localActive = useLocale();
-
 
   function getStyles(name: string, employeeList: string[], theme: Theme) {
     return {
@@ -585,9 +586,19 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                                     );
 
                                     return (
+                                      // <Chip
+                                      //   key={value}
+                                      //   label={employee ? employee.name : value}
+                                      // />
                                       <Chip
                                         key={value}
-                                        label={employee ? employee.name : value}
+                                        label={employee?.name}
+                                        size="small"
+                                        sx={{
+                                          backgroundColor:
+                                            theme.palette.primary.main,
+                                          color: "white",
+                                        }}
                                       />
                                     );
                                   })}
@@ -596,16 +607,27 @@ const ServiceForm: FC<ServiceProps> = ({ viewOnly = false }) => {
                               MenuProps={MenuProps}
                             >
                               {employeeList.map(({ name, id }) => (
-                                <MenuItem
-                                  key={id}
-                                  value={id}
-                                  style={getStyles(
-                                    id,
-                                    values.employeeIds,
-                                    theme
-                                  )}
-                                >
-                                  {name}
+                                // <MenuItem
+                                //   key={id}
+                                //   value={id}
+                                //   style={getStyles(
+                                //     id,
+                                //     values.employeeIds,
+                                //     theme
+                                //   )}
+                                // >
+                                //   {name}
+                                // </MenuItem>
+                                <MenuItem key={id} value={id}>
+                                  <Checkbox
+                                    checked={values.employeeIds.includes(id)}
+                                  />
+                                  <ListItemText
+                                    primary={name}
+                                    // secondary={`${
+                                    //   service.duration
+                                    // } นาที | ${service.price.toLocaleString()} บาท`}
+                                  />
                                 </MenuItem>
                               ))}
                             </Select>
