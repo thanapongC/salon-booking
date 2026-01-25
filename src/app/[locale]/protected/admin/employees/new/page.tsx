@@ -17,7 +17,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import StaffForm from "@/components/forms/employees/NewStaffForm";
+import StaffForm from "@/components/forms/employees/NewEmployee";
 import { StaffFormData } from "@/components/lib/staff";
 import { baselightTheme } from "@/utils/theme/DefaultColors";
 import { Sidebar } from "lucide-react";

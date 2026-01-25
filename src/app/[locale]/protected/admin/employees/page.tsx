@@ -61,13 +61,13 @@ import { useLocale, useTranslations } from "next-intl";
 import BaseCard from "@/components/shared/BaseCard";
 import { useEffect, useState } from "react";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
-import FloatingButton from "@/components/shared/FloatingButton";
 import { useRouter } from "next/navigation";
 import { EmployeeList } from "@/components/forms/employees/EmployeeList";
 import { useNotifyContext } from "@/contexts/NotifyContext";
 import { initialPaginationMeta, PaginationMeta } from "@/interfaces/Types";
 import { Employee } from "@/interfaces/Store";
 import { EmployeeHeader } from "@/components/forms/employees/EmployeeHeader";
+import APIServices from "@/utils/services/APIServices";
 
 const mockPagination: PaginationMeta = {
   totalItems: 3,
@@ -87,7 +87,6 @@ interface EmployeeFilters {
 }
 
 const EmployeePage = () => {
-  const t = useTranslations("HomePage");
   const theme = useTheme()
   const router = useRouter();
   const localActive = useLocale();
@@ -176,25 +175,25 @@ const EmployeePage = () => {
   };
 
   const getEmployee = async () => {
-    // try {
-    //   setLoading(true);
-    //   let data: any = await APIEmployee.get1only(
-    //     `/api/employees?page=${pagination.currentPage + 1}&pageSize=${
-    //       pagination.pageSize
-    //     }`
-    //   );
-    //   console.log(data);
-    //   setPagination((prev) => ({ ...prev, totalItems: data.totalItems }));
-    //   setEmployee(data.data);
-    // } catch (error: any) {
-    //   setNotify({
-    //     open: true,
-    //     message: error.code,
-    //     color: "error",
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      let data: any = await APIServices.get1only(
+        `/api/employees?page=${pagination.currentPage + 1}&pageSize=${
+          pagination.pageSize
+        }`
+      );
+      console.log(data);
+      setPagination((prev) => ({ ...prev, totalItems: data.totalItems }));
+      setEmployee(data.data);
+    } catch (error: any) {
+      setNotify({
+        open: true,
+        message: error.code,
+        color: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteItem = async (serviceId: string) => {
@@ -218,23 +217,21 @@ const EmployeePage = () => {
   };
 
   const handleToggleStatus = async (serviceId: string, active: boolean) => {
-    // console.log("[v0] Toggle service status:", serviceId, active);
-    // // TODO: API call to update service status
-    // try {
-    //   // setLoading(true);
-    //   await APIEmployee.patch(`/api/employees/toggle-active`, {
-    //     id: serviceId,
-    //     active: active, // ส่งค่าที่ต้องการเปลี่ยนไป
-    //   });
-    // } catch (error: any) {
-    //   setNotify({
-    //     open: true,
-    //     message: error.code,
-    //     color: "error",
-    //   });
-    // } finally {
-    //   getEmployee();
-    // }
+    try {
+      // setLoading(true);
+      await APIServices.patch(`/api/employees/toggle-active`, {
+        id: serviceId,
+        active: active, // ส่งค่าที่ต้องการเปลี่ยนไป
+      });
+    } catch (error: any) {
+      setNotify({
+        open: true,
+        message: error.code,
+        color: "error",
+      });
+    } finally {
+      getEmployee();
+    }
   };
 
   const handlePageChange = (page: number) => {

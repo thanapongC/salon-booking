@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import {
   Card,
   CardContent,
@@ -9,19 +8,18 @@ import {
   Typography,
   Box,
   IconButton,
-  Avatar,
-  AvatarGroup,
   Tooltip,
   Switch,
   Chip,
+  Stack,
 } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Schedule as ScheduleIcon,
-  AttachMoney as MoneyIcon,
-  LocalOffer as OfferIcon,
+  Badge as BadgeIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
 } from "@mui/icons-material"
 
 import { Employee } from "@/interfaces/Store"
@@ -36,10 +34,6 @@ interface EmployeeCardProps {
 export function EmployeeCard({ employee, onEdit, onDelete, onToggleStatus }: EmployeeCardProps) {
   const theme = useTheme()
 
-  // const hasDiscount = employee.discount > 0 && employee.discount < employee.price
-  // const finalPrice = hasDiscount ? employee.discount : employee.price
-  // const discountPercent = hasDiscount ? Math.round(((employee.price - employee.discount) / employee.price) * 100) : 0
-
   const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (onToggleStatus) {
       onToggleStatus(employee.id, event.target.checked)
@@ -53,340 +47,169 @@ export function EmployeeCard({ employee, onEdit, onDelete, onToggleStatus }: Emp
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        borderRadius: 3,
+        borderRadius: 4,
         overflow: "hidden",
         border: `1px solid ${theme.palette.divider}`,
-        transition: "all 0.3s ease",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         position: "relative",
-        opacity: employee.isActive ? 1 : 0.65,
+        opacity: employee.isActive ? 1 : 0.7,
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: `0 8px 24px ${theme.palette.primary.main}20`,
+          transform: "translateY(-6px)",
+          boxShadow: `0 12px 24px ${theme.palette.primary.main}15`,
           borderColor: theme.palette.primary.main,
         },
       }}
     >
-      {/* Employee Image */}
+      {/* Employee Image Section */}
       <Box sx={{ position: "relative" }}>
         <CardMedia
           component="img"
-          height="200"
-          image={employee.imageUrl || "/customer-employee-interaction.png"}
+          height="220"
+          image={employee.imageUrl || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} // เปลี่ยนเป็นรูปพนักงาน
           alt={employee.name}
           sx={{
             objectFit: "cover",
-            backgroundColor: theme.palette.grey[100],
+            filter: employee.isActive ? "none" : "grayscale(100%)",
           }}
         />
-
-        {/* {employee.displayNumber > 0 && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              backgroundColor: theme.palette.primary.main,
-              color: theme.palette.primary.contrastText,
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 700,
-              fontSize: "1rem",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            }}
-          >
-            {employee.displayNumber}
-          </Box>
-        )} */}
-
-        {/* {hasDiscount && (
+        
+        {/* Position Badge */}
+        {employee.position && (
           <Chip
-            label={`-${discountPercent}%`}
+            label={employee.position}
             size="small"
+            color="primary"
             sx={{
               position: "absolute",
-              top: 12,
-              right: 12,
-              backgroundColor: theme.palette.error.main,
-              color: theme.palette.error.contrastText,
-              fontWeight: 700,
-              fontSize: "0.875rem",
-              height: 28,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              bottom: 12,
+              left: 12,
+              fontWeight: 600,
+              backdropFilter: "blur(4px)",
+              backgroundColor: `${theme.palette.primary.main}e6`,
             }}
           />
-        )} */}
-
-        {/* {employee.colorOfEmployee && (
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 8,
-              backgroundColor: employee.colorOfEmployee,
-              boxShadow: `0 -2px 8px ${employee.colorOfEmployee}40`,
-            }}
-          />
-        )} */}
+        )}
       </Box>
 
       {/* Card Content */}
-      <CardContent
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          p: 2.5,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 2,
-            mb: 1,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              color: theme.palette.text.primary,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              flexGrow: 1,
-            }}
-          >
-            {employee.name}
-          </Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 0.5,
-              flexShrink: 0,
-            }}
-          >
+      <CardContent sx={{ flexGrow: 1, p: 2.5, display: "flex", flexDirection: "column" }}>
+        {/* Name and Status Toggle */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+              {employee.name} {employee.surname}
+            </Typography>
+            {employee.nickname && (
+              <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
+                ({employee.nickname})
+              </Typography>
+            )}
+          </Box>
+          
+          <Box sx={{ textAlign: "center" }}>
             <Switch
-              checked={typeof employee.isActive === 'string' ? Boolean(employee.isActive) : employee.isActive}
+              checked={employee.isActive}
               onChange={handleToggleChange}
               size="small"
-              sx={{
-                "& .MuiSwitch-switchBase.Mui-checked": {
-                  color: theme.palette.success.main,
-                },
-                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                  backgroundColor: theme.palette.success.main,
-                },
-              }}
+              color="success"
             />
             <Typography
               variant="caption"
-              sx={{
-                fontWeight: 600,
-                fontSize: "0.65rem",
-                color: employee.isActive ? theme.palette.success.main : theme.palette.text.secondary,
-              }}
+              display="block"
+              sx={{ fontWeight: 600, color: employee.isActive ? "success.main" : "text.secondary" }}
             >
-              {employee.isActive ? "เปิด" : "ปิด"}
+              {employee.isActive ? "พร้อมงาน" : "ไม่พร้อม"}
             </Typography>
           </Box>
         </Box>
 
-        {/* {employee.colorOfEmployee && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              mb: 1.5,
-            }}
-          >
-            <Box
-              sx={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                backgroundColor: employee.colorOfEmployee,
-                border: `2px solid ${theme.palette.background.paper}`,
-                boxShadow: `0 0 0 1px ${theme.palette.divider}`,
-              }}
-            />
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-              สีประจำบริการ
-            </Typography>
-          </Box>
-        )} */}
+        {/* Contact Info (Quick View) */}
+        <Stack direction="row" spacing={2} sx={{ mb: 2, color: "text.secondary" }}>
+          {employee.email && (
+            <Tooltip title={employee.email}>
+              <EmailIcon sx={{ fontSize: 18 }} />
+            </Tooltip>
+          )}
+          {employee.phone && (
+            <Tooltip title={employee.phone}>
+              <PhoneIcon sx={{ fontSize: 18 }} />
+            </Tooltip>
+          )}
+        </Stack>
 
-        {/* Employee Description */}
+        {/* Note / Description */}
         <Typography
           variant="body2"
           sx={{
             color: theme.palette.text.secondary,
             mb: 2,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            minHeight: 40,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
-            minHeight: 40,
-            flexGrow: 1,
+            overflow: "hidden",
           }}
         >
-          {employee.note || "ไม่มีคำอธิบาย"}
+          {employee.note || "ไม่มีบันทึกเพิ่มเติม"}
         </Typography>
 
-        {/* Employee Details */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2 }}>
-          {/* Duration */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <ScheduleIcon sx={{ fontSize: 18, color: theme.palette.secondary.main }} />
-            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-              {/* {employee.durationMinutes} นาที
-              {employee.bufferTime > 0 && (
-                <Typography component="span" variant="caption" sx={{ ml: 0.5, color: theme.palette.text.secondary }}>
-                  (+ {employee.bufferTime} นาที บัฟเฟอร์)
-                </Typography>
-              )} */}
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* {hasDiscount ? (
-              <>
-                <OfferIcon sx={{ fontSize: 18, color: theme.palette.error.main }} />
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
-                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: theme.palette.error.main,
-                        fontWeight: 700,
-                      }}
-                    >
-                      ฿{finalPrice.toLocaleString()}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        textDecoration: "line-through",
-                        color: theme.palette.text.disabled,
-                      }}
-                    >
-                      ฿{employee.price.toLocaleString()}
-                    </Typography>
-                  </Box>
-                  <Chip
-                    label={`ลด ${discountPercent}%`}
-                    size="small"
-                    sx={{
-                      height: 22,
-                      fontSize: "0.7rem",
-                      backgroundColor: theme.palette.error.main,
-                      color: theme.palette.error.contrastText,
-                      fontWeight: 600,
-                    }}
-                  />
-                </Box>
-              </>
-            ) : (
-              <>
-                <MoneyIcon sx={{ fontSize: 18, color: theme.palette.success.main }} />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: theme.palette.text.primary,
-                    fontWeight: 700,
-                  }}
-                >
-                  ฿{employee.price.toLocaleString()}
-                </Typography>
-              </>
-            )} */}
-          </Box>
-        </Box>
-
-        {/* Staff Members */}
+        {/* Responsible Services */}
         {employee.services && employee.services.length > 0 && (
           <Box sx={{ mb: 2 }}>
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: "block", mb: 1 }}>
-              พนักงาน:
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, mb: 1, display: "block" }}>
+              บริการที่รับผิดชอบ:
             </Typography>
-            <AvatarGroup
-              max={4}
-              sx={{
-                "& .MuiAvatar-root": {
-                  width: 32,
-                  height: 32,
-                  fontSize: "0.875rem",
-                  borderColor: theme.palette.background.paper,
-                },
-              }}
-            >
-              {employee.services.map((services) => (
-                <Tooltip key={services.id} title={services.colorOfService} arrow>
-                  <Avatar
-                    sx={{
-                      bgcolor: theme.palette.secondary.main,
-                    }}
-                  >
-                    {services.name[0]}
-                  </Avatar>
-                </Tooltip>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {employee.services.slice(0, 3).map((service) => (
+                <Chip
+                  key={service.id}
+                  label={service.name}
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontSize: "0.7rem", height: 20 }}
+                />
               ))}
-            </AvatarGroup>
+              {employee.services.length > 3 && (
+                <Typography variant="caption" sx={{ alignSelf: "center", ml: 0.5 }}>
+                  +{employee.services.length - 3}
+                </Typography>
+              )}
+            </Box>
           </Box>
         )}
 
-        {/* Action Buttons */}
+        {/* Footer Actions */}
         <Box
           sx={{
-            display: "flex",
-            gap: 1,
-            justifyContent: "flex-end",
-            pt: 2,
-            borderTop: `1px solid ${theme.palette.divider}`,
             mt: "auto",
+            pt: 2,
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 1,
+            borderTop: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Tooltip title="แก้ไข" arrow>
+          <Tooltip title="แก้ไขข้อมูลพนักงาน">
             <IconButton
               size="small"
               onClick={() => onEdit(employee.id)}
-              sx={{
+              sx={{ 
                 color: theme.palette.primary.main,
-                backgroundColor: `${theme.palette.primary.main}10`,
-                "&:hover": {
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                },
+                bgcolor: `${theme.palette.primary.main}10`,
+                "&:hover": { bgcolor: theme.palette.primary.main, color: "#fff" }
               }}
             >
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="ลบ" arrow>
+          <Tooltip title="ลบพนักงาน">
             <IconButton
               size="small"
               onClick={() => onDelete(employee.id)}
-              sx={{
+              sx={{ 
                 color: theme.palette.error.main,
-                backgroundColor: `${theme.palette.error.main}10`,
-                "&:hover": {
-                  backgroundColor: theme.palette.error.main,
-                  color: theme.palette.error.contrastText,
-                },
+                bgcolor: `${theme.palette.error.main}10`,
+                "&:hover": { bgcolor: theme.palette.error.main, color: "#fff" }
               }}
             >
               <DeleteIcon fontSize="small" />

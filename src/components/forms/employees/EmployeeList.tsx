@@ -10,7 +10,6 @@ import { PaginationMeta } from "@/interfaces/Types"
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Add } from "@mui/icons-material";
-import NotFound from "@/components/shared/NotFound"
 
 
 interface EmployeeListProps {

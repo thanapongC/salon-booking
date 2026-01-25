@@ -41,7 +41,6 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import NotesIcon from "@mui/icons-material/Notes";
-import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
@@ -49,30 +48,22 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import {
-  StaffFormData,
-  DayOfWeek,
-  StaffRole,
-  STAFF_ROLES,
-  DAYS_OF_WEEK,
+  StaffFormData
 } from "@/components/lib/staff";
-import { services } from "@/utils/lib/booking-data";
 import {
   Field,
   FieldProps,
   Form,
   Formik,
   FormikHelpers,
-  useFormikContext,
 } from "formik";
 import {
-  BlockedTime,
   DAY_LABEL,
   Employee,
   EmployeeLeave,
   EmployeeWorkingDay,
   EmployeeWorkingTime,
   initialService,
-  initialWorkingDays,
   LEAVE_TYPE_MAP,
   LEAVE_TYPE_OPTIONS,
 } from "@/interfaces/Store";
@@ -106,7 +97,6 @@ const MenuProps = {
 };
 
 interface StaffFormProps {
-  initialData?: StaffFormData;
   onSubmit: (data: StaffFormData) => void;
   onCancel: () => void;
 }
@@ -114,7 +104,6 @@ interface StaffFormProps {
 const validationSchema = Yup.object().shape({});
 
 export default function StaffForm({
-  initialData,
   onSubmit,
   onCancel,
 }: StaffFormProps) {
@@ -122,7 +111,6 @@ export default function StaffForm({
 
   const {
     setServiceForm,
-    serviceForm,
     serviceEdit,
     setServiceEdit,
     setServiceList,
@@ -133,6 +121,7 @@ export default function StaffForm({
     setEmployeeList,
     employeeForm,
     employeeEdit,
+    setEmployeeEdit,
     setEmployeeForm,
   } = useEmployeeContext();
   const { setNotify, notify, setOpenBackdrop, openBackdrop } =
@@ -281,12 +270,12 @@ export default function StaffForm({
     validateForm(); // บังคับ validate หลังจากรีเซ็ต
     setSubmitting(true); // เริ่มสถานะ Loading/Submitting
 
-    console.log(values);
+    // console.log(values);
 
     // // 2. เรียกใช้ API
     let result;
 
-    if (!serviceEdit) {
+    if (!employeeEdit) {
       result = await employeeService.createEmployee(values);
     } else {
       result = await employeeService.updateEmployee(values);
@@ -384,7 +373,7 @@ export default function StaffForm({
                   variant="h1"
                   sx={{ color: theme.palette.primary.main }}
                 >
-                  {initialData ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงานใหม่"}
+                  {employeeEdit ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงานใหม่"}
                 </Typography>
                 <Box>
                   <FormControl
@@ -729,7 +718,7 @@ export default function StaffForm({
                         <LockIcon /> รหัสผ่านสำหรับเข้าสู่ระบบ
                       </Typography>
 
-                      {initialData && (
+                      {employeeEdit && (
                         <Alert severity="info" sx={{ mb: 2 }}>
                           เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน
                         </Alert>
