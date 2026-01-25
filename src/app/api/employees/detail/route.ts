@@ -62,7 +62,12 @@ export async function GET(request: NextRequest) {
         store: { // ดึงข้อมูลร้านค้าพื้นฐาน
             select: { storeName: true, id: true }
         },
-        employee
+        leaves: true,
+        workingDays: {
+          include: {
+            timeSlots: true
+          }
+        }
       }
     });
 
@@ -76,11 +81,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const { password: _, ...employeeWithoutPassword } = employee;
+
     // 7. ตอบกลับสำเร็จ (200 OK)
     return new NextResponse(
       JSON.stringify({
         message: 'ดึงข้อมูลพนักงานสำเร็จ',
-        data: employee,
+        data: employeeWithoutPassword,
       }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
