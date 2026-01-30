@@ -12,11 +12,6 @@ import {
 // components
 import DashboardCard from "@/components/shared/DashboardCard";
 import { useState, Fragment, useEffect } from "react";
-// import AwaitingWithdrawal from "@/components/forms/maintenance/AwaitingWithdrawal";
-// import StartRepairForm from "@/components/forms/maintenance/StartRepairForm";
-// import UpdateRepairStatus from "@/components/forms/maintenance/UpdateRepairStatus";
-// import { DocumentCategory, RepairStatus } from "@prisma/client";
-// import RepairComplete from "@/components/forms/maintenance/RepairComplete";
 import { useBreadcrumbContext } from "@/contexts/BreadcrumbContext";
 
 export default function BookingStepper() {

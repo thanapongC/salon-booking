@@ -18,6 +18,7 @@ interface Step1Props {
 }
 
 export function Step1ServiceSelection({ value, onChange }: Step1Props) {
+
   const theme = useTheme();
 
   return (
@@ -30,7 +31,7 @@ export function Step1ServiceSelection({ value, onChange }: Step1Props) {
           color: "text.primary",
         }}
       >
-        Select your service
+        เลือกบริการ
       </Typography>
       <Typography
         variant="body2"
