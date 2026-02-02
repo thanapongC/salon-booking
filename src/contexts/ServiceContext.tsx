@@ -8,7 +8,6 @@ import {
   // initialservice,
   ServiceList,
 } from "@/interfaces/Store";
-import { faker } from "@faker-js/faker";
 import React, {
   createContext,
   useContext,

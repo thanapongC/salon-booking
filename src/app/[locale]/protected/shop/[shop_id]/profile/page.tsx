@@ -25,7 +25,30 @@ import { Step2ServiceType } from "@/components/forms/booking/step/Step2ServiceTy
 // import { LineLoginButton } from "@/components/booking/line-login-button"
 // import type { BookingData, LineUser } from "@/types/booking"
 
-const steps = ["เลือกบริการ", "เลือกประเภทบริการ", "เลือกพนักงาน", "วันที่-เวลาเข้ารับบริการ", "ข้อมูลติดต่อ"]
+const steps = ["เลือกบริการ", "ประเภทบริการ", "เลือกพนักงาน", "วันที่-เวลานัด", "Contact Info"]
+
+const theme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#262626",
+    },
+    secondary: {
+      main: "#f5f5f5",
+    },
+    background: {
+      default: "#fafafa",
+      paper: "#ffffff",
+    },
+    text: {
+      primary: "#0a0a0a",
+      secondary: "#737373",
+    },
+  },
+  typography: {
+    fontFamily: "var(--font-sans)",
+  },
+})
 
 function NavigationButtons({
   activeStep,
@@ -65,7 +88,7 @@ function NavigationButtons({
           py: { xs: 1, md: 1.25 },
         }}
       >
-        ย้อนกลับ
+        Back
       </Button>
       <Button
         onClick={onNext}
@@ -82,14 +105,14 @@ function NavigationButtons({
         {activeStep === stepsLength - 1 ? (
           <>
             <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-              ยืนยันการจอง
+              Confirm Booking
             </Box>
             <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-              ยืนยัน
+              Confirm
             </Box>
           </>
         ) : (
-          "ต่อไป"
+          "Next"
         )}
       </Button>
     </Box>
@@ -225,6 +248,7 @@ export default function BookingPage() {
   }
 
   return (
+    <ThemeProvider theme={theme}>
       <Box
         sx={{
           minHeight: "100vh",
@@ -258,17 +282,14 @@ export default function BookingPage() {
                 fontSize: { xs: "0.875rem", md: "1rem" },
               }}
             >
-              ทำตามขั้นตอนด้านล่างเพื่อกำหนดเวลานัดหมายรับบริการ
+              Complete the steps below to schedule your service
             </Typography>
           </Box>
 
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", 
-                // lg: "2fr 1fr",
-                lg: "1fr" 
-              },
+              gridTemplateColumns: { xs: "1fr", lg: "2fr 1fr" },
               gap: 4,
             }}
           >
@@ -321,7 +342,7 @@ export default function BookingPage() {
                         color: "text.primary",
                       }}
                     >
-                      ขั้นตอนที่ {activeStep + 1} จาก {steps.length}
+                      Step {activeStep + 1} of {steps.length}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -377,7 +398,7 @@ export default function BookingPage() {
                         color: "text.primary",
                       }}
                     >
-                      ยืนยันการจอง!
+                      Booking Confirmed!
                     </Typography>
                     <Typography
                       variant="body1"
@@ -386,11 +407,11 @@ export default function BookingPage() {
                         mb: 3,
                       }}
                     >
-                      การนัดหมายของคุณได้รับการกำหนดเวลาเรียบร้อยแล้ว อีเมลยืนยันได้ถูกส่งไปยัง{" "}
+                      Your appointment has been successfully scheduled. A confirmation email has been sent to{" "}
                       {/* {bookingData.email}. */}
                     </Typography>
                     <Button onClick={handleReset} variant="contained" size="large">
-                      จองนัดหมายเพิ่มเติม
+                      Book Another Appointment
                     </Button>
                   </Box>
                 ) : (
@@ -416,11 +437,12 @@ export default function BookingPage() {
               </Paper>
             </Box>
 
-            {/* <Box sx={{ display: { xs: "none", lg: "block" } }}>
-              <BookingSummary bookingData={bookingData} />
-            </Box> */}
+            <Box sx={{ display: { xs: "none", lg: "block" } }}>
+              {/* <BookingSummary bookingData={bookingData} /> */}
+            </Box>
           </Box>
         </Container>
       </Box>
+    </ThemeProvider>
   )
 }

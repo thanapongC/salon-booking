@@ -1097,6 +1097,15 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@line/bot-sdk@^10.6.0":
+  version "10.6.0"
+  resolved "https://registry.yarnpkg.com/@line/bot-sdk/-/bot-sdk-10.6.0.tgz#1207f29a2b7866351f81a763852d5167e1818b6f"
+  integrity sha512-4hSpglL/G/cW2JCcohaYz/BS0uOSJNV9IEYdMm0EiPEvDLayoI2hGq2D86uYPQFD2gvgkyhmzdShpWLG3P5r3w==
+  dependencies:
+    "@types/node" "^24.0.0"
+  optionalDependencies:
+    axios "^1.7.4"
+
 "@mui/base@5.0.0-beta.42":
   version "5.0.0-beta.42"
   resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-beta.42.tgz#d70fb479c57a60ce080d0700fe137db8686abe3e"
@@ -2401,6 +2410,13 @@
   dependencies:
     undici-types "~6.21.0"
 
+"@types/node@^24.0.0":
+  version "24.10.9"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-24.10.9.tgz#1aeb5142e4a92957489cac12b07f9c7fe26057d0"
+  integrity sha512-ne4A0IpG3+2ETuREInjPNhUGis1SFjv1d5asp8MzEAGtOZeTeHVDOYqOgqfhvseqg/iXty2hjBf1zAOb7RNiNw==
+  dependencies:
+    undici-types "~7.16.0"
+
 "@types/nodemailer@*":
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-7.0.5.tgz#4109582cf0680a1a69457f66adabb9540c4dd19a"
@@ -2984,6 +3000,15 @@ axe-core@^4.10.0:
   version "4.11.1"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.11.1.tgz#052ff9b2cbf543f5595028b583e4763b40c78ea7"
   integrity sha512-BASOg+YwO2C+346x3LZOeoovTIoTrRqEsqMa6fmfAV0P+U9mFr9NsyOEpiYvFjbc64NMrSswhV50WdXzdb/Z5A==
+
+axios@^1.7.4:
+  version "1.13.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.13.4.tgz#15d109a4817fb82f73aea910d41a2c85606076bc"
+  integrity sha512-1wVkUaAO6WyaYtCkcYCOx12ZgpGf9Zif+qXa4n+oYzK558YryKqiL6UWwd5DqiH3VRW0GYhTZQ/vlgJrCoNQlg==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.4"
+    proxy-from-env "^1.1.0"
 
 axios@^1.7.7:
   version "1.13.3"

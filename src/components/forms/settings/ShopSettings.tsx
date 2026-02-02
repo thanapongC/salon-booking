@@ -30,11 +30,6 @@ import { OpenInNew } from "@mui/icons-material";
 import { QRCodeCanvas } from "qrcode.react";
 import dynamic from "next/dynamic";
 
-const MapPickerClient = dynamic(
-  () => import("../../shared/maps-picker/MapPicker.client"),
-  { ssr: false }
-);
-
 interface ServiceProps {
   viewOnly?: boolean;
 }

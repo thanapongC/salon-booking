@@ -36,7 +36,7 @@ export function Step2ServiceType({ value, onChange }: Step2Props) {
           color: "text.primary",
         }}
       >
-        Select service type
+        เลือกประเภทบริการ
       </Typography>
       <Typography
         variant="body2"
@@ -45,13 +45,13 @@ export function Step2ServiceType({ value, onChange }: Step2Props) {
           color: "text.secondary",
         }}
       >
-        Would you like to book with a specific staff member?
+        คุณต้องการจองกับพนักงานคนใดคนหนึ่งโดยเฉพาะหรือไม่?
       </Typography>
 
       <FormControl component="fieldset" sx={{ width: "100%" }}>
-        <FormLabel component="legend" sx={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>
-          Service Type
-        </FormLabel>
+        {/* <FormLabel component="legend" sx={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>
+          ประเภทบริการ
+        </FormLabel> */}
         <RadioGroup value={value} onChange={handleChange} sx={{ gap: 2 }}>
           <Paper
             elevation={value === "with-staff" ? 3 : 0}
@@ -78,10 +78,10 @@ export function Step2ServiceType({ value, onChange }: Step2Props) {
                   <Users size={24} color={theme.palette.primary.main} />
                   <Box>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "text.primary" }}>
-                      With staff member
+                      เลือกพนักงานเอง
                     </Typography>
                     <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                      Choose your preferred staff member
+                      เลือกพนักงานที่คุณต้องการ
                     </Typography>
                   </Box>
                 </Box>

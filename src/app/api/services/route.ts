@@ -199,8 +199,6 @@ export async function GET(request: NextRequest) {
     // 3. จัดการ Pagination Params
     const { searchParams } = new URL(request.url);
 
-    console.log(searchParams)
-
     // ดึงค่า page และ pageSize จาก Query Parameter
     const page = parseInt(searchParams.get('page') || '1', 10); // หน้าเริ่มต้นที่ 1
     const pageSize = parseInt(searchParams.get('pageSize') || '10', 10); // จำนวนข้อมูลต่อหน้าเริ่มต้นที่ 10
