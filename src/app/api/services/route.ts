@@ -361,27 +361,27 @@ export async function PATCH(request: NextRequest) {
       where: { id: id },
       data: {
         name: name,
-        durationMinutes: typeof durationMinutes === 'string' ? parseInt(durationMinutes) : durationMinutes,
-        price: typeof price === 'string' ? parseFloat(price) : price,
-        discount: typeof discount === 'string' ? parseFloat(discount) : discount,
-        bufferTime: typeof bufferTime === 'string' ? parseFloat(bufferTime) : bufferTime,
-        detail,
-        displayNumber: typeof displayNumber === 'string' ? parseInt(displayNumber) : displayNumber,
-        colorOfService,
-        active: typeof active === 'boolean' ? active : (active === 'true'),
+        // durationMinutes: typeof durationMinutes === 'string' ? parseInt(durationMinutes) : durationMinutes,
+        // price: typeof price === 'string' ? parseFloat(price) : price,
+        // discount: typeof discount === 'string' ? parseFloat(discount) : discount,
+        // bufferTime: typeof bufferTime === 'string' ? parseFloat(bufferTime) : bufferTime,
+        // detail,
+        // displayNumber: typeof displayNumber === 'string' ? parseInt(displayNumber) : displayNumber,
+        // colorOfService,
+        // active: typeof active === 'boolean' ? active : (active === 'true'),
 
-        // ใช้ข้อมูลรูปจาก handleImageUpload
-        imageUrl: _image?.url ?? existingService.imageUrl,
-        imageId: _image?.publicId ?? existingService.imageId,
+        // // ใช้ข้อมูลรูปจาก handleImageUpload
+        // imageUrl: _image?.url ?? existingService.imageUrl,
+        // imageId: _image?.publicId ?? existingService.imageId,
 
         // จัดการความสัมพันธ์พนักงาน
-        employees: {
-          set: employeeConnects, // ลบความเชื่อมโยงเก่าทั้งหมดและใส่ตามที่ส่งมาใหม่
-        },
+        // employees: {
+        //   set: employeeConnects, // ลบความเชื่อมโยงเก่าทั้งหมดและใส่ตามที่ส่งมาใหม่
+        // },
       },
-      include: {
-        employees: { select: { id: true, name: true } }
-      }
+      // include: {
+      //   employees: { select: { id: true, name: true } }
+      // }
     });
 
     return NextResponse.json({

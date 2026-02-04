@@ -10,22 +10,25 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
     try {
 
-        // 3. จัดการ Pagination Params
+        // 1. จัดการ Pagination Params
         const { searchParams } = new URL(request.url);
 
-        // ดึงค่า page และ pageSize จาก Query Parameter
-        const store_username = searchParams.get('store_username'); // หน้าเริ่มต้นที่ 1
+        // 2. ดึงค่า page และ pageSize จาก Query Parameter
+        const store_username = searchParams.get('store_username');
+        const service_id = searchParams.get('service_id') || '695a9cc74ced253d9262c0ca';
 
-        if (!store_username) {
+        console.log('Received service_id:', service_id);
+
+        if (!store_username || !service_id) {
             return new NextResponse(
                 JSON.stringify({
-                    message: 'ไม่พบ Store Username โปรดขอ URL สำหรับจองใหม่จากร้านค้า',
+                    message: 'ไม่พบ Store Username หรือ Service ID โปรดขอ URL สำหรับจองใหม่จากร้านค้า',
                 }),
                 { status: 400 }
             );
         }
 
-        // 2. ค้นหา Store ID ที่ผูกกับ User ID นี้ (Authorization)
+        // 3. ค้นหา Store ID ที่ผูกกับ User ID นี้ (Authorization)
         const store = await prisma.store.findUnique({
             where: {
                 storeUsername: store_username
@@ -42,20 +45,31 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // 4. ดึงข้อมูลบริการและจำนวนรวมด้วย Transaction
-        const services = await prisma.service.findMany({
-            where: { storeId: store.id },
+        // 4. ดึงข้อมูลพนักงานและจำนวนรวมด้วย Transaction
+        const service = await prisma.service.findMany({
+            where: { storeId: store.id, id: service_id },
+            include: {
+                employees: {
+                    include: {
+                        workingDays: {
+                            include: {
+                                timeSlots: true
+                            }
+                        },
+                    }
+                }
+            },
             orderBy: {
                 createdAt: 'desc', // เรียงลำดับจากใหม่ไปเก่า
             }
         })
 
 
-        // 6. ตอบกลับสำเร็จ (200 OK)
+        // 5. ตอบกลับสำเร็จ (200 OK)
         return new NextResponse(
             JSON.stringify({
-                message: 'ดึงรายการบริการสำเร็จ',
-                data: services,
+                message: 'ดึงรายการพนักงานสำเร็จ',
+                data: service,
             }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
@@ -65,7 +79,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Error fetching services with pagination:', error);
 
-        // 7. ตอบกลับเมื่อเกิดข้อผิดพลาดอื่น (500 Internal Server Error)
+        // 6. ตอบกลับเมื่อเกิดข้อผิดพลาดอื่น (500 Internal Server Error)
         return new NextResponse(
             JSON.stringify({
                 message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์ในการดึงรายการบริการ'

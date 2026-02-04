@@ -29,12 +29,10 @@ export function Step2ServiceType({
   const { setBookingForm, bookingForm } = useBookingContext();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.value)
     setBookingForm((prevState) => ({
       ...prevState,
         needSelectEmployee: event.target.value as unknown as AllowSelectEmpType
     }));
-    console.log(bookingForm)
   }
 
   return (

@@ -1,7 +1,22 @@
-"use client"
-import { staffMembers } from "@/utils/lib/booking-data"
-import { Typography, Box, Card, CardContent, Avatar, Chip, useTheme } from "@mui/material"
-import { Check } from "lucide-react"
+"use client";
+import { useBookingContext } from "@/contexts/BookingContext";
+import { useEmployeeContext } from "@/contexts/EmployeeContext";
+import { useNotifyContext } from "@/contexts/NotifyContext";
+import { staffMembers } from "@/utils/lib/booking-data";
+import APIServices from "@/utils/services/APIServices";
+import {
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  Avatar,
+  Chip,
+  useTheme,
+  CircularProgress,
+} from "@mui/material";
+import { Check } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 // import { staffMembers } from "@/lib/booking-data"
 
 interface Step3Props {
@@ -10,9 +25,56 @@ interface Step3Props {
   // serviceType?: "with-staff" | "without-staff"
 }
 
-export function Step3StaffSelection({ }: Step3Props) {
-  
-  const theme = useTheme()
+export function Step3EmployeeSelection({}: Step3Props) {
+  const params = useParams<{ shop_id: string }>();
+
+  const theme = useTheme();
+  const { setEmployees, employees } = useEmployeeContext();
+  const { setBookingForm, bookingForm } = useBookingContext();
+  const { setNotify } = useNotifyContext();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const getEmployee = async () => {
+    try {
+      setLoading(true);
+      let data: any = await APIServices.get(
+        // `/api/employee/public/?store_username=${params.shop_id}&service_id=${bookingForm.serviceId}`,
+        `/api/employees/public/?store_username=${params.shop_id}&service_id=695b3f58c8cdfac414cc9335`,
+      );
+      console.log(data)
+      setEmployees(data.data);
+    } catch (error: any) {
+      setNotify({
+        open: true,
+        message: error.code,
+        color: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getEmployee();
+    return () => {
+      setEmployees([]);
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 400,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   // if (serviceType === "without-staff") {
   //   return (
@@ -90,7 +152,10 @@ export function Step3StaffSelection({ }: Step3Props) {
                   {staff.name.charAt(0)}
                 </Avatar>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "text.primary" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 600, color: "text.primary" }}
+                  >
                     {staff.name}
                   </Typography>
                   <Chip
@@ -123,5 +188,5 @@ export function Step3StaffSelection({ }: Step3Props) {
         ))}
       </Box>
     </Box>
-  )
+  );
 }

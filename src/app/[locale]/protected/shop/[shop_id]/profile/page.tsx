@@ -18,7 +18,7 @@ import {
 import { ArrowRight, ArrowLeft, Check } from "lucide-react"
 import { Step1ServiceSelection } from "@/components/forms/booking/step/Step1ServiceSelection"
 import { Step5ContactInfo } from "@/components/forms/booking/step/Step5ContactInfo"
-import { Step3StaffSelection } from "@/components/forms/booking/step/Step3StaffSelection"
+import { Step3EmployeeSelection } from "@/components/forms/booking/step/Step3EmployeeSelection"
 import { Step4DateTime } from "@/components/forms/booking/step/Step4DateTime"
 import { Step2ServiceType } from "@/components/forms/booking/step/Step2ServiceType"
 
@@ -117,6 +117,7 @@ function NavigationButtons({
 }
 
 export default function BookingPage() {
+
   const [activeStep, setActiveStep] = useState(0)
   // const [lineUser, setLineUser] = useState<LineUser | null>(null)
   // const [bookingData, setBookingData] = useState<BookingData>({
@@ -212,7 +213,7 @@ export default function BookingPage() {
         )
       case 2:
         return (
-          <Step3StaffSelection
+          <Step3EmployeeSelection
             // value={bookingData.staff}
             // onChange={(value) => setBookingData({ ...bookingData, staff: value })}
             // serviceType={bookingData.serviceType}

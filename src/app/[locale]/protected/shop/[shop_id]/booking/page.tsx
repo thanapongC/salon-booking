@@ -16,10 +16,10 @@ import {
   LinearProgress,
   CircularProgress,
 } from "@mui/material";
-import { ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { Step1ServiceSelection } from "@/components/forms/booking/step/Step1ServiceSelection";
 import { Step5ContactInfo } from "@/components/forms/booking/step/Step5ContactInfo";
-import { Step3StaffSelection } from "@/components/forms/booking/step/Step3StaffSelection";
+import { Step3EmployeeSelection } from "@/components/forms/booking/step/Step3EmployeeSelection";
 import { Step4DateTime } from "@/components/forms/booking/step/Step4DateTime";
 import { Step2ServiceType } from "@/components/forms/booking/step/Step2ServiceType";
 import { useNotifyContext } from "@/contexts/NotifyContext";
@@ -174,7 +174,7 @@ export default function BookingPage() {
       case 1:
         return <Step2ServiceType />;
       case 2:
-        return <Step3StaffSelection />;
+        return <Step3EmployeeSelection />;
       case 3:
         return (
           <Step4DateTime

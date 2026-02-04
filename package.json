@@ -20,6 +20,7 @@
     "@mui/x-charts": "^8.18.0",
     "@mui/x-data-grid": "^7.21.0",
     "@mui/x-date-pickers": "^7.23.3",
+    "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "6.17.1",
     "@react-google-maps/api": "^2.20.8",
     "@react-pdf/renderer": "^3.4.4",
