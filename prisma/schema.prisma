@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Changed from mongodb
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -16,7 +16,7 @@ model User {
   isEmailVerified Boolean    @default(false)
 
   role   Role?   @relation(fields: [roleId], references: [roleId])
-  roleId String? 
+  roleId String?
 
   store Store?
 
@@ -39,17 +39,17 @@ model VerificationToken {
 }
 
 model Role {
-  roleId      String     @id @default(uuid())
-  name        RoleName   @unique
+  roleId      String   @id @default(uuid())
+  name        RoleName @unique
   description String?
-  
+
   // Relations
-  employees   Employee[]
-  users       User[]
-  customers   Customer[]
-  
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  employees Employee[]
+  users     User[]
+  customers Customer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Customer {
@@ -124,7 +124,7 @@ model Service {
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   // Many-to-Many in Postgres requires an implicit or explicit join table
-  employees Employee[] 
+  employees Employee[]
 
   bookings Booking[]
 
