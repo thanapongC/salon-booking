@@ -23,27 +23,41 @@ import FiberNewIcon from "@mui/icons-material/FiberNew";
 import BlockIcon from "@mui/icons-material/Block";
 
 const Services = () => {
-  
+
   const router = useRouter();
   const localActive = useLocale();
 
   const { setBreadcrumbs } = useBreadcrumbContext();
 
-   const theme = useTheme();
+  const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterType, setFilterType] = useState<CustomerType>("all");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerData | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Debounce search - ค้นหาเมื่อพิมพ์อย่างน้อย 3 ตัว หรือเคลียร์ search
+  useEffect(() => {
+    const shouldSearch = searchQuery === '' || searchQuery.length >= 3;
+
+    if (shouldSearch) {
+      const timeoutId = setTimeout(() => {
+        setDebouncedSearch(searchQuery);
+      }, searchQuery === '' ? 0 : 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchQuery]);
+
   const filteredCustomers = useMemo(() => {
     return mockCustomers.filter((customer) => {
-      // Search filter
-      const searchLower = searchQuery.toLowerCase();
+      // Search filter - ใช้ debouncedSearch แทน searchQuery
+      const searchLower = debouncedSearch.toLowerCase();
       const matchesSearch =
-        searchQuery === "" ||
+        debouncedSearch === "" ||
         customer.firstName.toLowerCase().includes(searchLower) ||
         customer.lastName.toLowerCase().includes(searchLower) ||
-        customer.phone.includes(searchQuery) ||
+        customer.phone.includes(debouncedSearch) ||
         customer.lineId?.toLowerCase().includes(searchLower) ||
         customer.nickname?.toLowerCase().includes(searchLower);
 
@@ -59,7 +73,7 @@ const Services = () => {
 
       return matchesSearch && matchesType;
     });
-  }, [searchQuery, filterType]);
+  }, [debouncedSearch, filterType]);
 
   const stats = useMemo(() => {
     const total = mockCustomers.length;
@@ -88,101 +102,101 @@ const Services = () => {
 
   return (
     <PageContainer title="" description="">
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: theme.palette.grey[50],
-        p: { xs: 2, md: 4 },
-      }}
-    >
-      {/* Header */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 4,
+          minHeight: "100vh",
+          bgcolor: theme.palette.grey[50],
+          p: { xs: 2, md: 4 },
         }}
       >
-        <Box>
-          <Typography variant="h4" fontWeight="bold" color="primary">
-            จัดการลูกค้า
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ดูข้อมูลและประวัติการใช้บริการของลูกค้า
-          </Typography>
-        </Box>
-        {/* <Button
+        {/* Header */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
+          <Box>
+            <Typography variant="h4" fontWeight="bold" color="primary">
+              จัดการลูกค้า
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ดูข้อมูลและประวัติการใช้บริการของลูกค้า
+            </Typography>
+          </Box>
+          {/* <Button
           variant="contained"
           startIcon={<PersonAddIcon />}
           sx={{ borderRadius: 2 }}
         >
           เพิ่มลูกค้าใหม่
         </Button> */}
+        </Box>
+
+        {/* Stats Overview */}
+        <Grid2 container spacing={2} sx={{ mb: 4 }}>
+          <Grid2 size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              title="ลูกค้าทั้งหมด"
+              value={stats.total}
+              icon={<PersonIcon />}
+              color={theme.palette.primary.main}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              title="ลูกค้าประจำ"
+              value={stats.regular}
+              icon={<StarIcon />}
+              color="#FFD700"
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              title="ลูกค้าใหม่"
+              value={stats.newCustomers}
+              icon={<FiberNewIcon />}
+              color={theme.palette.success.main}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              title="Blacklist"
+              value={stats.blacklisted}
+              icon={<BlockIcon />}
+              color={theme.palette.error.main}
+            />
+          </Grid2>
+        </Grid2>
+
+        {/* Filters */}
+        <CustomerFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          // filterType={filterType}
+          // onFilterTypeChange={setFilterType}
+          filteredCount={filteredCustomers.length}
+          totalCount={mockCustomers.length}
+        />
+
+        {/* Customer Table */}
+        <CustomerTable
+          customers={filteredCustomers}
+          onViewCustomer={handleViewCustomer}
+        />
+
+        {/* Customer Detail Dialog */}
+        <CustomerDetailDialog
+          customer={selectedCustomer}
+          open={dialogOpen}
+          onClose={() => {
+            setDialogOpen(false);
+            setSelectedCustomer(null);
+          }}
+        />
       </Box>
-
-      {/* Stats Overview */}
-      <Grid2 container spacing={2} sx={{ mb: 4 }}>
-        <Grid2 size={{ xs: 6, sm: 3 }}>
-          <StatCard
-            title="ลูกค้าทั้งหมด"
-            value={stats.total}
-            icon={<PersonIcon />}
-            color={theme.palette.primary.main}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 6, sm: 3 }}>
-          <StatCard
-            title="ลูกค้าประจำ"
-            value={stats.regular}
-            icon={<StarIcon />}
-            color="#FFD700"
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 6, sm: 3 }}>
-          <StatCard
-            title="ลูกค้าใหม่"
-            value={stats.newCustomers}
-            icon={<FiberNewIcon />}
-            color={theme.palette.success.main}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 6, sm: 3 }}>
-          <StatCard
-            title="Blacklist"
-            value={stats.blacklisted}
-            icon={<BlockIcon />}
-            color={theme.palette.error.main}
-          />
-        </Grid2>
-      </Grid2>
-
-      {/* Filters */}
-      <CustomerFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        // filterType={filterType}
-        // onFilterTypeChange={setFilterType}
-        filteredCount={filteredCustomers.length}
-        totalCount={mockCustomers.length}
-      />
-
-      {/* Customer Table */}
-      <CustomerTable
-        customers={filteredCustomers}
-        onViewCustomer={handleViewCustomer}
-      />
-
-      {/* Customer Detail Dialog */}
-      <CustomerDetailDialog
-        customer={selectedCustomer}
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setSelectedCustomer(null);
-        }}
-      />
-    </Box>
     </PageContainer>
   );
 };

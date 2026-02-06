@@ -51,6 +51,7 @@ const Booking = () => {
     staffId: "",
   });
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedBooking, setSelectedBooking] = useState<BookingRecord | null>(
@@ -58,15 +59,29 @@ const Booking = () => {
   );
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
+  // Debounce search - ค้นหาเมื่อพิมพ์อย่างน้อย 3 ตัว หรือเคลียร์ search
+  useEffect(() => {
+    const shouldSearch = filters.search === '' || filters.search.length >= 3;
+
+    if (shouldSearch) {
+      const timeoutId = setTimeout(() => {
+        setDebouncedSearch(filters.search);
+        setPage(0); // Reset to first page
+      }, filters.search === '' ? 0 : 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [filters.search]);
+
   // Filter bookings
   const filteredBookings = useMemo(() => {
     return mockBookings.filter((booking) => {
-      // Search filter
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
+      // Search filter - ใช้ debouncedSearch แทน filters.search
+      if (debouncedSearch) {
+        const searchLower = debouncedSearch.toLowerCase();
         const matchesSearch =
           booking.customerName.toLowerCase().includes(searchLower) ||
-          booking.customerPhone.includes(filters.search) ||
+          booking.customerPhone.includes(debouncedSearch) ||
           booking.service.toLowerCase().includes(searchLower) ||
           booking.id.toLowerCase().includes(searchLower);
         if (!matchesSearch) return false;
@@ -102,7 +117,7 @@ const Booking = () => {
 
       return true;
     });
-  }, [filters]);
+  }, [debouncedSearch, filters.status, filters.channel, filters.staffId, filters.dateFrom, filters.dateTo]);
 
   // Pagination
   const paginatedBookings = useMemo(() => {

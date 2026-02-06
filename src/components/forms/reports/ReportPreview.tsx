@@ -15,9 +15,11 @@ import {
   useTheme,
   useMediaQuery,
   Paper,
+  TablePagination,
 } from '@mui/material'
 import PreviewIcon from '@mui/icons-material/Preview'
 import { ReportDataRow } from '@/components/lib/reports'
+import { useState, useMemo } from 'react'
 
 interface ReportPreviewProps {
   data: ReportDataRow[]
@@ -26,6 +28,8 @@ interface ReportPreviewProps {
 export default function ReportPreview({ data }: ReportPreviewProps) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -46,8 +50,20 @@ export default function ReportPreview({ data }: ReportPreviewProps) {
       : { bg: theme.palette.grey[100], text: theme.palette.text.secondary, label: 'เก่า' }
   }
 
-  // Show only first 10 rows for preview
-  const previewData = data.slice(0, 10)
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
+
+  // Paginated data
+  const paginatedData = useMemo(() => {
+    const start = page * rowsPerPage
+    return data.slice(start, start + rowsPerPage)
+  }, [data, page, rowsPerPage])
 
   if (isMobile) {
     return (
@@ -65,7 +81,7 @@ export default function ReportPreview({ data }: ReportPreviewProps) {
             />
           </Box>
 
-          {previewData.map((row) => {
+          {paginatedData.map((row) => {
             const statusInfo = getStatusColor(row.status)
             const customerInfo = getCustomerTypeColor(row.customerType)
             return (
@@ -104,11 +120,18 @@ export default function ReportPreview({ data }: ReportPreviewProps) {
             )
           })}
 
-          {data.length > 10 && (
-            <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: theme.palette.text.secondary }}>
-              แสดง 10 จาก {data.length} รายการ
-            </Typography>
-          )}
+          <TablePagination
+            component="div"
+            count={data.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            labelRowsPerPage="แสดง:"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} จาก ${count}`}
+            sx={{ mt: 2 }}
+          />
         </CardContent>
       </Card>
     )
@@ -143,7 +166,7 @@ export default function ReportPreview({ data }: ReportPreviewProps) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {previewData.map((row) => {
+              {paginatedData.map((row) => {
                 const statusInfo = getStatusColor(row.status)
                 const customerInfo = getCustomerTypeColor(row.customerType)
                 return (
@@ -178,11 +201,18 @@ export default function ReportPreview({ data }: ReportPreviewProps) {
           </Table>
         </TableContainer>
 
-        {data.length > 10 && (
-          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: theme.palette.text.secondary }}>
-            แสดง 10 จาก {data.length} รายการ (Preview)
-          </Typography>
-        )}
+        <TablePagination
+          component="div"
+          count={data.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+          labelRowsPerPage="แสดง:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} จาก ${count}`}
+          sx={{ borderTop: `1px solid ${theme.palette.divider}`, mt: 2 }}
+        />
       </CardContent>
     </Card>
   )
